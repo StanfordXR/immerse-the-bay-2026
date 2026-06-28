@@ -1,0 +1,30 @@
+"use client";
+
+import { HACKATHON_STATS } from "@/data/stats";
+import type { HackathonStat } from "@/data/types";
+import { Container } from "@/components/ui/Container";
+
+function StatCell({ stat }: { stat: HackathonStat }) {
+  return (
+    <div className="flex min-h-[5.5rem] flex-col items-center justify-center bg-void/85 px-4 py-5 text-center backdrop-blur-md sm:min-h-[6rem] sm:px-6">
+      <span className="font-mono text-2xl font-semibold tracking-tight text-neon-cyan sm:text-3xl">
+        {stat.value}
+      </span>
+      <span className="mt-1.5 text-[0.65rem] font-medium uppercase tracking-[0.18em] text-foreground/45 sm:text-xs">
+        {stat.label}
+      </span>
+    </div>
+  );
+}
+
+export function StatsBar() {
+  return (
+    <Container aria-label="Hackathon highlights">
+      <div className="grid grid-cols-2 gap-px border border-white/10 bg-white/10 sm:grid-cols-4">
+        {HACKATHON_STATS.map((stat) => (
+          <StatCell key={stat.id} stat={stat} />
+        ))}
+      </div>
+    </Container>
+  );
+}

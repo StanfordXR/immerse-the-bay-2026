@@ -43,13 +43,13 @@ export function PlaceholderScene() {
       />
 
       {/* Ambient glow orbs */}
-      <div className="absolute -left-1/4 top-1/4 h-[50vh] w-[50vh] rounded-full bg-neon-purple/20 blur-[120px]" />
+      <div className="absolute -left-1/4 top-1/4 h-[50vh] w-[50vh] bg-neon-purple/25 blur-[120px]" />
       <motion.div
-        className="absolute -right-1/4 bottom-1/4 h-[40vh] w-[40vh] rounded-full bg-neon-magenta/15 blur-[100px]"
+        className="absolute -right-1/4 bottom-1/4 h-[40vh] w-[40vh] bg-neon-violet/20 blur-[100px]"
         animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0.8, 0.5] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
       />
-      <div className="absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-neon-cyan/5 blur-[80px]" />
+      <div className="absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 bg-neon-fuchsia/8 blur-[80px]" />
 
       {/* Perspective grid floor */}
       <div className="hero-grid absolute inset-0 opacity-40" />
@@ -65,7 +65,7 @@ export function PlaceholderScene() {
       {PARTICLES.map((p) => (
         <motion.span
           key={p.id}
-          className="absolute rounded-full bg-neon-purple/60 shadow-glow-purple"
+          className="absolute bg-neon-purple-light/60 shadow-glow-purple"
           style={{
             left: p.left,
             top: p.top,
@@ -89,7 +89,7 @@ export function PlaceholderScene() {
       {VOXELS.map((v) => (
         <motion.div
           key={v.id}
-          className="absolute border border-neon-purple/30 bg-neon-purple/5 shadow-glow-purple"
+          className="absolute border border-neon-purple-light/30 bg-neon-purple/10 shadow-glow"
           style={{
             left: v.left,
             bottom: v.bottom,
@@ -112,7 +112,7 @@ export function PlaceholderScene() {
 
       {/* Horizon line glow */}
       <motion.div
-        className="absolute bottom-[18%] left-0 right-0 h-px bg-gradient-to-r from-transparent via-neon-purple/60 to-transparent"
+        className="absolute bottom-[18%] left-0 right-0 h-px bg-gradient-to-r from-transparent via-neon-purple-light/60 to-transparent"
         animate={{ opacity: [0.3, 0.8, 0.3] }}
         transition={{ duration: 4, repeat: Infinity }}
       />

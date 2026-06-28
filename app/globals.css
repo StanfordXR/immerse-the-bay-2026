@@ -1,66 +1,78 @@
 @import "tailwindcss";
 
 :root {
-  --void: #050508;
-  --surface: #0f0f14;
-  --foreground: #f4f0ff;
-  --muted: #9b94b8;
-  --neon-purple: #a855f7;
+  --void: #06040c;
+  --navy: #0e0818;
+  --surface: #160f24;
+  --foreground: #f0eaff;
+  --muted: #9d8fb8;
+  --neon-violet: #7c3aed;
+  --neon-purple: #9333ea;
   --neon-purple-light: #c084fc;
-  --neon-magenta: #d946ef;
-  --neon-cyan: #22d3ee;
+  --neon-fuchsia: #d946ef;
   --background: var(--void);
 }
 
 @theme inline {
   --color-void: var(--void);
+  --color-navy: var(--navy);
   --color-surface: var(--surface);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
+  --color-neon-violet: var(--neon-violet);
   --color-neon-purple: var(--neon-purple);
   --color-neon-purple-light: var(--neon-purple-light);
-  --color-neon-magenta: var(--neon-magenta);
-  --color-neon-cyan: var(--neon-cyan);
+  --color-neon-fuchsia: var(--neon-fuchsia);
+  /* accent aliases used across components */
+  --color-neon-blue: var(--neon-purple);
+  --color-neon-cyan: var(--neon-purple-light);
+  --color-neon-indigo: var(--neon-violet);
   --color-background: var(--background);
-  --font-sans: var(--font-dm-sans), system-ui, sans-serif;
-  --font-display: var(--font-orbitron), system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
-  --shadow-glow-purple: 0 0 24px rgb(168 85 247 / 0.35);
-  --shadow-glow-purple-lg: 0 0 48px rgb(168 85 247 / 0.45);
+  --shadow-glow: 0 0 24px rgb(147 51 234 / 0.35);
+  --shadow-glow-cyan: 0 0 32px rgb(192 132 252 / 0.28);
+  --shadow-glow-purple: 0 0 36px rgb(124 58 237 / 0.4);
+  --animate-marquee-rtl: marquee-rtl 40s linear infinite;
 }
 
 html {
   scroll-behavior: smooth;
 }
 
-body {
-  background: var(--void);
-  color: var(--foreground);
-  font-family: var(--font-dm-sans), system-ui, sans-serif;
+*,
+*::before,
+*::after {
+  border-radius: 0 !important;
+}
+
+@layer base {
+  body {
+    background: var(--void);
+    color: var(--foreground);
+    font-family: var(--font-share-tech-mono), ui-monospace, monospace;
+  }
 }
 
 ::selection {
-  background: rgb(168 85 247 / 0.35);
+  background: rgb(147 51 234 / 0.4);
   color: #fff;
 }
 
-/* Hero background utilities */
 .bg-hero-gradient {
   background: linear-gradient(
-    135deg,
-    #050508 0%,
-    #0a0612 25%,
-    #12081f 50%,
-    #0a0612 75%,
-    #050508 100%
+    160deg,
+    #06040c 0%,
+    #0e0818 28%,
+    #1a0f2e 52%,
+    #2e1065 78%,
+    #06040c 100%
   );
 }
 
 .bg-section-glow {
   background: radial-gradient(
-    ellipse 80% 50% at 50% 0%,
-    rgb(168 85 247 / 0.08),
-    transparent 70%
+    ellipse 70% 45% at 50% 0%,
+    rgb(124 58 237 / 0.12),
+    transparent 65%
   );
 }
 
@@ -68,8 +80,8 @@ body {
   background: radial-gradient(
     ellipse at center,
     transparent 0%,
-    rgb(5 5 8 / 0.4) 50%,
-    rgb(5 5 8 / 0.85) 100%
+    rgb(6 4 12 / 0.55) 55%,
+    rgb(6 4 12 / 0.92) 100%
   );
 }
 
@@ -78,37 +90,85 @@ body {
     0deg,
     transparent,
     transparent 2px,
-    rgb(255 255 255 / 0.03) 2px,
-    rgb(255 255 255 / 0.03) 4px
+    rgb(255 255 255 / 0.02) 2px,
+    rgb(255 255 255 / 0.02) 4px
   );
   background-size: 100% 4px;
 }
 
 .hero-grid {
   background-image:
-    linear-gradient(rgb(168 85 247 / 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(168 85 247 / 0.08) 1px, transparent 1px);
+    linear-gradient(rgb(147 51 234 / 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(192 132 252 / 0.06) 1px, transparent 1px);
   background-size: 48px 48px;
-  mask-image: linear-gradient(to bottom, transparent, black 30%, black 70%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, black 25%, black 75%, transparent);
   transform: perspective(500px) rotateX(60deg) scale(2);
   transform-origin: center bottom;
-  animation: grid-drift 20s linear infinite;
+  animation: grid-drift 24s linear infinite;
 }
 
 @keyframes grid-drift {
-  0% {
-    background-position: 0 0;
-  }
-  100% {
+  to {
     background-position: 48px 48px;
   }
 }
 
-/* Tailwind v4 custom utilities */
+@keyframes marquee-rtl {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee-rtl {
+    animation: none;
+  }
+
+  .animate-gallery-marquee {
+    animation: none;
+  }
+}
+
+@utility animate-marquee-rtl {
+  animation: marquee-rtl 40s linear infinite;
+}
+
+@keyframes gallery-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@utility animate-gallery-marquee {
+  animation: gallery-marquee 88s linear infinite;
+}
+
+@utility shadow-glow {
+  box-shadow: var(--shadow-glow);
+}
+
+@utility shadow-glow-cyan {
+  box-shadow: var(--shadow-glow-cyan);
+}
+
 @utility shadow-glow-purple {
   box-shadow: var(--shadow-glow-purple);
 }
 
-@utility shadow-glow-purple-lg {
-  box-shadow: var(--shadow-glow-purple-lg);
+@utility font-hero-title {
+  font-family: var(--font-dystopian), system-ui, sans-serif;
+}
+
+@utility font-sans {
+  font-family: var(--font-share-tech-mono), ui-monospace, monospace;
+}
+
+@utility font-mono {
+  font-family: var(--font-share-tech-mono), ui-monospace, monospace;
 }

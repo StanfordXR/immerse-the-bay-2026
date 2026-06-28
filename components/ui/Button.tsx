@@ -12,13 +12,13 @@ interface ButtonProps {
   className?: string;
 }
 
-const variantStyles: Record<ButtonVariant, string> = {
+const styles: Record<ButtonVariant, string> = {
   primary:
-    "bg-neon-purple/90 text-white border-neon-purple shadow-glow-purple hover:bg-neon-purple hover:shadow-glow-purple-lg",
+    "border-neon-purple-light/60 bg-gradient-to-r from-neon-violet/80 to-neon-purple/80 text-white shadow-glow hover:shadow-glow-purple",
   secondary:
-    "bg-surface/60 text-foreground border-neon-purple/40 backdrop-blur-md hover:border-neon-purple/70 hover:shadow-glow-purple",
+    "border-neon-purple/40 bg-surface/50 text-foreground backdrop-blur-md hover:border-neon-purple-light/60 hover:shadow-glow",
   ghost:
-    "bg-transparent text-muted border-white/10 hover:border-neon-purple/50 hover:text-foreground",
+    "border-white/10 bg-transparent text-muted hover:border-neon-violet/40 hover:text-foreground",
 };
 
 export function Button({
@@ -30,11 +30,11 @@ export function Button({
   return (
     <motion.a
       href={href}
-      whileHover={{ scale: 1.03, y: -2 }}
+      whileHover={{ scale: 1.02, y: -1 }}
       whileTap={{ scale: 0.98 }}
       className={cn(
-        "inline-flex items-center justify-center rounded-lg border px-5 py-2.5 text-sm font-semibold tracking-wide transition-colors duration-300",
-        variantStyles[variant],
+        "inline-flex items-center justify-center border px-6 py-3 text-sm font-semibold tracking-wide transition-shadow duration-300",
+        styles[variant],
         className,
       )}
     >

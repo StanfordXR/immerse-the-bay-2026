@@ -8,23 +8,23 @@ interface SectionHeadingProps {
   eyebrow?: string;
   title: string;
   description?: string;
-  className?: string;
   align?: "left" | "center";
+  className?: string;
 }
 
 export function SectionHeading({
   eyebrow,
   title,
   description,
-  className,
   align = "center",
+  className,
 }: SectionHeadingProps) {
   return (
-    <motion.div
+    <motion.header
       variants={fadeUp}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-80px" }}
+      viewport={{ once: true, margin: "-60px" }}
       className={cn(
         "mb-12 max-w-2xl",
         align === "center" && "mx-auto text-center",
@@ -32,11 +32,11 @@ export function SectionHeading({
       )}
     >
       {eyebrow && (
-        <p className="mb-3 font-mono text-xs uppercase tracking-[0.25em] text-neon-purple">
+        <p className="mb-3 font-mono text-xs uppercase tracking-[0.22em] text-neon-cyan">
           {eyebrow}
         </p>
       )}
-      <h2 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+      <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
         {title}
       </h2>
       {description && (
@@ -44,6 +44,6 @@ export function SectionHeading({
           {description}
         </p>
       )}
-    </motion.div>
+    </motion.header>
   );
 }

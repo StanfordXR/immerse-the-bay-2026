@@ -1,25 +1,13 @@
-import { Footer } from "@/components/layout/Footer";
-import { Header } from "@/components/layout/Header";
-import { AboutSection } from "@/components/sections/AboutSection";
-import { FAQSection } from "@/components/sections/FAQSection";
-import { HeroSection } from "@/components/sections/HeroSection";
-import { ScheduleSection } from "@/components/sections/ScheduleSection";
-import { SponsorsSection } from "@/components/sections/SponsorsSection";
-import { TracksSection } from "@/components/sections/TracksSection";
+import { About } from "@/components/About";
+import { Hero } from "@/components/Hero";
+import { Sponsors } from "@/components/Sponsors";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <>
-      <Header />
-      <main>
-        <HeroSection />
-        <AboutSection />
-        <TracksSection />
-        <ScheduleSection />
-        <SponsorsSection />
-        <FAQSection />
-      </main>
-      <Footer />
-    </>
+    <main>
+      <Hero />
+      <About />
+      <Sponsors />
+    </main>
   );
 }

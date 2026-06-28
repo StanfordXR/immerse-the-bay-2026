@@ -1,29 +1,20 @@
 import type { Metadata } from "next";
-import { DM_Sans, JetBrains_Mono, Orbitron } from "next/font/google";
+import { Share_Tech_Mono } from "next/font/google";
+import { Footer } from "@/components/Footer";
+import { Navbar } from "@/components/Navbar";
+import { fontDystopian } from "@/lib/fonts";
 import "./globals.css";
 
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
+const shareTechMono = Share_Tech_Mono({
+  variable: "--font-share-tech-mono",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
-
-const orbitron = Orbitron({
-  variable: "--font-orbitron",
-  subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
-});
-
-const jetbrains = JetBrains_Mono({
-  variable: "--font-jetbrains",
-  subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: "400",
 });
 
 export const metadata: Metadata = {
   title: "Immerse the Bay 2026 | Stanford XR Hackathon",
   description:
-    "Stanford's premier XR hackathon — VR, AR, AI, gaming, and immersive technology. April 2026.",
+    "Stanford's premier XR hackathon — VR, AR, AI, gaming, and immersive technology.",
   openGraph: {
     title: "Immerse the Bay 2026",
     description: "Build the future of immersive technology at Stanford.",
@@ -39,10 +30,14 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${dmSans.variable} ${orbitron.variable} ${jetbrains.variable} scroll-smooth`}
+      className={`${shareTechMono.variable} ${fontDystopian.variable} scroll-smooth`}
     >
-      <body className="min-h-screen bg-void text-foreground antialiased">
+      <body
+        className={`${shareTechMono.className} min-h-screen bg-void text-foreground antialiased`}
+      >
+        <Navbar />
         {children}
+        <Footer />
       </body>
     </html>
   );
