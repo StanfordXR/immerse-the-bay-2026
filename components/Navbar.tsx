@@ -5,7 +5,96 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { NAV_LINKS, SITE } from "@/data/site";
+import type { NavLink } from "@/data/types";
 import { cn } from "@/lib/utils";
+
+function isNavActive(pathname: string, link: NavLink): boolean {
+  if (link.external || link.comingSoon) return false;
+  return link.href === "/"
+    ? pathname === "/"
+    : pathname.startsWith(link.href);
+}
+
+function DesktopNavItem({ link, pathname }: { link: NavLink; pathname: string }) {
+  const active = isNavActive(pathname, link);
+  const linkClass = cn(
+    "text-sm transition-colors",
+    active ? "text-neon-cyan" : "text-muted hover:text-foreground",
+  );
+
+  if (link.comingSoon) {
+    return (
+      <li className="group relative">
+        <span className={cn(linkClass, "cursor-default")}>{link.label}</span>
+        <div
+          className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 -translate-x-1/2 whitespace-nowrap border border-white/10 bg-navy/95 px-3 py-1.5 text-xs text-neon-cyan opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100"
+          role="tooltip"
+        >
+          Coming soon!
+        </div>
+      </li>
+    );
+  }
+
+  if (link.external) {
+    return (
+      <li>
+        <a
+          href={link.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={linkClass}
+        >
+          {link.label}
+        </a>
+      </li>
+    );
+  }
+
+  return (
+    <li>
+      <Link href={link.href} className={linkClass}>
+        {link.label}
+      </Link>
+    </li>
+  );
+}
+
+function MobileNavItem({ link }: { link: NavLink }) {
+  if (link.comingSoon) {
+    return (
+      <li>
+        <span className="block py-2 text-sm text-muted">
+          {link.label}{" "}
+          <span className="text-xs text-neon-cyan/70">(Coming soon!)</span>
+        </span>
+      </li>
+    );
+  }
+
+  if (link.external) {
+    return (
+      <li>
+        <a
+          href={link.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block py-2 text-sm text-foreground"
+        >
+          {link.label}
+        </a>
+      </li>
+    );
+  }
+
+  return (
+    <li>
+      <Link href={link.href} className="block py-2 text-sm text-foreground">
+        {link.label}
+      </Link>
+    </li>
+  );
+}
 
 export function Navbar() {
   const pathname = usePathname();
@@ -48,27 +137,9 @@ export function Navbar() {
         </Link>
 
         <ul className="hidden items-center gap-8 md:flex">
-          {NAV_LINKS.map((link) => {
-            const active =
-              link.href === "/"
-                ? pathname === "/"
-                : pathname.startsWith(link.href);
-            return (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className={cn(
-                    "text-sm transition-colors",
-                    active
-                      ? "text-neon-cyan"
-                      : "text-muted hover:text-foreground",
-                  )}
-                >
-                  {link.label}
-                </Link>
-              </li>
-            );
-          })}
+          {NAV_LINKS.map((link) => (
+            <DesktopNavItem key={link.label} link={link} pathname={pathname} />
+          ))}
         </ul>
 
         <div className="flex items-center gap-3">
@@ -98,14 +169,7 @@ export function Navbar() {
         >
           <ul className="space-y-3">
             {NAV_LINKS.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className="block py-2 text-sm text-foreground"
-                >
-                  {link.label}
-                </Link>
-              </li>
+              <MobileNavItem key={link.label} link={link} />
             ))}
             <li>
               <a href="#apply" className="block py-2 text-sm text-neon-cyan">

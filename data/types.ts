@@ -71,6 +71,8 @@ export interface GalleryImage {
 export interface NavLink {
   label: string;
   href: string;
+  external?: boolean;
+  comingSoon?: boolean;
 }
 
 export interface SocialLink {

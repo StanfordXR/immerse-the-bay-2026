@@ -20,6 +20,12 @@ export const NAV_LINKS: NavLink[] = [
   { label: "Home", href: "/" },
   { label: "Schedule", href: "/schedule" },
   { label: "Tracks & Prizes", href: "/tracks" },
+  { label: "Live Dashboard", href: "#", comingSoon: true },
+  {
+    label: "2025 Hackathon",
+    href: "https://immersethebay.stanfordxr.org/",
+    external: true,
+  },
   { label: "FAQ", href: "/faq" },
 ];
 
