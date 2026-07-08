@@ -9,6 +9,51 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { fadeUp, staggerContainer } from "@/lib/motion";
 
+function renderBoxBody(body: string, isList: boolean) {
+  if (!isList) {
+    return (
+      <p className="mt-3 text-sm leading-relaxed text-muted sm:text-base">
+        {body}
+      </p>
+    );
+  }
+
+  const items = body
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  return (
+    <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted sm:text-base">
+      {items.map((item, index) => {
+        const colonIndex = item.indexOf(":");
+
+        if (colonIndex === -1) {
+          return (
+            <li key={`${item}-${index}`} className="flex items-start gap-2">
+              <span className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-neon-purple-light" />
+              <span>{item}</span>
+            </li>
+          );
+        }
+
+        const label = item.slice(0, colonIndex).trim();
+        const content = item.slice(colonIndex + 1).trim();
+
+        return (
+          <li key={`${item}-${index}`} className="flex items-start gap-2">
+            <span className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-neon-purple-light" />
+            <span>
+              <span className="font-semibold text-neon-purple-light/90">{label}:</span>{" "}
+              {content}
+            </span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 function RecapVideo() {
   const hasEmbed = Boolean(RECAP_VIDEO.embedUrl);
 
@@ -55,8 +100,8 @@ export function About() {
       <Container as="div">
         <SectionHeading
           eyebrow="About"
-          title="The hackathon behind Stanford's XR movement"
-          description="Learn what Immerse the Bay is, who we are, and relive last year's highlights."
+          title="The Bay Area’s leading XR hackathon."
+          description="Join us for an incredible weekend of innovative building and pushing the boundaries of spatial computing."
         />
 
         <motion.div
@@ -72,9 +117,7 @@ export function About() {
                 <h3 className="font-sans text-lg font-semibold sm:text-xl">
                   {box.title}
                 </h3>
-                <p className="mt-3 text-sm leading-relaxed text-muted sm:text-base">
-                  {box.body}
-                </p>
+                {renderBoxBody(box.body, box.id === "expect")}
               </GlassCard>
             ))}
           </motion.div>

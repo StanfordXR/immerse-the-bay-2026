@@ -46,19 +46,27 @@ export const ABOUT_BOXES: AboutBox[] = [
   {
     id: "immerse",
     title: "What is Immerse the Bay?",
-    body: "Immerse the Bay is Stanford XR's flagship hackathon — a high-energy weekend where students and creators prototype bold experiences across VR, AR, AI, and spatial computing. Stanford XR is the student community behind it: workshops, speaker series, dev nights, and a builder-first culture that bridges research, art, and engineering.",
+    body: `Immerse the Bay is Silicon Valley's leading extended reality (XR) hackathon. Hosted on the Stanford University campus, the three-day event brings together students, designers, and developers to build the future of spatial computing.
+    
+    Over the course of 36 hours, participants form teams to prototype augmented reality (AR), virtual reality (VR), and mixed-reality (MR) experiences. All skill levels and backgrounds are welcome to jump in and start building.`,
   },
   {
     id: "expect",
     title: "What to expect",
-    body: `Since ${SITE.foundedYear}, the event has grown from a small VR build night into the Bay Area's most vibrant student immersive hackathon. Expect hands-on workshops, loaner headsets, mentor office hours, meals and swag, overnight hacking, and a demo fair where teams showcase to judges and the community.`,
+    body: `Next-Gen Hardware: Get hands-on access to over $150k worth of XR equipment.
+
+Industry Support: Level up your skills with engaging workshops, demos, and direct mentorship from industry leaders.
+
+Massive Prizes: Showcase your live prototype and compete for ~$10k in prizes.
+
+Global Networking: Connect with a vibrant XR community, which previously drew participants from over 175 universities and organizations across 13 countries.`,
   },
 ];
 
 export const RECAP_VIDEO = {
   title: "Last Year's Recap",
   /** Replace with your official YouTube embed URL */
-  embedUrl: "",
+  embedUrl: "https://www.youtube.com/embed/7FEPbaH6c-w?si=wwpQ7vP4Blks8Buw",
   description:
     "Relive highlights from last year's hackathon — workshops, builds, and the demo fair.",
 };
