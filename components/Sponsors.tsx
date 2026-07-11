@@ -23,7 +23,7 @@ export function Sponsors() {
         <SectionHeading
           eyebrow="Sponsors"
           title="Powered by immersive industry leaders"
-          description="Logo grids are driven by data/sponsors.ts — drop assets into public/ and reference logo paths."
+          description="Immerse the Bay is made possible by the companies and labs backing the next generation of XR builders."
         />
 
         <motion.div

@@ -5,3 +5,9 @@ export const fontDystopian = localFont({
   variable: "--font-dystopian",
   display: "swap",
 });
+
+export const fontGlitch = localFont({
+  src: "../app/fonts/glitch.ttf",
+  variable: "--font-glitch",
+  display: "swap",
+});

@@ -12,13 +12,26 @@ interface ButtonProps {
   className?: string;
 }
 
-const styles: Record<ButtonVariant, string> = {
-  primary:
-    "border-neon-purple-light/60 bg-gradient-to-r from-neon-violet/80 to-neon-purple/80 text-white shadow-glow hover:shadow-glow-purple",
+/* Notched frames are built from two clipped layers: the outer layer paints the
+ * border color, the inner layer paints the fill 1px smaller. Glow lives on the
+ * unclipped anchor so it follows the notched silhouette. */
+const frameStyles: Record<ButtonVariant, string> = {
+  primary: "bg-neon-purple-light/70",
+  secondary: "bg-neon-purple/50",
+  ghost: "bg-white/15",
+};
+
+const fillStyles: Record<ButtonVariant, string> = {
+  primary: "bg-gradient-to-r from-neon-violet to-neon-purple text-white",
   secondary:
-    "border-neon-purple/40 bg-surface/50 text-foreground backdrop-blur-md hover:border-neon-purple-light/60 hover:shadow-glow",
-  ghost:
-    "border-white/10 bg-transparent text-muted hover:border-neon-violet/40 hover:text-foreground",
+    "bg-surface/90 text-foreground backdrop-blur-md group-hover:bg-surface/70",
+  ghost: "bg-void/80 text-muted group-hover:text-foreground",
+};
+
+const glowStyles: Record<ButtonVariant, string> = {
+  primary: "glow-drop",
+  secondary: "hover:glow-drop-soft",
+  ghost: "",
 };
 
 export function Button({
@@ -33,12 +46,21 @@ export function Button({
       whileHover={{ scale: 1.02, y: -1 }}
       whileTap={{ scale: 0.98 }}
       className={cn(
-        "inline-flex items-center justify-center border px-6 py-3 text-sm font-semibold tracking-wide transition-shadow duration-300",
-        styles[variant],
+        "group inline-flex transition-[filter] duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-neon-purple-light",
+        glowStyles[variant],
         className,
       )}
     >
-      {children}
+      <span className={cn("cyber-clip inline-flex p-px", frameStyles[variant])}>
+        <span
+          className={cn(
+            "cyber-clip inline-flex items-center justify-center px-6 py-3 text-sm font-semibold uppercase tracking-[0.15em] transition-colors duration-300",
+            fillStyles[variant],
+          )}
+        >
+          {children}
+        </span>
+      </span>
     </motion.a>
   );
 }

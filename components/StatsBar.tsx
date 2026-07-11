@@ -20,7 +20,7 @@ function StatCell({ stat }: { stat: HackathonStat }) {
 export function StatsBar() {
   return (
     <Container aria-label="Hackathon highlights">
-      <div className="grid grid-cols-2 gap-px border border-white/10 bg-white/10 sm:grid-cols-4">
+      <div className="hud-corners grid grid-cols-2 gap-px border border-white/10 bg-white/10 sm:grid-cols-4">
         {HACKATHON_STATS.map((stat) => (
           <StatCell key={stat.id} stat={stat} />
         ))}
