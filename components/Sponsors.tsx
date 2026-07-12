@@ -47,7 +47,7 @@ export function Sponsors() {
         <SectionHeading
           eyebrow="Sponsors"
           title="Powered by immersive industry leaders"
-          description="Last year's sponsors made Immerse the Bay possible — from XR hardware pioneers to the fuel that kept builders going."
+          description="Immerse the Bay is made possible by the companies and labs backing the next generation of XR builders."
         />
 
         <motion.ul

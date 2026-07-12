@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Share_Tech_Mono } from "next/font/google";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
-import { fontDystopian } from "@/lib/fonts";
+import { fontDystopian, fontGlitch } from "@/lib/fonts";
 import "./globals.css";
 
 const shareTechMono = Share_Tech_Mono({
@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${shareTechMono.variable} ${fontDystopian.variable} scroll-smooth`}
+      className={`${shareTechMono.variable} ${fontDystopian.variable} ${fontGlitch.variable} scroll-smooth`}
     >
       <body
         className={`${shareTechMono.className} min-h-screen bg-void text-foreground antialiased`}
