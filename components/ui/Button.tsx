@@ -10,6 +10,7 @@ interface ButtonProps {
   children: React.ReactNode;
   variant?: ButtonVariant;
   className?: string;
+  external?: boolean;
 }
 
 /* Notched frames are built from two clipped layers: the outer layer paints the
@@ -39,10 +40,13 @@ export function Button({
   children,
   variant = "primary",
   className,
+  external = false,
 }: ButtonProps) {
   return (
     <motion.a
       href={href}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noopener noreferrer" : undefined}
       whileHover={{ scale: 1.02, y: -1 }}
       whileTap={{ scale: 0.98 }}
       className={cn(

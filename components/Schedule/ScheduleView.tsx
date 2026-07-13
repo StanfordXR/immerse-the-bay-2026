@@ -18,8 +18,8 @@ export function ScheduleView() {
     <Container as="section" className="py-20 sm:py-28">
       <SectionHeading
         eyebrow="Schedule"
-        title="Three days of building"
-        description="Times and locations are approximate — final schedule published closer to the event."
+        title="Weekend at a glance"
+        description="Workshops, meals, hacking blocks, and ceremonies across three days at Huang Engineering Center."
       />
 
       <div

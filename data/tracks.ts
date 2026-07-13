@@ -1,88 +1,228 @@
-import type { Track } from "./types";
+import type {
+  PrimaryTrack,
+  PrimaryTrackAwards,
+  SponsoredTrack,
+} from "./types";
 
-export const TRACKS: Track[] = [
+/** PowerPoint / slides deck URL — update when the deck is hosted. */
+export const TRACKS_PRESENTATION_URL = "/tracks-prizes-deck.pptx";
+
+export const TRACKS_OVERVIEW = {
+  description:
+    "Compete across sponsor-backed challenges, primary judging categories, and a bonus wild card track. Each sponsored track includes dedicated resources, mentorship, and prizes.",
+  sponsored: [
+    "Moonlake",
+    "XREAL",
+    "Afference",
+    "OpenBCI",
+    "ByteDance / PICO",
+    "Meta (Reality AI)",
+  ],
+  primary: ["Creative Zenith", "Virtuous Reality", "AI Horizons", "Game Changer"],
+  bonus: "Wild West",
+};
+
+export const SPONSORED_TRACKS: SponsoredTrack[] = [
   {
-    id: "xr-ai",
-    title: "XR + AI",
-    sponsors: ["NVIDIA", "Google XR"],
-    theme: "Spatial intelligence & embodied agents",
-    description:
-      "Fuse large models, computer vision, and spatial AI into next-gen immersive experiences — from conversational NPCs to real-time scene understanding.",
-    hardware: ["Quest 3", "Depth cameras", "Workstation GPUs"],
-    software: ["Unity", "Unreal", "PyTorch", "ONNX Runtime"],
-    apis: ["OpenAI API", "Meta Scene API", "AR Foundation"],
-    mentors: "ML engineers and spatial AI researchers on call during mentor hours.",
-    resources: "Cloud credits, sample datasets, and pre-trained model checkpoints.",
-    icon: "◈",
-  },
-  {
-    id: "vr-gaming",
-    title: "VR Gaming",
-    sponsors: ["Meta", "Unity"],
-    theme: "Play, presence, and multiplayer worlds",
-    description:
-      "Design playful worlds, multiplayer mechanics, and embodied interaction in virtual reality — from arcade romps to narrative adventures.",
-    hardware: ["Quest 3", "Index controllers", "Haptic vests"],
-    software: ["Unity", "Unreal Engine", "Photon"],
-    apis: ["Meta Platform SDK", "SteamVR", "PlayFab"],
-    mentors: "Game designers and VR gameplay engineers from sponsor studios.",
-    resources: "Asset packs, networking templates, and playtesting sessions.",
-    icon: "▣",
-  },
-  {
-    id: "spatial",
-    title: "Spatial Computing",
-    sponsors: ["Apple Vision", "Qualcomm"],
-    theme: "Mixed reality in the real world",
-    description:
-      "Build for AR glasses, passthrough, and mixed reality that blends digital content with physical space and context.",
-    hardware: ["Vision Pro (loaner)", "Quest passthrough", "LiDAR iPads"],
-    software: ["visionOS", "Unity PolySpatial", "8th Wall"],
-    apis: ["ARKit", "RealityKit", "WebXR"],
-    mentors: "AR product engineers and spatial UX specialists.",
-    resources: "Design kits, spatial anchor samples, and device lab access.",
+    id: "moonlake",
+    title: "Moonlake",
+    sponsors: ["Moonlake"],
+    theme: "Build your project using Moonlake.",
+    prizes: [
+      {
+        title: "Grand Prize — Best Creation on Moonlake",
+        items: ["Nintendo Switch 2", "PlayStation 5"],
+        note: "Multiple winners may be awarded.",
+      },
+    ],
+    participationPrize: {
+      title: "Participation Prize — Moonlake Master",
+      items: ["$25 Amazon Gift Card"],
+      note: "Everyone who becomes a Moonlake Master receives this prize.",
+    },
+    resources: [
+      { label: "moonlakeai.com", href: "https://moonlakeai.com" },
+      { label: "Track application QR code" },
+    ],
     icon: "◎",
   },
   {
-    id: "storytelling",
-    title: "Interactive Storytelling",
-    sponsors: ["Epic Games", "Autodesk"],
-    theme: "Narrative worlds with agency",
-    description:
-      "Craft story-driven experiences where audience agency, presence, and emotion drive the journey — film, theater, and game techniques welcome.",
-    hardware: ["Quest 3", "Motion capture suits", "Spatial audio rigs"],
-    software: ["Unreal Engine", "Maya", "Wwise"],
-    apis: ["Metahuman", "Sequencer", "FMOD"],
-    mentors: "Immersive filmmakers and narrative designers.",
-    resources: "Storyboard templates, VO booth time, and mocap blocks.",
-    icon: "✦",
+    id: "xreal",
+    title: "XREAL",
+    sponsors: ["XREAL"],
+    goal: "Create an application using XREAL hardware.",
+    listLabel: "Suggested categories",
+    listItems: ["Productivity", "Enterprise", "Lifestyle", "Gaming", "Fun"],
+    prizes: [
+      {
+        title: "Winning Team Prize",
+        items: ["XREAL Air 2 Pro for every member of the winning team"],
+      },
+    ],
+    resources: [
+      { label: "XREAL Discord" },
+      { label: "SDK Documentation" },
+      { label: "docs.xreal.com", href: "https://docs.xreal.com" },
+    ],
+    icon: "◈",
   },
   {
-    id: "creative-tools",
-    title: "Creative Tools",
-    sponsors: ["Autodesk", "Snap"],
-    theme: "Pipelines for immersive creators",
+    id: "afference",
+    title: "Afference",
+    sponsors: ["Afference"],
+    theme: "Feel the Future: Artificial Touch in XR",
     description:
-      "Prototype editors, plugins, and pipelines that empower artists and developers to build immersive content faster.",
-    hardware: ["Drawing tablets", "Quest Link stations"],
-    software: ["Blender", "Substance", "Custom tooling"],
-    apis: ["OpenUSD", "glTF", "Blender Python API"],
-    mentors: "Technical artists and tooling engineers.",
-    resources: "Open-source starter repos and plugin scaffolds.",
+      "Use Afference's CES award-winning touch ring to create immersive XR experiences with haptic feedback.",
+    listLabel: "Examples include",
+    listItems: [
+      "Button confirmation",
+      "Hover interactions",
+      "Slider feedback",
+      "Object interaction",
+      "Texture creation",
+      "In-game notifications",
+    ],
+    lookingFor: [
+      "Projects that use touch to improve immersion",
+      "Projects that use touch to improve awareness",
+      "Projects that create new interaction paradigms",
+    ],
+    judgingBonus: [
+      "Multiple touch interaction types",
+      "Completely novel touch interaction",
+      "Creativity",
+    ],
+    prizes: [
+      {
+        title: "Best Integration of Afference Artificial Touch",
+        items: ["Nintendo Switch 2 (1st place)", "TV (runner-up)"],
+      },
+    ],
+    icon: "◇",
+  },
+  {
+    id: "openbci",
+    title: "OpenBCI",
+    sponsors: ["OpenBCI"],
+    description:
+      "Apply to compete in the OpenBCI track for brain-computer interface projects using Galea and related hardware.",
+    applicationRequirements: [
+      "Apply by Friday 9:10 PM",
+      "Must apply as a team",
+      "Follow application instructions",
+    ],
+    resources: [
+      { label: "OpenBCI (QR code)" },
+      { label: "Documentation (QR code)" },
+      { label: "Galea (QR code)" },
+      { label: "Newsletter (QR code)" },
+    ],
     icon: "⬡",
   },
   {
-    id: "hci",
-    title: "Human Computer Interaction",
-    sponsors: ["VHIL", "Stanford d.school"],
-    theme: "Interfaces for embodied futures",
+    id: "bytedance-pico",
+    title: "ByteDance / PICO",
+    sponsors: ["ByteDance", "PICO"],
+    theme: "Break Into Spatial Computing",
+    technologies: ["PICO", "SecureMR", "WebSpatial", "RoboToolKit"],
+    participationPrize: {
+      title: "Participation Reward",
+      items: [
+        "Golden Ticket",
+        "Invitation to XR Career Workshop hosted by ByteDance / PICO",
+      ],
+      note: "Awarded to everyone who completes the track, has a working demo, and presents on Sunday.",
+    },
+    prizes: [
+      {
+        title: "Cash Awards — up to $5,000 total",
+        items: [
+          "Best WebSpatial App — $750",
+          "Best SecureMR App — $750",
+          "Best Overall Design / Storytelling — $500",
+          "$2,000 remaining prize pool in cash",
+        ],
+      },
+      {
+        title: "Ambassador Continuation Track",
+        items: [
+          "Winning WebSpatial or SecureMR teams become PICO Ambassadors",
+          "$1,000 per team",
+          "Open-source funding to polish project after hackathon",
+          "1-on-1 mentorship (Product, Engineering, DevRel)",
+          "Featured on social media, GitHub, and developer blogs",
+        ],
+      },
+    ],
+    resources: [{ label: "Project resources (QR code)" }],
+    icon: "▣",
+  },
+  {
+    id: "meta",
+    title: "Meta",
+    sponsors: ["Meta"],
+    presenter: "Dhwaj Agrawal",
+    subtitle: "Reality AI — AI Experiences",
+    theme: "Hands-On Coach",
     description:
-      "Explore accessibility, novel input, and user research methods at the frontier of human–machine symbiosis in XR.",
-    hardware: ["Eye trackers", "EMG bands", "EEG headsets"],
-    software: ["Unity", "Python", "Figma"],
-    apis: ["Research SDKs", "WebXR input profiles"],
-    mentors: "HCI faculty and UX researchers.",
-    resources: "Study protocols, consent templates, and lab equipment.",
-    icon: "◇",
+      "Build real-time headset-based coaching powered by Contextual AI — allowing users to complete complex real-world tasks while wearing a headset through contextual understanding, step-by-step guidance, and real-time assistance.",
+    prizes: [
+      {
+        title: "1st Place",
+        items: ["4× Meta Quest 3"],
+      },
+      {
+        title: "2nd Place",
+        items: ["4× Meta Quest 3S"],
+      },
+      {
+        title: "3rd Place",
+        items: ["4× Xbox Elite Series 2 Controllers"],
+      },
+    ],
+    icon: "✦",
   },
 ];
+
+export const PRIMARY_TRACKS: PrimaryTrack[] = [
+  {
+    id: "creative-zenith",
+    title: "Creative Zenith",
+    theme: "Best Creative XR Experience",
+    icon: "✦",
+  },
+  {
+    id: "virtuous-reality",
+    title: "Virtuous Reality",
+    theme: "Best Social Good + XR",
+    icon: "◎",
+  },
+  {
+    id: "ai-horizons",
+    title: "AI Horizons",
+    theme: "Best Use of AI in XR",
+    icon: "◈",
+  },
+  {
+    id: "game-changer",
+    title: "Game Changer",
+    theme: "Best XR Game",
+    icon: "▣",
+  },
+];
+
+export const BONUS_TRACK: PrimaryTrack = {
+  id: "wild-west",
+  title: "Wild West",
+  theme: "Thinking Outside the Box",
+  icon: "⬡",
+};
+
+export const PRIMARY_TRACK_AWARDS: PrimaryTrackAwards = {
+  headline: "Primary Track Awards",
+  prize: "Up to 4 Meta Quest 2 headsets (sponsored prize)",
+  winnerBenefits: [
+    "Automatic acceptance",
+    "3-Day All Access Passes",
+  ],
+};

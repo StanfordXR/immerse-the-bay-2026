@@ -1,9 +1,13 @@
-export type SponsorTierName = "Platinum" | "Gold" | "Silver" | "Supported By";
+export type SponsorTierName = "Diamond" | "Gold" | "Silver" | "Supported By";
 
 export interface Sponsor {
   name: string;
   logo?: string;
   url?: string;
+  /** Marquee logo size multiplier (default 1). */
+  marqueeScale?: number;
+  /** Multiplier on horizontal space after this logo in the marquee (default 1). */
+  marqueeSpacingAfter?: number;
 }
 
 export interface SponsorTier {
@@ -25,6 +29,7 @@ export interface ScheduleEvent {
   title: string;
   description: string;
   location: string;
+  host?: string;
   icon?: string;
 }
 
@@ -34,26 +39,50 @@ export interface ScheduleDay {
   events: ScheduleEvent[];
 }
 
-export interface Track {
+export interface TrackResource {
+  label: string;
+  href?: string;
+}
+
+export interface TrackPrizeGroup {
+  title: string;
+  items: string[];
+  note?: string;
+}
+
+export interface SponsoredTrack {
   id: string;
   title: string;
   sponsors: string[];
-  theme: string;
-  description: string;
-  hardware: string[];
-  software: string[];
-  apis: string[];
-  mentors: string;
-  resources: string;
+  presenter?: string;
+  subtitle?: string;
+  theme?: string;
+  goal?: string;
+  description?: string;
+  listLabel?: string;
+  listItems?: string[];
+  lookingFor?: string[];
+  judgingBonus?: string[];
+  technologies?: string[];
+  prizes?: TrackPrizeGroup[];
+  participationPrize?: TrackPrizeGroup;
+  applicationRequirements?: string[];
+  notes?: string[];
+  resources?: TrackResource[];
   icon: string;
 }
 
-export interface Prize {
+export interface PrimaryTrack {
   id: string;
   title: string;
-  description: string;
-  amount: string;
-  sponsor: string;
+  theme: string;
+  icon: string;
+}
+
+export interface PrimaryTrackAwards {
+  headline: string;
+  prize: string;
+  winnerBenefits: string[];
 }
 
 export interface AboutBox {
@@ -85,4 +114,17 @@ export interface HackathonStat {
   id: string;
   value: string;
   label: string;
+}
+
+export interface DashboardAnnouncement {
+  id: string;
+  time: string;
+  message: string;
+}
+
+export interface DashboardResource {
+  id: string;
+  title: string;
+  description: string;
+  href: string;
 }

@@ -11,7 +11,8 @@ export const SITE = {
   website: "https://stanfordxr.org",
   year: 2026,
   foundedYear: 2019,
-  eventDate: "Date TBD, 2026",
+  eventDate: "* November 13-15, 2026",
+  eventDateNote: "* To be confirmed",
   eventLocation: "Stanford, CA",
   heroTagline: "Take Me To The Moon",
 } as const;
@@ -19,14 +20,14 @@ export const SITE = {
 export const NAV_LINKS: NavLink[] = [
   { label: "Home", href: "/" },
   { label: "Schedule", href: "/schedule" },
+  { label: "FAQ", href: "/faq" },
+  { label: "Live Dashboard", href: "/dashboard" },
   { label: "Tracks & Prizes", href: "/tracks" },
-  { label: "Live Dashboard", href: "#", comingSoon: true },
   {
     label: "2025 Hackathon",
     href: "https://immersethebay.stanfordxr.org/",
     external: true,
   },
-  { label: "FAQ", href: "/faq" },
 ];
 
 export const HERO_CTAS = [
@@ -37,7 +38,7 @@ export const HERO_CTAS = [
 
 export const SOCIAL_LINKS: SocialLink[] = [
   { label: "Discord", href: "https://discord.gg/stanfordxr", icon: "discord" },
-  { label: "Instagram", href: "https://instagram.com/stanfordxr", icon: "instagram" },
+  { label: "Instagram", href: "https://www.instagram.com/stanford_xr/", icon: "instagram" },
   { label: "LinkedIn", href: "https://linkedin.com/company/stanfordxr", icon: "linkedin" },
   { label: "Email", href: `mailto:${SITE.email}`, icon: "email" },
 ];
@@ -53,18 +54,20 @@ export const ABOUT_BOXES: AboutBox[] = [
   {
     id: "expect",
     title: "What to expect",
-    body: `Next-Gen Hardware: Get hands-on access to over $150k worth of XR equipment.
+    body: `Next-Gen Hardware: Get hands-on access to over $150k worth of XR equipment, including headsets, controllers, and spatial computing peripherals loaned for the full weekend.
 
-Industry Support: Level up your skills with engaging workshops, demos, and direct mentorship from industry leaders.
+Industry Support: Level up your skills with engaging workshops, live demos, and direct mentorship from engineers and designers at leading immersive technology companies.
 
-Massive Prizes: Showcase your live prototype and compete for ~$10k in prizes.
+Massive Prizes: Showcase your live prototype at the demo fair and compete for ~$10k in prizes across multiple tracks and sponsor awards.
 
-Global Networking: Connect with a vibrant XR community, which previously drew participants from over 175 universities and organizations across 13 countries.`,
+Global Networking: Connect with a vibrant XR community that previously drew participants from over 175 universities and organizations across 13 countries.
+
+All Weekend Long: From opening kickoff through overnight hacking, expect meals, swag, mentor office hours, and a high-energy showcase where teams present what they built to judges and the broader Stanford community.`,
   },
 ];
 
 export const RECAP_VIDEO = {
-  title: "Last Year's Recap",
+  title: "Immerse the Bay 2024",
   /** Replace with your official YouTube embed URL */
   embedUrl: "https://www.youtube.com/embed/7FEPbaH6c-w?si=wwpQ7vP4Blks8Buw",
   description:

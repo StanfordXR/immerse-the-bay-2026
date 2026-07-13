@@ -78,16 +78,17 @@ export function Hero() {
             {SITE.heroTagline}
           </motion.p>
 
-          <motion.p
+          <motion.div
             variants={fadeUp}
-            className="mt-5 font-sans text-sm font-semibold uppercase tracking-[0.2em] text-neon-cyan/80 sm:text-base"
+            className="mt-5 flex flex-col items-center gap-1"
           >
-            {SITE.eventDate}
-            <span className="mx-2.5 text-neon-cyan/50" aria-hidden>
-              •
-            </span>
-            {SITE.eventLocation}
-          </motion.p>
+            <p className="font-sans text-sm font-semibold uppercase tracking-[0.2em] text-neon-cyan/80 sm:text-base">
+              {SITE.eventDate}
+            </p>
+            <p className="font-sans text-xs tracking-[0.14em] text-neon-cyan/55 sm:text-sm">
+              {SITE.eventDateNote}
+            </p>
+          </motion.div>
 
           <motion.div
             variants={fadeUp}

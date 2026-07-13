@@ -8,8 +8,9 @@ import { Container } from "@/components/ui/Container";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { fadeUp, staggerContainer } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 
-function renderBoxBody(body: string, isList: boolean) {
+function renderBoxBody(body: string, isList: boolean, horizontal = false) {
   if (!isList) {
     return (
       <p className="mt-3 text-sm leading-relaxed text-muted sm:text-base">
@@ -24,7 +25,14 @@ function renderBoxBody(body: string, isList: boolean) {
     .filter(Boolean);
 
   return (
-    <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted sm:text-base">
+    <ul
+      className={cn(
+        "mt-3 text-sm leading-relaxed text-muted sm:text-base",
+        horizontal
+          ? "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-8 lg:gap-y-5"
+          : "space-y-3 sm:space-y-3.5",
+      )}
+    >
       {items.map((item, index) => {
         const colonIndex = item.indexOf(":");
 
@@ -94,6 +102,9 @@ function RecapVideo() {
 }
 
 export function About() {
+  const immerseBox = ABOUT_BOXES.find((box) => box.id === "immerse");
+  const expectBox = ABOUT_BOXES.find((box) => box.id === "expect");
+
   return (
     <section id="about" className="relative pt-20 sm:pt-28">
       <div className="bg-section-glow pointer-events-none absolute inset-0" aria-hidden />
@@ -111,21 +122,32 @@ export function About() {
           viewport={{ once: true, margin: "-60px" }}
           className="grid items-start gap-8 lg:grid-cols-5 lg:gap-10"
         >
-          <motion.div variants={fadeUp} className="flex flex-col gap-5 lg:col-span-2">
-            {ABOUT_BOXES.map((box) => (
-              <GlassCard key={box.id} hover={false}>
+          {immerseBox && (
+            <motion.div variants={fadeUp} className="lg:col-span-2">
+              <GlassCard hover={false}>
                 <h3 className="font-sans text-lg font-semibold sm:text-xl">
-                  {box.title}
+                  {immerseBox.title}
                 </h3>
-                {renderBoxBody(box.body, box.id === "expect")}
+                {renderBoxBody(immerseBox.body, false)}
               </GlassCard>
-            ))}
-          </motion.div>
+            </motion.div>
+          )}
 
           <motion.div variants={fadeUp} className="w-full lg:col-span-3">
             <RecapVideo />
           </motion.div>
         </motion.div>
+
+        {expectBox && (
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} className="mt-8">
+            <GlassCard hover={false} className="w-full">
+              <h3 className="font-sans text-lg font-semibold sm:text-xl">
+                {expectBox.title}
+              </h3>
+              {renderBoxBody(expectBox.body, true, true)}
+            </GlassCard>
+          </motion.div>
+        )}
       </Container>
 
       <div className="mt-8 w-full sm:mt-10">

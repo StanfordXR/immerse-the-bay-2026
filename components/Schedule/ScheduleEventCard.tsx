@@ -28,6 +28,11 @@ export function ScheduleEventCard({ event }: ScheduleEventCardProps) {
             <time className="font-mono text-xs uppercase tracking-wider text-neon-cyan">
               {event.time}
             </time>
+            {event.host && (
+              <p className="font-mono text-xs uppercase tracking-wider text-neon-purple-light/90">
+                {event.host}
+              </p>
+            )}
             <h3 className="font-sans text-lg font-semibold">{event.title}</h3>
           </div>
         </div>
@@ -35,7 +40,11 @@ export function ScheduleEventCard({ event }: ScheduleEventCardProps) {
           {event.location}
         </p>
       </div>
-      <p className="mt-3 text-sm leading-relaxed text-muted">{event.description}</p>
+      {event.description ? (
+        <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-muted">
+          {event.description}
+        </p>
+      ) : null}
     </motion.article>
   );
 }

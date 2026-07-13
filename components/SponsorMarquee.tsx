@@ -2,23 +2,46 @@
 
 import { MARQUEE_SPONSORS } from "@/data/sponsors";
 import type { Sponsor } from "@/data/types";
+import { cn } from "@/lib/utils";
 
-function SponsorLogo({ sponsor }: { sponsor: Sponsor }) {
+/** Full band height (former py-5/py-6 + h-12/h-14) so logos clip at the edge with no inner margin. */
+const LOGO_FRAME_CLASS =
+  "flex h-[5.5rem] w-[7.5rem] shrink-0 items-center justify-center sm:h-[6.5rem] sm:w-[8.5rem]";
+
+function SponsorLogo({
+  sponsor,
+  spacingBefore = 1,
+}: {
+  sponsor: Sponsor;
+  spacingBefore?: number;
+}) {
+  const scale = sponsor.marqueeScale ?? 1;
+  const spacingAfter = sponsor.marqueeSpacingAfter ?? 1;
+
   return (
     <a
       href={sponsor.url ?? "#"}
-      className="group flex shrink-0 items-center justify-center px-6 transition-opacity hover:opacity-100"
+      className="flex shrink-0 items-center justify-center pl-[calc(1rem*var(--s-before))] pr-[calc(1rem*var(--s-after))] mr-[calc(1.5rem*var(--s-after))] sm:pl-[calc(1.25rem*var(--s-before))] sm:pr-[calc(1.25rem*var(--s-after))] sm:mr-[calc(2rem*var(--s-after))]"
+      style={
+        {
+          "--s-before": spacingBefore,
+          "--s-after": spacingAfter,
+        } as React.CSSProperties
+      }
       aria-label={sponsor.name}
     >
       {sponsor.logo ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={sponsor.logo}
-          alt={sponsor.name}
-          className="h-9 w-auto max-w-[140px] object-contain opacity-70 grayscale transition group-hover:opacity-100 group-hover:grayscale-0 sm:h-11"
-        />
+        <span className={cn(LOGO_FRAME_CLASS, "overflow-visible")}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={sponsor.logo}
+            alt={sponsor.name}
+            className="max-h-full max-w-full object-contain object-center"
+            style={{ transform: scale === 1 ? undefined : `scale(${scale})` }}
+          />
+        </span>
       ) : (
-        <span className="whitespace-nowrap font-sans text-sm font-semibold tracking-wide text-foreground/50 transition group-hover:text-neon-cyan sm:text-base">
+        <span className="whitespace-nowrap font-sans text-sm font-semibold tracking-wide text-foreground/85 sm:text-base">
           {sponsor.name}
         </span>
       )}
@@ -28,12 +51,13 @@ function SponsorLogo({ sponsor }: { sponsor: Sponsor }) {
 
 function SponsorStrip({ ariaHidden = false }: { ariaHidden?: boolean }) {
   return (
-    <div
-      className="flex shrink-0 items-center gap-10 sm:gap-14"
-      aria-hidden={ariaHidden}
-    >
-      {MARQUEE_SPONSORS.map((sponsor) => (
-        <SponsorLogo key={sponsor.name} sponsor={sponsor} />
+    <div className="flex shrink-0 items-center" aria-hidden={ariaHidden}>
+      {MARQUEE_SPONSORS.map((sponsor, index) => (
+        <SponsorLogo
+          key={sponsor.name}
+          sponsor={sponsor}
+          spacingBefore={MARQUEE_SPONSORS[index - 1]?.marqueeSpacingAfter ?? 1}
+        />
       ))}
     </div>
   );
@@ -42,7 +66,7 @@ function SponsorStrip({ ariaHidden = false }: { ariaHidden?: boolean }) {
 export function SponsorMarquee() {
   return (
     <div
-      className="relative w-full border-y border-white/10 bg-void/70 py-5 backdrop-blur-md sm:py-6"
+      className="relative w-full border-y border-white/10 bg-void/70 py-0 backdrop-blur-md"
       aria-label="Sponsor logos"
     >
       <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-void to-transparent sm:w-24" />
