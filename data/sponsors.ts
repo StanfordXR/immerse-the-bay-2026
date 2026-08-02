@@ -22,6 +22,7 @@ export const SPONSOR_TIERS: SponsorTier[] = [
         logo: "/images/sponsors/meta.png",
         url: "https://www.meta.com",
         marqueeScale: 0.95,
+        logoScale: 0.81,
         marqueeSpacingAfter: 0.9,
       },
       {
@@ -29,6 +30,7 @@ export const SPONSOR_TIERS: SponsorTier[] = [
         logo: "/images/sponsors/XRMeta.png",
         url: "https://xrbootcamp.com",
         marqueeScale: 0.72,
+        logoScale: 1.21,
         marqueeSpacingAfter: 0.9,
       },
     ],
@@ -43,29 +45,30 @@ export const SPONSOR_TIERS: SponsorTier[] = [
         marqueeScale: 1.07,
         marqueeSpacingAfter: 1.65,
       },
-      { name: "Afference", logo: "/images/sponsors/Afference.png", url: "https://www.afference.com", marqueeScale: 1.56 },
-      { name: "XREAL", logo: "/images/sponsors/XREAL.png", url: "https://www.xreal.com" },
-      { name: "Meshy AI", logo: "/images/sponsors/Meshy.png", url: "https://www.meshy.ai", marqueeScale: 0.9 },
+      { name: "Afference", logo: "/images/sponsors/Afference.png", url: "https://www.afference.com", marqueeScale: 1.56, logoScale: 1.452 },
+      { name: "XREAL", logo: "/images/sponsors/XREAL.png", url: "https://www.xreal.com", logoScale: 0.8 },
+      { name: "Meshy AI", logo: "/images/sponsors/Meshy.png", url: "https://www.meshy.ai", marqueeScale: 0.9, logoScale: 0.88 },
     ],
   },
   {
     tier: "Silver",
     sponsors: [
       { name: "ShapesXR", logo: "/images/sponsors/shapesxr.svg", url: "https://www.shapesxr.com", marqueeScale: 1.2 },
-      { name: "Snap AR", logo: "/images/sponsors/Snap_AR.png", url: "https://ar.snap.com", marqueeScale: 0.95 },
+      { name: "Snap AR", logo: "/images/sponsors/Snap_AR.png", url: "https://ar.snap.com", marqueeScale: 0.95, logoScale: 1.097 },
       { name: "CVRE", logo: "/images/sponsors/CVRE.png", url: "#", marqueeScale: 0.9, marqueeSpacingAfter: 0.5 },
     ],
   },
   {
     tier: "Supported By",
     sponsors: [
-      { name: "Red Bull", logo: "/images/sponsors/Redbull.png", url: "https://www.redbull.com", marqueeScale: 0.8 },
-      { name: "Shake Shack", logo: "/images/sponsors/shakeshack.png", url: "https://www.shakeshack.com", marqueeScale: 1.54 },
+      { name: "Red Bull", logo: "/images/sponsors/Redbull.png", url: "https://www.redbull.com", marqueeScale: 0.8, logoScale: 1.69 },
+      { name: "Shake Shack", logo: "/images/sponsors/shakeshack.png", url: "https://www.shakeshack.com", marqueeScale: 1.54, logoScale: 1.521 },
       {
         name: "Panda Express",
         logo: "/images/sponsors/Panda.png",
         url: "https://www.pandaexpress.com",
         marqueeScale: 0.72,
+        logoScale: 1.606,
         marqueeSpacingAfter: 0.45,
       },
       {
@@ -73,6 +76,7 @@ export const SPONSOR_TIERS: SponsorTier[] = [
         logo: "/images/sponsors/Insomnia.png",
         url: "https://insomniacookies.com",
         marqueeScale: 0.72,
+        logoScale: 1.606,
         marqueeSpacingAfter: 0.6,
       },
       {
@@ -80,6 +84,7 @@ export const SPONSOR_TIERS: SponsorTier[] = [
         logo: "/images/sponsors/Ike.png",
         url: "https://www.ilikeikesplace.com",
         marqueeScale: 1.26,
+        logoScale: 2.9,
         marqueeSpacingAfter: 0.8,
       },
     ],

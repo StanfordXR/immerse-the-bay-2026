@@ -11,6 +11,7 @@ interface ButtonProps {
   variant?: ButtonVariant;
   className?: string;
   external?: boolean;
+  tooltip?: string;
 }
 
 /* Notched frames are built from two clipped layers: the outer layer paints the
@@ -41,8 +42,9 @@ export function Button({
   variant = "primary",
   className,
   external = false,
+  tooltip,
 }: ButtonProps) {
-  return (
+  const button = (
     <motion.a
       href={href}
       target={external ? "_blank" : undefined}
@@ -66,5 +68,19 @@ export function Button({
         </span>
       </span>
     </motion.a>
+  );
+
+  if (!tooltip) return button;
+
+  return (
+    <span className="group/tooltip relative inline-flex">
+      {button}
+      <span
+        className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 whitespace-nowrap border border-white/10 bg-navy/95 px-3 py-1.5 text-xs text-neon-cyan opacity-0 shadow-lg transition-opacity duration-150 group-hover/tooltip:opacity-100"
+        role="tooltip"
+      >
+        {tooltip}
+      </span>
+    </span>
   );
 }

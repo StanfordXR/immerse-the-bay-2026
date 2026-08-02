@@ -25,13 +25,39 @@ function getTimeLeft(targetIso: string): TimeLeft {
   return { days, hours, minutes, seconds, ended: false };
 }
 
-function Unit({ value, label }: { value: number; label: string }) {
+function Unit({
+  value,
+  label,
+  compact = false,
+}: {
+  value: number;
+  label: string;
+  compact?: boolean;
+}) {
   return (
-    <div className="flex min-w-[4.5rem] flex-col items-center border border-white/10 bg-void/60 px-3 py-4 sm:min-w-[5.5rem] sm:px-4 sm:py-5">
-      <span className="font-mono text-3xl font-semibold tabular-nums text-neon-cyan sm:text-4xl lg:text-5xl">
+    <div
+      className={
+        compact
+          ? "flex min-w-[5rem] flex-col items-center border border-white/10 bg-void/60 px-[0.77rem] py-[0.77rem] sm:min-w-[6.15rem] sm:px-[1.15rem] sm:py-[0.96rem]"
+          : "flex min-w-[4.5rem] flex-col items-center border border-white/10 bg-void/60 px-3 py-4 sm:min-w-[5.5rem] sm:px-4 sm:py-5"
+      }
+    >
+      <span
+        className={
+          compact
+            ? "font-mono text-[1.73rem] font-semibold tabular-nums text-neon-cyan sm:text-[2.31rem]"
+            : "font-mono text-3xl font-semibold tabular-nums text-neon-cyan sm:text-4xl lg:text-5xl"
+        }
+      >
         {String(value).padStart(2, "0")}
       </span>
-      <span className="mt-1 font-mono text-[0.65rem] uppercase tracking-[0.2em] text-muted sm:text-xs">
+      <span
+        className={
+          compact
+            ? "mt-1 font-mono text-[0.58rem] uppercase tracking-[0.2em] text-muted sm:text-[0.61rem]"
+            : "mt-1 font-mono text-[0.65rem] uppercase tracking-[0.2em] text-muted sm:text-xs"
+        }
+      >
         {label}
       </span>
     </div>
@@ -40,12 +66,17 @@ function Unit({ value, label }: { value: number; label: string }) {
 
 interface CountdownTimerProps {
   targetIso: string;
+  compact?: boolean;
 }
 
-export function CountdownTimer({ targetIso }: CountdownTimerProps) {
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>(() =>
-    getTimeLeft(targetIso),
-  );
+export function CountdownTimer({ targetIso, compact = false }: CountdownTimerProps) {
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    ended: false,
+  });
 
   useEffect(() => {
     const tick = () => setTimeLeft(getTimeLeft(targetIso));
@@ -63,11 +94,11 @@ export function CountdownTimer({ targetIso }: CountdownTimerProps) {
   }
 
   return (
-    <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-      <Unit value={timeLeft.days} label="Days" />
-      <Unit value={timeLeft.hours} label="Hours" />
-      <Unit value={timeLeft.minutes} label="Min" />
-      <Unit value={timeLeft.seconds} label="Sec" />
+    <div className={`flex flex-wrap justify-center ${compact ? "gap-[0.58rem] sm:gap-[0.77rem]" : "gap-2 sm:gap-3"}`}>
+      <Unit value={timeLeft.days} label="Days" compact={compact} />
+      <Unit value={timeLeft.hours} label="Hours" compact={compact} />
+      <Unit value={timeLeft.minutes} label="Min" compact={compact} />
+      <Unit value={timeLeft.seconds} label="Sec" compact={compact} />
     </div>
   );
 }

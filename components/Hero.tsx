@@ -95,7 +95,12 @@ export function Hero() {
             className="mt-10 flex flex-wrap justify-center gap-3 sm:gap-4"
           >
             {HERO_CTAS.map((cta) => (
-              <Button key={cta.label} href={cta.href} variant={cta.variant}>
+              <Button
+                key={cta.label}
+                href={cta.href}
+                variant={cta.variant}
+                tooltip={cta.tooltip}
+              >
                 {cta.label}
               </Button>
             ))}
