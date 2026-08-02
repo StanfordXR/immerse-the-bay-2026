@@ -7,7 +7,7 @@ export const SITE = {
     "A weekend of VR, AR, AI, gaming, and spatial computing on the Stanford campus — build immersive experiences with mentors, hardware, and a community that ships.",
   description:
     "Build the future of immersive technology at Stanford — VR, AR, AI, gaming, and spatial computing.",
-  email: "stanfordxr@stanford.edu",
+  email: "admin@stanfordxr.org",
   website: "https://stanfordxr.org",
   year: 2026,
   foundedYear: 2019,
@@ -31,9 +31,18 @@ export const NAV_LINKS: NavLink[] = [
 ];
 
 export const HERO_CTAS = [
-  { label: "Apply", href: "#apply", variant: "primary" as const },
-  { label: "Volunteer", href: "#volunteer", variant: "secondary" as const },
-  { label: "Sponsor", href: "#sponsors", variant: "secondary" as const },
+  {
+    label: "Apply",
+    href: "#apply",
+    variant: "primary" as const,
+    tooltip: "Launching applications on the 14th!",
+  },
+  {
+    label: "Volunteer",
+    href: "#volunteer",
+    variant: "secondary" as const,
+    tooltip: "Coming soon!",
+  },
 ];
 
 export const SOCIAL_LINKS: SocialLink[] = [

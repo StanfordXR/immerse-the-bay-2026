@@ -143,12 +143,20 @@ export function Navbar() {
         </ul>
 
         <div className="flex items-center gap-3">
-          <a
-            href="#apply"
-            className="hidden border border-neon-cyan/50 bg-neon-indigo/20 px-4 py-2 text-sm font-semibold shadow-glow transition hover:shadow-glow-cyan sm:inline-flex"
-          >
-            Apply
-          </a>
+          <span className="group relative hidden sm:inline-flex">
+            <a
+              href="#apply"
+              className="border border-neon-cyan/50 bg-neon-indigo/20 px-4 py-2 text-sm font-semibold shadow-glow transition hover:shadow-glow-cyan"
+            >
+              Apply
+            </a>
+            <span
+              className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 -translate-x-1/2 whitespace-nowrap border border-white/10 bg-navy/95 px-3 py-1.5 text-xs text-neon-cyan opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100"
+              role="tooltip"
+            >
+              Launching applications on the 14th!
+            </span>
+          </span>
           <button
             type="button"
             className="inline-flex h-10 w-10 items-center justify-center border border-white/10 md:hidden"
@@ -173,7 +181,10 @@ export function Navbar() {
             ))}
             <li>
               <a href="#apply" className="block py-2 text-sm text-neon-cyan">
-                Apply
+                Apply{" "}
+                <span className="text-xs text-neon-cyan/70">
+                  (Launching applications on the 14th!)
+                </span>
               </a>
             </li>
           </ul>

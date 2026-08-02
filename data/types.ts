@@ -6,6 +6,8 @@ export interface Sponsor {
   url?: string;
   /** Marquee logo size multiplier (default 1). */
   marqueeScale?: number;
+  /** Sponsor grid logo size multiplier (default 1). */
+  logoScale?: number;
   /** Multiplier on horizontal space after this logo in the marquee (default 1). */
   marqueeSpacingAfter?: number;
 }
@@ -95,6 +97,8 @@ export interface GalleryImage {
   id: string;
   src?: string;
   alt: string;
+  width: number;
+  height: number;
 }
 
 export interface NavLink {
@@ -114,12 +118,6 @@ export interface HackathonStat {
   id: string;
   value: string;
   label: string;
-}
-
-export interface DashboardAnnouncement {
-  id: string;
-  time: string;
-  message: string;
 }
 
 export interface DashboardResource {

@@ -42,7 +42,8 @@ function PhotoCard({ image, index, elevated = false }: PhotoCardProps) {
     <div
       className={cn(
         "relative h-full w-full overflow-hidden",
-        "border border-white/15 bg-white/5 shadow-md backdrop-blur-md",
+        "border border-white/15 shadow-md",
+        !image.src && "bg-white/5 backdrop-blur-md",
         elevated &&
           "border-cyan-400/40 shadow-[0_20px_56px_rgba(0,0,0,0.55),0_0_36px_rgba(34,211,238,0.38),0_0_64px_rgba(147,51,234,0.32)]",
       )}
@@ -52,7 +53,7 @@ function PhotoCard({ image, index, elevated = false }: PhotoCardProps) {
           src={image.src}
           alt={image.alt}
           fill
-          sizes="(max-width: 640px) 47vw, 372px"
+          sizes="(max-width: 640px) 59vw, 465px"
           className="object-cover"
         />
       ) : (
@@ -96,7 +97,7 @@ function MarqueePhoto({
         isGhosted && "pointer-events-none",
       )}
       style={{
-        width: style.width,
+        height: style.height,
         aspectRatio: style.aspectRatio,
         marginTop: style.yOffset,
         rotate: style.rotate,
