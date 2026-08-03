@@ -130,10 +130,18 @@ export function Navbar() {
       >
         <Link
           href="/"
-          className="font-sans text-sm font-semibold tracking-tight sm:text-base"
+          className="inline-flex items-center gap-2.5 text-sm text-foreground transition-colors hover:text-foreground sm:text-base"
         >
-          <span className="text-neon-cyan">◈</span> {SITE.name.split(" ")[0]}{" "}
-          <span className="hidden sm:inline">the Bay</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/logo/SXRLogo.png"
+            alt=""
+            className="h-6 w-6 shrink-0 object-contain sm:h-7 sm:w-7"
+          />
+          <span className="leading-none">
+            {SITE.name.split(" ")[0]}{" "}
+            <span className="hidden sm:inline">the Bay</span>
+          </span>
         </Link>
 
         <ul className="hidden items-center gap-8 md:flex">

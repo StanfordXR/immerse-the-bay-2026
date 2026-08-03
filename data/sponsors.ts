@@ -99,5 +99,15 @@ export const PARTNERS: Sponsor[] = [
   { name: "UC Berkeley XR", logo: "/images/sponsors/berkeley.png", url: "#" },
 ];
 
-/** Homepage sponsor marquee — same order as tiers. */
-export const MARQUEE_SPONSORS = SPONSORS;
+/** Homepage sponsor marquee — tier order, excluding catering partners. */
+const MARQUEE_EXCLUDED_SPONSORS = new Set([
+  "Red Bull",
+  "Shake Shack",
+  "Panda Express",
+  "Insomnia Cookies",
+  "Ike's Love & Sandwiches",
+]);
+
+export const MARQUEE_SPONSORS = SPONSORS.filter(
+  (sponsor) => !MARQUEE_EXCLUDED_SPONSORS.has(sponsor.name),
+);

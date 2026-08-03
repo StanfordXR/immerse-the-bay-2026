@@ -1,74 +1,51 @@
 "use client";
 
-import { useState } from "react";
 import { motion } from "framer-motion";
-import { SCHEDULE_DAYS } from "@/data/schedule";
-import type { ScheduleDayId } from "@/data/types";
+import { ROUGH_SCHEDULE } from "@/data/schedule";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { fadeUp, staggerContainer } from "@/lib/motion";
-import { cn } from "@/lib/utils";
-import { ScheduleEventCard } from "./ScheduleEventCard";
+import { ScheduleGridBlock } from "./ScheduleGridBlock";
 
 export function ScheduleView() {
-  const [activeDay, setActiveDay] = useState<ScheduleDayId>("friday");
-  const day = SCHEDULE_DAYS.find((d) => d.id === activeDay)!;
-
   return (
     <Container as="section" className="py-20 sm:py-28">
       <SectionHeading
         eyebrow="Schedule"
-        title="Weekend at a glance"
-        description="Workshops, meals, hacking blocks, and ceremonies across three days at Huang Engineering Center."
+        title="Schedule"
+        description="More details will be released closer to date of hackathon."
       />
 
-      <div
-        role="tablist"
-        aria-label="Schedule days"
-        className="mb-10 flex flex-wrap justify-center gap-2"
-      >
-        {SCHEDULE_DAYS.map((d) => (
-          <button
-            key={d.id}
-            type="button"
-            role="tab"
-            aria-selected={activeDay === d.id}
-            onClick={() => setActiveDay(d.id)}
-            className={cn(
-              "border px-5 py-2.5 text-sm font-medium transition",
-              activeDay === d.id
-                ? "border-neon-cyan/50 bg-neon-indigo/20 text-foreground shadow-glow-cyan"
-                : "border-white/10 bg-surface/40 text-muted hover:border-neon-blue/30",
-            )}
-          >
-            {d.label}
-          </button>
-        ))}
-      </div>
-
-      <motion.ol
-        key={activeDay}
+      <motion.div
         variants={staggerContainer}
         initial="hidden"
-        animate="visible"
-        className="relative space-y-4"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-40px" }}
+        className="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-5 lg:gap-6"
       >
-        <div
-          className="absolute bottom-2 left-[15px] top-2 w-px bg-gradient-to-b from-neon-cyan via-neon-indigo/40 to-transparent sm:left-8"
-          aria-hidden
-        />
-        {day.events.map((event, index) => (
-          <motion.li key={event.id} variants={fadeUp} className="relative pl-12 sm:pl-16">
-            <span
-              className="absolute left-2 top-6 z-10 flex h-7 w-7 items-center justify-center border-2 border-neon-cyan bg-void sm:left-5"
-              aria-hidden
-            >
-              <span className="h-2 w-2 bg-neon-cyan" />
-            </span>
-            <ScheduleEventCard event={event} index={index} />
-          </motion.li>
+        {ROUGH_SCHEDULE.map((day) => (
+          <motion.div
+            key={day.id}
+            variants={fadeUp}
+            className="flex min-h-[28rem] flex-col sm:min-h-[32rem]"
+          >
+            <div className="mb-4 text-center">
+              <h3 className="font-sans text-xl font-semibold uppercase tracking-[0.12em] text-foreground sm:text-2xl">
+                {day.label}
+              </h3>
+              <p className="mt-1 font-mono text-xs uppercase tracking-[0.18em] text-neon-cyan/70">
+                {day.date}
+              </p>
+            </div>
+
+            <div className="flex flex-1 flex-col gap-3">
+              {day.blocks.map((block) => (
+                <ScheduleGridBlock key={block.id} block={block} />
+              ))}
+            </div>
+          </motion.div>
         ))}
-      </motion.ol>
+      </motion.div>
     </Container>
   );
 }

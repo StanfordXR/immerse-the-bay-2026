@@ -5,7 +5,7 @@ export const FAQ_ITEMS: FAQItem[] = [
     id: "arrive-leave",
     question: "What is the latest I should arrive and the earliest I should leave?",
     answer:
-      "It is very important to arrive before the opening ceremony at 7pm on Friday, November 14. In addition, you give yourself enough time to check-in at the front desk, socialize to meet potential team members, and enjoy some dinner. Our closing ceremony ends at 3pm on Sunday, November 16. This is where we announce our winners, but if you absolutely have to leave earlier, judging ends at 12pm.",
+      "It is very important to arrive before the opening ceremony at 7pm on Friday, November 13. In addition, you give yourself enough time to check-in at the front desk, socialize to meet potential team members, and enjoy some dinner. Our closing ceremony ends at 3pm on Sunday, November 15. This is where we announce our winners, but if you absolutely have to leave earlier, judging ends at 12pm.",
   },
   {
     id: "own-hardware",
@@ -41,6 +41,6 @@ export const FAQ_ITEMS: FAQItem[] = [
     id: "travel",
     question: "Will Immerse The Bay provide travel accommodations or reimbursements?",
     answer:
-      "Unfortunately, Immerse The Bay 2025 cannot cover travel accommodations. As we grow each year, our hope is to secure funds to provide a scholarship for under-resourced hackers in the future.",
+      "Unfortunately, Immerse The Bay 2026 cannot cover travel accommodations. As we grow each year, our hope is to secure funds to provide a scholarship for under-resourced hackers in the future.",
   },
 ];

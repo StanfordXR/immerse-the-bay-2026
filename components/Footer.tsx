@@ -76,7 +76,15 @@ export function Footer() {
             © {SITE.year} Stanford XR. All rights reserved.
           </p>
           <p className="text-xs text-muted/50">
-            Built with ❤️ by Stanford XR
+            Built with ❤️ by{" "}
+            <a
+              href="https://www.stanfordxr.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted/70 transition hover:text-neon-cyan"
+            >
+              Stanford XR
+            </a>
           </p>
         </motion.div>
       </Container>

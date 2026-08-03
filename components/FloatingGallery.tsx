@@ -19,7 +19,7 @@ const PLACEHOLDER_GRADIENTS = [
 ] as const;
 
 const GAP_PX = 20;
-const HOVER_SCALE = 2.05;
+const HOVER_SCALE = 1.435;
 
 interface LiftedPhotoState {
   instanceId: string;
@@ -73,6 +73,8 @@ interface MarqueePhotoProps {
   style: GalleryPhotoStyle;
   liftedImageId: string | null;
   onLift: (state: LiftedPhotoState) => void;
+  onHoverStart: () => void;
+  onHoverEnd: () => void;
 }
 
 function MarqueePhoto({
@@ -82,18 +84,25 @@ function MarqueePhoto({
   style,
   liftedImageId,
   onLift,
+  onHoverStart,
+  onHoverEnd,
 }: MarqueePhotoProps) {
   const isGhosted = liftedImageId === image.id;
 
   const handlePointerEnter = (event: React.PointerEvent<HTMLElement>) => {
+    onHoverStart();
     const rect = event.currentTarget.getBoundingClientRect();
     onLift({ instanceId, image, index, rect, style });
+  };
+
+  const handlePointerLeave = () => {
+    onHoverEnd();
   };
 
   return (
     <motion.figure
       className={cn(
-        "relative shrink-0 cursor-pointer",
+        "marquee-photo relative shrink-0 cursor-pointer",
         isGhosted && "pointer-events-none",
       )}
       style={{
@@ -103,6 +112,7 @@ function MarqueePhoto({
         rotate: style.rotate,
       }}
       onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
       animate={{ opacity: isGhosted ? 0 : 1 }}
       transition={{ duration: 0 }}
       aria-hidden={isGhosted}
@@ -172,6 +182,8 @@ interface MarqueeStripProps {
   stripKey: string;
   liftedImageId: string | null;
   onLift: (state: LiftedPhotoState) => void;
+  onHoverStart: () => void;
+  onHoverEnd: () => void;
   ariaHidden?: boolean;
 }
 
@@ -179,6 +191,8 @@ function MarqueeStrip({
   stripKey,
   liftedImageId,
   onLift,
+  onHoverStart,
+  onHoverEnd,
   ariaHidden = false,
 }: MarqueeStripProps) {
   return (
@@ -198,6 +212,8 @@ function MarqueeStrip({
             style={GALLERY_PHOTO_STYLES[index]}
             liftedImageId={liftedImageId}
             onLift={onLift}
+            onHoverStart={onHoverStart}
+            onHoverEnd={onHoverEnd}
           />
         );
       })}
@@ -208,17 +224,42 @@ function MarqueeStrip({
 export function FloatingGallery() {
   const [mounted, setMounted] = useState(false);
   const [lifted, setLifted] = useState<LiftedPhotoState | null>(null);
+  const [marqueePaused, setMarqueePaused] = useState(false);
+  const imageHoverCountRef = useRef(0);
+  const liftedRef = useRef<LiftedPhotoState | null>(null);
+
+  useEffect(() => {
+    liftedRef.current = lifted;
+  }, [lifted]);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  const handleHoverStart = useCallback(() => {
+    imageHoverCountRef.current += 1;
+    setMarqueePaused(true);
+  }, []);
+
+  const handleHoverEnd = useCallback(() => {
+    imageHoverCountRef.current = Math.max(0, imageHoverCountRef.current - 1);
+    requestAnimationFrame(() => {
+      if (imageHoverCountRef.current === 0 && !liftedRef.current) {
+        setMarqueePaused(false);
+      }
+    });
+  }, []);
+
   const handleLift = useCallback((state: LiftedPhotoState) => {
+    setMarqueePaused(true);
     setLifted(state);
   }, []);
 
   const handleRelease = useCallback(() => {
     setLifted(null);
+    if (imageHoverCountRef.current === 0) {
+      setMarqueePaused(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -272,17 +313,24 @@ export function FloatingGallery() {
           <div className="flex h-full items-center overflow-hidden">
             <div
               className="flex w-max animate-gallery-marquee will-change-transform"
-              style={{ gap: GAP_PX }}
+              style={{
+                gap: GAP_PX,
+                animationPlayState: marqueePaused ? "paused" : "running",
+              }}
             >
               <MarqueeStrip
                 stripKey="a"
                 liftedImageId={lifted?.image.id ?? null}
                 onLift={handleLift}
+                onHoverStart={handleHoverStart}
+                onHoverEnd={handleHoverEnd}
               />
               <MarqueeStrip
                 stripKey="b"
                 liftedImageId={lifted?.image.id ?? null}
                 onLift={handleLift}
+                onHoverStart={handleHoverStart}
+                onHoverEnd={handleHoverEnd}
                 ariaHidden
               />
             </div>

@@ -30,14 +30,16 @@ export function TracksOverview({ embedded = false }: { embedded?: boolean }) {
       viewport={{ once: true, margin: "-40px" }}
       className={embedded ? undefined : "mb-16"}
     >
-      <p className="mx-auto mb-8 max-w-3xl text-center text-base leading-relaxed text-muted sm:text-lg">
-        {TRACKS_OVERVIEW.description}
-      </p>
-
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2">
         <TrackList title="Sponsored Tracks" items={TRACKS_OVERVIEW.sponsored} />
-        <TrackList title="Primary Tracks" items={TRACKS_OVERVIEW.primary} />
-        <TrackList title="Bonus Track" items={[TRACKS_OVERVIEW.bonus, "General competition prizes"]} />
+        <TrackList
+          title="Primary Tracks"
+          items={[
+            ...TRACKS_OVERVIEW.primary,
+            TRACKS_OVERVIEW.bonus,
+            "General competition prizes",
+          ]}
+        />
       </div>
     </motion.section>
   );
