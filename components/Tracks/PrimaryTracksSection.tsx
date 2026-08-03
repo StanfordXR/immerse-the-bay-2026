@@ -70,7 +70,7 @@ export function PrimaryTracksSection({ embedded = false }: { embedded?: boolean 
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-40px" }}
-        className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5"
       >
         {PRIMARY_TRACKS.map((track) => (
           <PrimaryTrackCard
@@ -80,15 +80,6 @@ export function PrimaryTracksSection({ embedded = false }: { embedded?: boolean 
             icon={track.icon}
           />
         ))}
-      </motion.ul>
-
-      <motion.ul
-        variants={staggerContainer}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-40px" }}
-        className="mb-8"
-      >
         <PrimaryTrackCard
           title={BONUS_TRACK.title}
           theme={BONUS_TRACK.theme}

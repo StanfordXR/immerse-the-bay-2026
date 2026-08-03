@@ -19,9 +19,8 @@ function SponsorLogo({
   const spacingAfter = sponsor.marqueeSpacingAfter ?? 1;
 
   return (
-    <a
-      href={sponsor.url ?? "#"}
-      className="flex shrink-0 items-center justify-center pl-[calc(1rem*var(--s-before))] pr-[calc(1rem*var(--s-after))] mr-[calc(1.5rem*var(--s-after))] sm:pl-[calc(1.25rem*var(--s-before))] sm:pr-[calc(1.25rem*var(--s-after))] sm:mr-[calc(2rem*var(--s-after))]"
+    <div
+      className="flex shrink-0 cursor-default items-center justify-center pl-[calc(1rem*var(--s-before))] pr-[calc(1rem*var(--s-after))] mr-[calc(1.5rem*var(--s-after))] sm:pl-[calc(1.25rem*var(--s-before))] sm:pr-[calc(1.25rem*var(--s-after))] sm:mr-[calc(2rem*var(--s-after))]"
       style={
         {
           "--s-before": spacingBefore,
@@ -29,6 +28,7 @@ function SponsorLogo({
         } as React.CSSProperties
       }
       aria-label={sponsor.name}
+      role="img"
     >
       {sponsor.logo ? (
         <span className={cn(LOGO_FRAME_CLASS, "overflow-visible")}>
@@ -45,7 +45,7 @@ function SponsorLogo({
           {sponsor.name}
         </span>
       )}
-    </a>
+    </div>
   );
 }
 

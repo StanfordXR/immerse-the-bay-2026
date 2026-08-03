@@ -33,6 +33,7 @@ export default function RootLayout({
       className={`${shareTechMono.variable} ${fontDystopian.variable} ${fontGlitch.variable} scroll-smooth`}
     >
       <body
+        suppressHydrationWarning
         className={`${shareTechMono.className} min-h-screen bg-void text-foreground antialiased`}
       >
         <Navbar />

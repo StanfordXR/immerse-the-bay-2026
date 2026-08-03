@@ -5,11 +5,10 @@ import type {
 } from "./types";
 
 /** PowerPoint / slides deck URL — update when the deck is hosted. */
-export const TRACKS_PRESENTATION_URL = "/tracks-prizes-deck.pptx";
+export const TRACKS_PRESENTATION_URL =
+  "https://immersethebay.stanfordxr.org/slides2025.pdf";
 
 export const TRACKS_OVERVIEW = {
-  description:
-    "Compete across sponsor-backed challenges, primary judging categories, and a bonus wild card track. Each sponsored track includes dedicated resources, mentorship, and prizes.",
   sponsored: [
     "Moonlake",
     "XREAL",

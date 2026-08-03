@@ -33,7 +33,7 @@ const TIER_LAYOUT: Record<
   "Supported By": {
     grid: "grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5",
     logoClass: "max-h-9 max-w-[120px]",
-    cardClass: "px-5 py-3.5",
+    cardClass: "px-5 py-[1.4rem]",
     titleClass: "text-orange-400",
   },
 };
@@ -49,13 +49,10 @@ function SponsorCard({
 }) {
   return (
     <motion.li variants={scaleIn}>
-      <motion.a
-        href={sponsor.url ?? "#"}
-        target={sponsor.url && sponsor.url !== "#" ? "_blank" : undefined}
-        rel="noopener noreferrer"
+      <motion.div
         whileHover={{ y: -4, scale: 1.02 }}
         className={cn(
-          "flex h-full items-center justify-center border border-white/10 bg-surface/50 px-6 py-4 backdrop-blur-md transition hover:border-neon-cyan/40 hover:shadow-glow-cyan",
+          "flex h-full cursor-default items-center justify-center border border-white/10 bg-surface/50 px-6 py-4 backdrop-blur-md transition hover:border-neon-cyan/40 hover:shadow-glow-cyan",
           className,
         )}
       >
@@ -77,7 +74,7 @@ function SponsorCard({
             {sponsor.name}
           </span>
         )}
-      </motion.a>
+      </motion.div>
     </motion.li>
   );
 }
@@ -89,8 +86,8 @@ export function Sponsors() {
       <Container as="section">
         <SectionHeading
           eyebrow="Sponsors"
-          title="Powered by immersive industry leaders"
-          description="Immerse the Bay is made possible by the innovative companies backing the next generation of XR builders. The following are our 2025 sponsors. 2026 sponsors to be announced."
+          title="Backed by immersive industry leaders"
+          description="Immerse the Bay is made possible by the innovative companies backing the next generation of XR builders. The following are our 2025 sponsors. 2026 sponsors TBD."
           className="mb-8"
         />
 
@@ -151,8 +148,8 @@ export function Sponsors() {
                 <SponsorCard
                   key={partner.name}
                   sponsor={partner}
-                  logoClass="max-h-10 max-w-[140px]"
-                  className="min-w-[160px] px-5 py-3.5"
+                  logoClass="max-h-12 max-w-[168px]"
+                  className="min-w-[211px] px-[1.65rem] py-[1.155rem]"
                 />
               ))}
             </ul>

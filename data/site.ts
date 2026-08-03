@@ -17,11 +17,19 @@ export const SITE = {
   heroTagline: "Take Me To The Moon",
 } as const;
 
+/** Toggle to show Live Dashboard in the navbar (route stays at /dashboard). */
+export const SHOW_LIVE_DASHBOARD_NAV = false;
+
+const LIVE_DASHBOARD_NAV_LINK: NavLink = {
+  label: "Live Dashboard",
+  href: "/dashboard",
+};
+
 export const NAV_LINKS: NavLink[] = [
   { label: "Home", href: "/" },
   { label: "Schedule", href: "/schedule" },
   { label: "FAQ", href: "/faq" },
-  { label: "Live Dashboard", href: "/dashboard" },
+  ...(SHOW_LIVE_DASHBOARD_NAV ? [LIVE_DASHBOARD_NAV_LINK] : []),
   { label: "Tracks & Prizes", href: "/tracks" },
   {
     label: "2025 Hackathon",

@@ -25,6 +25,22 @@ export interface FAQItem {
 
 export type ScheduleDayId = "friday" | "saturday" | "sunday";
 
+export type RoughScheduleBlockSize = "default" | "large" | "fill";
+
+export interface RoughScheduleBlock {
+  id: string;
+  title: string;
+  time: string;
+  size?: RoughScheduleBlockSize;
+}
+
+export interface RoughScheduleDay {
+  id: ScheduleDayId;
+  label: string;
+  date: string;
+  blocks: RoughScheduleBlock[];
+}
+
 export interface ScheduleEvent {
   id: string;
   time: string;
