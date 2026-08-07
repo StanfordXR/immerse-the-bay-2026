@@ -11,8 +11,8 @@ export const SITE = {
   website: "https://stanfordxr.org",
   year: 2026,
   foundedYear: 2019,
-  eventDate: "* November 13-15, 2026",
-  eventDateNote: "* To be confirmed",
+  eventDate: "November 13-15*, 2026",
+  eventDateNote: "* To be finalized",
   eventLocation: "Stanford, CA",
   heroTagline: "Take Me To The Moon",
 } as const;
@@ -33,7 +33,7 @@ export const NAV_LINKS: NavLink[] = [
   { label: "Tracks & Prizes", href: "/tracks" },
   {
     label: "2025 Hackathon",
-    href: "https://immersethebay.stanfordxr.org/",
+    href: "https://2025.immersethebay.org/",
     external: true,
   },
 ];

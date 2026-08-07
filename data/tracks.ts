@@ -6,7 +6,7 @@ import type {
 
 /** PowerPoint / slides deck URL — update when the deck is hosted. */
 export const TRACKS_PRESENTATION_URL =
-  "https://immersethebay.stanfordxr.org/slides2025.pdf";
+  "https://2025.immersethebay.org/slides2025.pdf";
 
 export const TRACKS_OVERVIEW = {
   sponsored: [
