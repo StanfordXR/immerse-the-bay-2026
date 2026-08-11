@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ScheduleView } from "@/components/Schedule/ScheduleView";
 
 export const metadata: Metadata = {
-  title: "Schedule | Immerse the Bay 2026",
+  title: "Schedule",
   description: "Three-day event schedule for Immerse the Bay — Stanford's XR hackathon.",
 };
 

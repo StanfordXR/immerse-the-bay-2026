@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { TracksPageContent } from "@/components/Tracks/TracksPageContent";
 
 export const metadata: Metadata = {
-  title: "Tracks & Prizes | Immerse the Bay 2026",
+  title: "Tracks & Prizes",
   description: "Hackathon tracks, resources, mentors, and prizes for Immerse the Bay 2026.",
 };
 

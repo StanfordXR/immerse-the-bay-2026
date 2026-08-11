@@ -12,13 +12,23 @@ const shareTechMono = Share_Tech_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Immerse the Bay 2026 | Stanford XR Hackathon",
+  title: {
+    default: "Immerse the Bay | StanfordXR",
+    template: "%s | Immerse the Bay | StanfordXR",
+  },
   description:
     "Stanford's premier XR hackathon — VR, AR, AI, gaming, and immersive technology.",
   openGraph: {
-    title: "Immerse the Bay 2026",
+    title: "Immerse the Bay | StanfordXR",
     description: "Build the future of immersive technology at Stanford.",
     type: "website",
+  },
+  icons: {
+    icon: [
+      { url: "/images/logo/SXRLogo.png", type: "image/png" },
+    ],
+    apple: "/images/logo/SXRLogo.png",
+    shortcut: "/favicon.ico",
   },
 };
 
