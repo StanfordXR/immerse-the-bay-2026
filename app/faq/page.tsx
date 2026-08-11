@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { FAQ } from "@/components/FAQ";
 
 export const metadata: Metadata = {
-  title: "FAQ | Immerse the Bay 2026",
+  title: "FAQ",
   description:
     "Frequently asked questions about Immerse the Bay — Stanford's XR hackathon.",
 };

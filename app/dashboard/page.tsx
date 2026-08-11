@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { DashboardView } from "@/components/Dashboard/DashboardView";
 
 export const metadata: Metadata = {
-  title: "Live Dashboard | Immerse the Bay 2026",
+  title: "Live Dashboard",
   description:
     "Live countdown, announcements, calendar, and resources for Immerse the Bay hackers.",
 };
