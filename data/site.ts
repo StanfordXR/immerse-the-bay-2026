@@ -10,7 +10,10 @@ export const SITE = {
   email: "admin@stanfordxr.org",
   website: "https://stanfordxr.org",
   url: "https://www.immersethebay.org",
-  seoTitle: "Immerse the Bay | StanfordXR",
+  seoTitle: "Immerse the Bay | Stanford XR",
+  seoDescription:
+    "Immerse the Bay is Silicon Valley's leading extended reality (XR) hackathon. Hosted on the Stanford University campus, augmented reality (AR), virtual reality (VR), and mixed-reality (MR) experiences.",
+  organizationName: "Stanford XR",
   year: 2026,
   foundedYear: 2019,
   eventDate: "November 13-15*, 2026",
