@@ -9,6 +9,8 @@ export const SITE = {
     "Build the future of immersive technology at Stanford — VR, AR, AI, gaming, and spatial computing.",
   email: "admin@stanfordxr.org",
   website: "https://stanfordxr.org",
+  url: "https://www.immersethebay.org",
+  seoTitle: "Immerse the Bay | StanfordXR",
   year: 2026,
   foundedYear: 2019,
   eventDate: "November 13-15*, 2026",

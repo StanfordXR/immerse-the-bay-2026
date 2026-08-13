@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { ABOUT_BOXES, RECAP_VIDEO } from "@/data/site";
 import { FloatingGallery } from "@/components/FloatingGallery";
 import { StatsBar } from "@/components/StatsBar";
@@ -9,6 +10,90 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { fadeUp, staggerContainer } from "@/lib/motion";
 import { cn } from "@/lib/utils";
+
+const EXPECT_ITEM_EMOJI: Record<string, string> = {
+  "Next-Gen Hardware": "👾",
+  "Industry Support": "💜",
+  "Massive Prizes": "🔮",
+  "Global Networking": "🦄",
+  "All Weekend Long": "🟣",
+};
+
+function parseLabeledItems(body: string) {
+  return body
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((item) => {
+      const colonIndex = item.indexOf(":");
+
+      if (colonIndex === -1) {
+        return { label: item, content: "" };
+      }
+
+      return {
+        label: item.slice(0, colonIndex).trim(),
+        content: item.slice(colonIndex + 1).trim(),
+      };
+    });
+}
+
+function ExpectSection({ title, body }: { title: string; body: string }) {
+  const items = parseLabeledItems(body);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const activeItem = items[activeIndex] ?? items[0];
+
+  return (
+    <GlassCard hover={false} className="w-full">
+      <h3 className="font-sans text-xl font-semibold sm:text-2xl">{title}</h3>
+
+      <div className="mt-6 flex flex-col gap-4 sm:gap-5">
+        <div
+          role="tablist"
+          aria-label="What to expect topics"
+          className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5 lg:gap-3"
+        >
+          {items.map((item, index) => (
+            <button
+              key={item.label}
+              type="button"
+              role="tab"
+              aria-selected={activeIndex === index}
+              aria-controls={`expect-panel-${index}`}
+              id={`expect-tab-${index}`}
+              onClick={() => setActiveIndex(index)}
+              className={cn(
+                "flex flex-col items-center justify-center gap-1.5 border px-3 py-3.5 text-center text-sm font-medium transition sm:px-4 sm:py-4 sm:text-base lg:text-[0.95rem]",
+                activeIndex === index
+                  ? "border-neon-cyan/50 bg-neon-indigo/20 text-foreground shadow-glow-cyan"
+                  : "border-white/10 bg-surface/40 text-muted hover:border-neon-blue/30 hover:text-foreground",
+              )}
+            >
+              <span
+                className="text-lg drop-shadow-[0_0_10px_rgb(192_132_252/0.45)] sm:text-xl"
+                aria-hidden
+              >
+                {EXPECT_ITEM_EMOJI[item.label] ?? "🟣"}
+              </span>
+              {item.label}
+            </button>
+          ))}
+        </div>
+
+        <div
+          role="tabpanel"
+          id={`expect-panel-${activeIndex}`}
+          aria-labelledby={`expect-tab-${activeIndex}`}
+          className="min-h-[10rem] border border-white/10 bg-void/40 px-5 py-5 sm:px-7 sm:py-6"
+        >
+          <p className="text-base leading-relaxed text-muted sm:text-lg lg:leading-relaxed">
+            {activeItem.content}
+          </p>
+        </div>
+      </div>
+    </GlassCard>
+  );
+}
 
 function renderBoxBody(body: string, isList: boolean, horizontal = false) {
   if (!isList) {
@@ -140,12 +225,7 @@ export function About() {
 
         {expectBox && (
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} className="mt-8">
-            <GlassCard hover={false} className="w-full">
-              <h3 className="font-sans text-lg font-semibold sm:text-xl">
-                {expectBox.title}
-              </h3>
-              {renderBoxBody(expectBox.body, true, true)}
-            </GlassCard>
+            <ExpectSection title={expectBox.title} body={expectBox.body} />
           </motion.div>
         )}
       </Container>

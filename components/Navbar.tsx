@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { NAV_LINKS, SITE } from "@/data/site";
+import { NAV_LINKS } from "@/data/site";
 import type { NavLink } from "@/data/types";
 import { cn } from "@/lib/utils";
 
@@ -125,23 +125,26 @@ export function Navbar() {
       )}
     >
       <nav
-        className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8"
+        className="mx-auto flex max-w-6xl items-center justify-between px-4 py-[0.8rem] sm:px-6 lg:px-8"
         aria-label="Main navigation"
       >
         <Link
           href="/"
-          className="inline-flex items-center gap-2.5 text-sm text-foreground transition-colors hover:text-foreground sm:text-base"
+          className="inline-flex items-center gap-2.5 text-foreground transition-colors hover:text-foreground"
+          aria-label="Immerse the Bay home"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/images/logo/SXRLogo.png"
             alt=""
-            className="h-6 w-6 shrink-0 object-contain sm:h-7 sm:w-7"
+            className="h-[26.4px] w-[26.4px] shrink-0 object-contain sm:h-[30.8px] sm:w-[30.8px]"
           />
-          <span className="leading-none">
-            {SITE.name.split(" ")[0]}{" "}
-            <span className="hidden sm:inline">the Bay</span>
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/logo/ITB_Standard.png"
+            alt="Immerse the Bay"
+            className="h-12 w-auto shrink-0 object-contain sm:h-[3.6rem]"
+          />
         </Link>
 
         <ul className="hidden items-center gap-8 md:flex">
