@@ -8,6 +8,16 @@ export const metadata: Metadata = {
   title: {
     absolute: SITE.seoTitle,
   },
+  description: SITE.seoDescription,
+  openGraph: {
+    title: SITE.seoTitle,
+    description: SITE.seoDescription,
+    url: SITE.url,
+  },
+  twitter: {
+    title: SITE.seoTitle,
+    description: SITE.seoDescription,
+  },
   alternates: {
     canonical: "/",
   },

@@ -19,20 +19,19 @@ export const metadata: Metadata = {
     default: SITE.seoTitle,
     template: `%s | ${SITE.seoTitle}`,
   },
-  description:
-    "Stanford's premier XR hackathon — VR, AR, AI, gaming, and immersive technology.",
-  applicationName: "StanfordXR",
+  description: SITE.seoDescription,
+  applicationName: SITE.organizationName,
   openGraph: {
     title: SITE.seoTitle,
-    siteName: "StanfordXR",
-    description: "Build the future of immersive technology at Stanford.",
+    siteName: SITE.seoTitle,
+    description: SITE.seoDescription,
     type: "website",
     url: SITE.url,
   },
   twitter: {
     card: "summary_large_image",
     title: SITE.seoTitle,
-    description: "Build the future of immersive technology at Stanford.",
+    description: SITE.seoDescription,
   },
   icons: {
     icon: [{ url: "/images/logo/SXRLogo.png", type: "image/png" }],
