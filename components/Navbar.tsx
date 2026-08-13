@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { NAV_LINKS } from "@/data/site";
+import { NAV_LINKS, PORTAL_APPLY_URL } from "@/data/site";
 import type { NavLink } from "@/data/types";
 import { cn } from "@/lib/utils";
 
@@ -156,7 +156,9 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           <span className="group relative hidden sm:inline-flex">
             <a
-              href="#apply"
+              href={PORTAL_APPLY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="border border-neon-cyan/50 bg-neon-indigo/20 px-4 py-2 text-sm font-semibold shadow-glow transition hover:shadow-glow-cyan"
             >
               Apply
@@ -191,7 +193,12 @@ export function Navbar() {
               <MobileNavItem key={link.label} link={link} />
             ))}
             <li>
-              <a href="#apply" className="block py-2 text-sm text-neon-cyan">
+              <a
+                href={PORTAL_APPLY_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block py-2 text-sm text-neon-cyan"
+              >
                 Apply{" "}
                 <span className="text-xs text-neon-cyan/70">
                   (Launching applications on the 14th!)
