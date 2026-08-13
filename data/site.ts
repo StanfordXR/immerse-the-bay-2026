@@ -22,6 +22,10 @@ export const SITE = {
   heroTagline: "Take Me To The Moon",
 } as const;
 
+/** Application portal — utm_source=es tags traffic from the event site. */
+export const PORTAL_APPLY_URL =
+  "https://portal.immersethebay.org/apply?utm_source=es";
+
 /** Toggle to show Live Dashboard in the navbar (route stays at /dashboard). */
 export const SHOW_LIVE_DASHBOARD_NAV = false;
 
@@ -46,8 +50,9 @@ export const NAV_LINKS: NavLink[] = [
 export const HERO_CTAS = [
   {
     label: "Apply",
-    href: "#apply",
+    href: PORTAL_APPLY_URL,
     variant: "primary" as const,
+    external: true,
     tooltip: "Launching applications on the 14th!",
   },
   {

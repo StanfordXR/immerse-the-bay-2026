@@ -99,6 +99,7 @@ export function Hero() {
                 key={cta.label}
                 href={cta.href}
                 variant={cta.variant}
+                external={"external" in cta ? cta.external : false}
                 tooltip={cta.tooltip}
               >
                 {cta.label}
