@@ -18,7 +18,7 @@ function isNavActive(pathname: string, link: NavLink): boolean {
 function DesktopNavItem({ link, pathname }: { link: NavLink; pathname: string }) {
   const active = isNavActive(pathname, link);
   const linkClass = cn(
-    "text-sm transition-colors",
+    "text-base transition-colors",
     active ? "text-neon-cyan" : "text-muted hover:text-foreground",
   );
 
@@ -64,7 +64,7 @@ function MobileNavItem({ link }: { link: NavLink }) {
   if (link.comingSoon) {
     return (
       <li>
-        <span className="block py-2 text-sm text-muted sm:py-3">
+        <span className="block py-2 text-base text-muted sm:py-3">
           {link.label}{" "}
           <span className="text-xs text-neon-cyan/70">(Coming soon!)</span>
         </span>
@@ -79,7 +79,7 @@ function MobileNavItem({ link }: { link: NavLink }) {
           href={link.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="block py-2 text-sm text-foreground sm:py-3"
+          className="block py-2 text-base text-foreground sm:py-3"
         >
           {link.label}
         </a>
@@ -89,7 +89,7 @@ function MobileNavItem({ link }: { link: NavLink }) {
 
   return (
     <li>
-      <Link href={link.href} className="block py-2 text-sm text-foreground sm:py-3">
+      <Link href={link.href} className="block py-2 text-base text-foreground sm:py-3">
         {link.label}
       </Link>
     </li>
@@ -134,7 +134,7 @@ export function Navbar() {
       )}
     >
       <nav
-        className="mx-auto flex max-w-6xl items-center justify-between px-4 py-[0.8rem] sm:px-6 lg:px-8"
+        className="mx-auto flex max-w-6xl items-center justify-between px-4 py-1 sm:px-6 lg:px-8"
         aria-label="Main navigation"
       >
         <Link
@@ -143,12 +143,12 @@ export function Navbar() {
           aria-label="Immerse the Bay home"
         >
           {/* The bunny lives in the hero eyebrow now; the wordmark gets the
-              whole brand slot, as large as the bar allows. */}
+              whole brand slot — bar padding is trimmed to let it max out. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/images/logo/ITB_Standard.png"
             alt="Immerse the Bay"
-            className="h-11 max-w-[11rem] w-auto shrink-0 object-contain sm:h-[4.25rem] sm:max-w-none"
+            className="h-[3.25rem] max-w-[13rem] w-auto shrink-0 object-contain sm:h-[5.25rem] sm:max-w-none"
           />
         </Link>
 
@@ -164,7 +164,7 @@ export function Navbar() {
               href={PORTAL_APPLY_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="border border-neon-cyan/50 bg-neon-indigo/20 px-4 py-2 text-sm font-semibold shadow-glow transition hover:shadow-glow-cyan"
+              className="border border-neon-cyan/50 bg-neon-indigo/20 px-4 py-2 text-base font-semibold shadow-glow transition hover:shadow-glow-cyan"
             >
               Apply
             </a>
@@ -172,7 +172,7 @@ export function Navbar() {
               className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 -translate-x-1/2 whitespace-nowrap border border-white/10 bg-navy/95 px-3 py-1.5 text-xs text-neon-cyan opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100"
               role="tooltip"
             >
-              Applications are open!
+              Open now!
             </span>
           </span>
           <button
@@ -202,11 +202,11 @@ export function Navbar() {
                 href={PORTAL_APPLY_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block py-3 text-sm text-neon-cyan"
+                className="block py-3 text-base text-neon-cyan"
               >
                 Apply{" "}
                 <span className="text-xs text-neon-cyan/70">
-                  (Applications are open!)
+                  (Open now!)
                 </span>
               </a>
             </li>

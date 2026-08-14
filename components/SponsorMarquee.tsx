@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 /** Full band height (former py-5/py-6 + h-12/h-14) so logos clip at the edge with no inner margin. */
 const LOGO_FRAME_CLASS =
-  "flex h-[4.5rem] w-[6.5rem] shrink-0 items-center justify-center sm:h-[6.5rem] sm:w-[8.5rem]";
+  "flex h-[3.75rem] w-[5.5rem] shrink-0 items-center justify-center sm:h-[5.5rem] sm:w-[7.25rem]";
 
 function SponsorLogo({
   sponsor,
@@ -66,7 +66,7 @@ function SponsorStrip({ ariaHidden = false }: { ariaHidden?: boolean }) {
 export function SponsorMarquee() {
   return (
     <div
-      className="relative w-full border-y border-white/10 bg-void/70 py-0 backdrop-blur-md"
+      className="relative w-full border-y border-white/10 bg-void/40 py-0 backdrop-blur-md"
       aria-label="Sponsor logos"
     >
       <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-void to-transparent sm:w-24" />

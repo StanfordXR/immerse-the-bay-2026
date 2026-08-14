@@ -1,4 +1,4 @@
-export type SponsorTierName = "Diamond" | "Gold" | "Silver" | "Supported By";
+export type SponsorTierName = "Platinum" | "Gold" | "Silver" | "Supported By";
 
 export interface Sponsor {
   name: string;

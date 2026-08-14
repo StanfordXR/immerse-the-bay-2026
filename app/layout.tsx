@@ -27,11 +27,20 @@ export const metadata: Metadata = {
     description: SITE.seoDescription,
     type: "website",
     url: SITE.url,
+    images: [
+      {
+        url: "/images/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Immerse the Bay 2026, Stanford's XR hackathon",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: SITE.seoTitle,
     description: SITE.seoDescription,
+    images: ["/images/og.jpg"],
   },
   icons: {
     icon: [{ url: "/images/logo/SXRLogo.png", type: "image/png" }],
