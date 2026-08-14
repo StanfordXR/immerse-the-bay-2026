@@ -16,7 +16,7 @@ export function HeroImageBackground() {
       <img
         src={HERO_BACKGROUND_IMAGE}
         alt=""
-        className="h-full w-full scale-[0.88] object-cover object-[center_25%] sm:object-[center_30%] brightness-110 saturate-110"
+        className="h-full w-full object-cover object-[center_25%] sm:object-[center_30%] brightness-110 saturate-110"
       />
 
       {/* Light overlay — keeps text readable without dulling the art */}
