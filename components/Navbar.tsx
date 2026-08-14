@@ -18,7 +18,7 @@ function isNavActive(pathname: string, link: NavLink): boolean {
 function DesktopNavItem({ link, pathname }: { link: NavLink; pathname: string }) {
   const active = isNavActive(pathname, link);
   const linkClass = cn(
-    "text-sm transition-colors",
+    "text-base transition-colors",
     active ? "text-neon-cyan" : "text-muted hover:text-foreground",
   );
 
@@ -64,7 +64,7 @@ function MobileNavItem({ link }: { link: NavLink }) {
   if (link.comingSoon) {
     return (
       <li>
-        <span className="block py-2 text-sm text-muted sm:py-3">
+        <span className="block py-2 text-base text-muted sm:py-3">
           {link.label}{" "}
           <span className="text-xs text-neon-cyan/70">(Coming soon!)</span>
         </span>
@@ -79,7 +79,7 @@ function MobileNavItem({ link }: { link: NavLink }) {
           href={link.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="block py-2 text-sm text-foreground sm:py-3"
+          className="block py-2 text-base text-foreground sm:py-3"
         >
           {link.label}
         </a>
@@ -89,7 +89,7 @@ function MobileNavItem({ link }: { link: NavLink }) {
 
   return (
     <li>
-      <Link href={link.href} className="block py-2 text-sm text-foreground sm:py-3">
+      <Link href={link.href} className="block py-2 text-base text-foreground sm:py-3">
         {link.label}
       </Link>
     </li>
@@ -164,7 +164,7 @@ export function Navbar() {
               href={PORTAL_APPLY_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="border border-neon-cyan/50 bg-neon-indigo/20 px-4 py-2 text-sm font-semibold shadow-glow transition hover:shadow-glow-cyan"
+              className="border border-neon-cyan/50 bg-neon-indigo/20 px-4 py-2 text-base font-semibold shadow-glow transition hover:shadow-glow-cyan"
             >
               Apply
             </a>
@@ -202,7 +202,7 @@ export function Navbar() {
                 href={PORTAL_APPLY_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block py-3 text-sm text-neon-cyan"
+                className="block py-3 text-base text-neon-cyan"
               >
                 Apply{" "}
                 <span className="text-xs text-neon-cyan/70">
