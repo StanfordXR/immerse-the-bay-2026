@@ -84,7 +84,7 @@ export function Hero() {
 
           <motion.p
             variants={fadeUp}
-            className="mt-5 font-glitch text-xl uppercase tracking-wide text-foreground/90 [text-shadow:0_0_18px_rgba(255,255,255,0.4),0_2px_12px_rgba(0,0,0,0.65)] sm:mt-6 sm:text-3xl lg:text-4xl"
+            className="mt-5 font-glitch text-xl uppercase tracking-wide text-foreground/90 [text-shadow:0_0_14px_rgba(255,255,255,0.55),0_0_36px_rgba(255,255,255,0.35),0_0_64px_rgba(255,255,255,0.18),0_2px_12px_rgba(0,0,0,0.65)] sm:mt-6 sm:text-3xl lg:text-4xl"
           >
             {SITE.heroTagline}
           </motion.p>

@@ -84,7 +84,7 @@ function ExpectSection({ title, body }: { title: string; body: string }) {
           role="tabpanel"
           id={`expect-panel-${activeIndex}`}
           aria-labelledby={`expect-tab-${activeIndex}`}
-          className="min-h-[8rem] border border-white/10 bg-void/40 px-4 py-5 sm:min-h-[10rem] sm:px-7 sm:py-6"
+          className="min-h-[5rem] border border-white/10 bg-void/40 px-4 py-5 sm:min-h-[6rem] sm:px-7 sm:py-6"
         >
           <p className="break-words text-base leading-relaxed text-muted [overflow-wrap:anywhere] sm:text-lg lg:leading-relaxed">
             {activeItem.content}

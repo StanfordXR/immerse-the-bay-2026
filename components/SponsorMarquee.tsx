@@ -66,7 +66,7 @@ function SponsorStrip({ ariaHidden = false }: { ariaHidden?: boolean }) {
 export function SponsorMarquee() {
   return (
     <div
-      className="relative w-full border-y border-white/10 bg-void/70 py-0 backdrop-blur-md"
+      className="relative w-full border-y border-white/10 bg-void/40 py-0 backdrop-blur-md"
       aria-label="Sponsor logos"
     >
       <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-void to-transparent sm:w-24" />
