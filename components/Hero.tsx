@@ -118,13 +118,37 @@ export function Hero() {
             ))}
           </motion.div>
 
-          <motion.div
+          {/* Static scroll cue: hero art fills the viewport, so first-time
+              visitors need a signifier that the page continues (NN/g's
+              "illusion of completeness"). A real link to the next section,
+              not decoration — no animation, visibility comes from size,
+              contrast, and glow instead. */}
+          <motion.a
             variants={fadeUp}
-            aria-hidden
-            className="mt-7 animate-bounce font-mono text-sm text-neon-cyan/60"
+            href="#about"
+            aria-label="Scroll down to learn more"
+            className="group mt-8 flex flex-col items-center gap-1.5 glow-drop-soft transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-neon-purple-light"
           >
-            ↓
-          </motion.div>
+            <span className="font-mono text-[0.65rem] uppercase tracking-[0.35em] text-neon-purple-light/80 transition group-hover:text-neon-purple-light">
+              Scroll
+            </span>
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 22 22"
+              fill="none"
+              aria-hidden
+              className="text-neon-purple-light/80 transition group-hover:translate-y-0.5 group-hover:text-neon-purple-light"
+            >
+              <path d="M4 5.5l7 7 7-7" stroke="currentColor" strokeWidth="2" />
+              <path
+                d="M4 12l7 7 7-7"
+                stroke="currentColor"
+                strokeWidth="2"
+                opacity="0.45"
+              />
+            </svg>
+          </motion.a>
         </motion.div>
       </div>
 
