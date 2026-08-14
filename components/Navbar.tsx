@@ -142,17 +142,13 @@ export function Navbar() {
           className="inline-flex items-center gap-2.5 text-foreground transition-colors hover:text-foreground"
           aria-label="Immerse the Bay home"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/images/logo/SXRLogo.png"
-            alt=""
-            className="h-[26.4px] w-[26.4px] shrink-0 object-contain sm:h-[30.8px] sm:w-[30.8px]"
-          />
+          {/* The bunny lives in the hero eyebrow now; the wordmark gets the
+              whole brand slot, as large as the bar allows. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/images/logo/ITB_Standard.png"
             alt="Immerse the Bay"
-            className="h-9 max-w-[9.5rem] w-auto shrink-0 object-contain sm:h-[3.6rem] sm:max-w-none"
+            className="h-11 max-w-[11rem] w-auto shrink-0 object-contain sm:h-[4.25rem] sm:max-w-none"
           />
         </Link>
 
@@ -176,7 +172,7 @@ export function Navbar() {
               className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 -translate-x-1/2 whitespace-nowrap border border-white/10 bg-navy/95 px-3 py-1.5 text-xs text-neon-cyan opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100"
               role="tooltip"
             >
-              Launching applications on the 14th!
+              Applications are open!
             </span>
           </span>
           <button
@@ -210,7 +206,7 @@ export function Navbar() {
               >
                 Apply{" "}
                 <span className="text-xs text-neon-cyan/70">
-                  (Launching applications on the 14th!)
+                  (Applications are open!)
                 </span>
               </a>
             </li>
