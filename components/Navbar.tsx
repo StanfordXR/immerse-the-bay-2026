@@ -172,7 +172,7 @@ export function Navbar() {
               className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 -translate-x-1/2 whitespace-nowrap border border-white/10 bg-navy/95 px-3 py-1.5 text-xs text-neon-cyan opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100"
               role="tooltip"
             >
-              Applications are open!
+              Open now!
             </span>
           </span>
           <button
@@ -206,7 +206,7 @@ export function Navbar() {
               >
                 Apply{" "}
                 <span className="text-xs text-neon-cyan/70">
-                  (Applications are open!)
+                  (Open now!)
                 </span>
               </a>
             </li>

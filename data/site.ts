@@ -16,7 +16,7 @@ export const SITE = {
   organizationName: "Stanford XR",
   year: 2026,
   foundedYear: 2019,
-  eventDate: "November 13-15*, 2026",
+  eventDate: "November 13-15*",
   eventDateNote: "* To be finalized",
   eventLocation: "Stanford, CA",
   heroTagline: "Take Me To The Moon",
@@ -53,7 +53,7 @@ export const HERO_CTAS = [
     href: PORTAL_APPLY_URL,
     variant: "primary" as const,
     external: true,
-    tooltip: "Applications are open!",
+    tooltip: "Open now!",
   },
   {
     label: "Volunteer",
