@@ -129,7 +129,7 @@ export function Hero() {
             aria-label="Scroll down to learn more"
             className="group mt-8 flex flex-col items-center gap-1.5 glow-drop-soft transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-neon-purple-light"
           >
-            <span className="font-mono text-[0.65rem] uppercase tracking-[0.35em] text-neon-purple-light/80 transition group-hover:text-neon-purple-light">
+            <span className="font-mono text-[0.65rem] uppercase tracking-[0.35em] text-foreground/85 [text-shadow:0_0_10px_rgba(240,234,255,0.45)] transition group-hover:text-foreground">
               Scroll
             </span>
             <svg
@@ -138,7 +138,7 @@ export function Hero() {
               viewBox="0 0 22 22"
               fill="none"
               aria-hidden
-              className="text-neon-purple-light/80 transition group-hover:translate-y-0.5 group-hover:text-neon-purple-light"
+              className="text-neon-purple-light drop-shadow-[0_0_8px_rgba(192,132,252,0.6)] transition group-hover:translate-y-0.5"
             >
               <path d="M4 5.5l7 7 7-7" stroke="currentColor" strokeWidth="2" />
               <path
