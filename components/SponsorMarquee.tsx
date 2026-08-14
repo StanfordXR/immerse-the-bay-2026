@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 /** Full band height (former py-5/py-6 + h-12/h-14) so logos clip at the edge with no inner margin. */
 const LOGO_FRAME_CLASS =
-  "flex h-[4.5rem] w-[6.5rem] shrink-0 items-center justify-center sm:h-[6.5rem] sm:w-[8.5rem]";
+  "flex h-[3.75rem] w-[5.5rem] shrink-0 items-center justify-center sm:h-[5.5rem] sm:w-[7.25rem]";
 
 function SponsorLogo({
   sponsor,
