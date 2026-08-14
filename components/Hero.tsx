@@ -117,6 +117,14 @@ export function Hero() {
               </Button>
             ))}
           </motion.div>
+
+          <motion.div
+            variants={fadeUp}
+            aria-hidden
+            className="mt-7 animate-bounce font-mono text-sm text-neon-cyan/60"
+          >
+            ↓
+          </motion.div>
         </motion.div>
       </div>
 
