@@ -9,14 +9,26 @@ export const metadata: Metadata = {
     absolute: SITE.seoTitle,
   },
   description: SITE.seoDescription,
+  // Next replaces the whole openGraph object per segment, so images must be
+  // repeated here or the homepage (the page people actually share) loses the
+  // card artwork the layout defines.
   openGraph: {
     title: SITE.seoTitle,
     description: SITE.seoDescription,
     url: SITE.url,
+    images: [
+      {
+        url: "/images/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Immerse the Bay 2026, Stanford's XR hackathon",
+      },
+    ],
   },
   twitter: {
     title: SITE.seoTitle,
     description: SITE.seoDescription,
+    images: ["/images/og.jpg"],
   },
   alternates: {
     canonical: "/",

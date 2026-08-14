@@ -43,7 +43,12 @@ export const metadata: Metadata = {
     images: ["/images/og.jpg"],
   },
   icons: {
-    icon: [{ url: "/images/logo/SXRLogo.png", type: "image/png" }],
+    icon: [
+      // Google Search only shows a favicon that's a square multiple of 48px;
+      // the explicit sizes attr is what its crawler keys on.
+      { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+      { url: "/images/logo/SXRLogo.png", type: "image/png" },
+    ],
     apple: "/images/logo/SXRLogo.png",
     shortcut: "/favicon.ico",
   },

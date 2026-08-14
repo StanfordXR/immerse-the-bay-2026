@@ -205,7 +205,7 @@ export function About() {
 
   return (
     <section id="about" className="relative overflow-x-clip pt-20 sm:pt-28">
-      <div className="bg-section-glow pointer-events-none absolute inset-0" aria-hidden />
+      <div className="bg-section-glow pointer-events-none absolute inset-x-0 -top-48 bottom-0" aria-hidden />
       <Container as="div">
         <SectionHeading
           eyebrow="About"
