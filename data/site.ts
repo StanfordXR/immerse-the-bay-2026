@@ -81,11 +81,11 @@ export const ABOUT_BOXES: AboutBox[] = [
   {
     id: "expect",
     title: "What to expect",
-    body: `Next-Gen Hardware: Get hands-on access to over $150k worth of XR equipment, including headsets, controllers, and spatial computing peripherals loaned for the full weekend.
+    body: `Next-Gen Hardware: Get hands-on access to over $300k worth of XR equipment, including headsets, controllers, and spatial computing peripherals loaned for the full weekend.
 
 Industry Support: Level up your skills with engaging workshops, live demos, and direct mentorship from engineers and designers at leading immersive technology companies.
 
-Massive Prizes: Showcase your live prototype at the demo fair and compete for ~$10k in prizes across multiple tracks and sponsor awards.
+Massive Prizes: Showcase your live prototype at the demo fair and compete for over $30k in prizes across multiple tracks and sponsor awards.
 
 Global Networking: Connect with a vibrant XR community that previously drew participants from over 175 universities and organizations across 13 countries.
 
