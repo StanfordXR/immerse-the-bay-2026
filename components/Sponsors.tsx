@@ -12,7 +12,7 @@ const TIER_LAYOUT: Record<
   SponsorTierName,
   { grid: string; logoClass: string; cardClass?: string; titleClass: string }
 > = {
-  Diamond: {
+  Platinum: {
     grid: "grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5",
     logoClass: "max-h-12 max-w-[160px]",
     cardClass: "px-4 py-4 sm:px-8 sm:py-5",
