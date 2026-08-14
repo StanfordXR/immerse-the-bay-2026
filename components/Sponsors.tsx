@@ -87,7 +87,7 @@ export function Sponsors() {
         <SectionHeading
           eyebrow="Sponsors"
           title="Backed by immersive industry leaders"
-          description="Immerse the Bay is made possible by the innovative companies backing the next generation of XR builders. The following are our 2025 sponsors. 2026 sponsors TBD."
+          description="Immerse the Bay is made possible by the innovative companies backing the next generation of XR builders, like our 2025 sponsors below."
           className="mb-8"
         />
 
