@@ -37,6 +37,11 @@ export function Hero() {
       className="relative flex min-h-screen flex-col overflow-hidden"
     >
       <HeroBackground />
+      {/* slight corner vignette so the art frames the title without competing */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-[5] bg-[radial-gradient(115%_90%_at_50%_45%,transparent_55%,rgba(5,3,18,0.5)_100%)]"
+      />
       <HudFrame />
 
       <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center px-4 pb-6 pt-24 text-center sm:px-6 sm:pb-12 sm:pt-32">
@@ -51,6 +56,12 @@ export function Hero() {
             className="mb-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 font-mono text-xs uppercase tracking-[0.18em] text-neon-cyan sm:text-sm sm:tracking-[0.3em]"
           >
             <span className="h-px w-8 bg-neon-cyan/40" aria-hidden />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/logo/SXRLogo.png"
+              alt=""
+              className="h-6 w-6 shrink-0 object-contain sm:h-8 sm:w-8"
+            />
             Stanford XR Presents
             <span className="h-px w-8 bg-neon-cyan/40" aria-hidden />
           </motion.p>
@@ -73,7 +84,7 @@ export function Hero() {
 
           <motion.p
             variants={fadeUp}
-            className="mt-5 font-glitch text-xl uppercase tracking-wide text-foreground/90 sm:mt-6 sm:text-3xl lg:text-4xl"
+            className="mt-5 font-glitch text-xl uppercase tracking-wide text-foreground/90 [text-shadow:0_0_18px_rgba(255,255,255,0.4),0_2px_12px_rgba(0,0,0,0.65)] sm:mt-6 sm:text-3xl lg:text-4xl"
           >
             {SITE.heroTagline}
           </motion.p>
