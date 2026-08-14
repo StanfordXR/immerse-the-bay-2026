@@ -31,7 +31,16 @@ export function Footer() {
           className="flex flex-col items-center gap-10 md:flex-row md:justify-between"
         >
           <motion.div variants={fadeUp} className="text-center md:text-left">
-            <Link href="/" className="font-sans text-xl font-semibold">
+            <Link
+              href="/"
+              className="inline-flex items-center justify-center gap-2.5 font-sans text-xl font-semibold md:justify-start"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/logo/SXRLogo.png"
+                alt=""
+                className="h-8 w-8 shrink-0 object-contain"
+              />
               Stanford XR
             </Link>
             <p className="mt-2 text-sm text-muted">{SITE.tagline}</p>
