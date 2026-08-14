@@ -134,7 +134,7 @@ export function Navbar() {
       )}
     >
       <nav
-        className="mx-auto flex max-w-6xl items-center justify-between px-4 py-[0.8rem] sm:px-6 lg:px-8"
+        className="mx-auto flex max-w-6xl items-center justify-between px-4 py-1 sm:px-6 lg:px-8"
         aria-label="Main navigation"
       >
         <Link
@@ -143,12 +143,12 @@ export function Navbar() {
           aria-label="Immerse the Bay home"
         >
           {/* The bunny lives in the hero eyebrow now; the wordmark gets the
-              whole brand slot, as large as the bar allows. */}
+              whole brand slot — bar padding is trimmed to let it max out. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/images/logo/ITB_Standard.png"
             alt="Immerse the Bay"
-            className="h-11 max-w-[11rem] w-auto shrink-0 object-contain sm:h-[4.25rem] sm:max-w-none"
+            className="h-[3.25rem] max-w-[13rem] w-auto shrink-0 object-contain sm:h-[5.25rem] sm:max-w-none"
           />
         </Link>
 
