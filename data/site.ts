@@ -9,7 +9,7 @@ export const SITE = {
     "Build the future of immersive technology at Stanford — VR, AR, AI, gaming, and spatial computing.",
   email: "admin@stanfordxr.org",
   website: "https://stanfordxr.org",
-  url: "https://www.immersethebay.org",
+  url: "https://immersethebay.org",
   seoTitle: "Immerse the Bay | Stanford XR",
   seoDescription:
     "Immerse the Bay is Silicon Valley's leading extended reality (XR) hackathon. Hosted on the Stanford University campus, augmented reality (AR), virtual reality (VR), and mixed-reality (MR) experiences.",

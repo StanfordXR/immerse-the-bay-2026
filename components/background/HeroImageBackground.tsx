@@ -2,7 +2,9 @@
 
 import { motion } from "framer-motion";
 
-const HERO_BACKGROUND_IMAGE = "/images/logo/ITBMainDesign.png";
+// JPEG at 2560px: the PNG original was 1.86 MB on the first-paint
+// critical path; this is visually identical at ~40% the bytes.
+const HERO_BACKGROUND_IMAGE = "/images/logo/ITBMainDesign.jpg";
 
 export function HeroImageBackground() {
   return (
