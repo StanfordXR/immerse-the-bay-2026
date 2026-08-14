@@ -245,6 +245,9 @@ export function About() {
 
       <div className="mt-8 w-full sm:mt-10">
         <StatsBar />
+      </div>
+      {/* the gallery stands apart from the stats band, full bleed */}
+      <div className="mt-12 w-full sm:mt-16">
         <FloatingGallery />
       </div>
     </section>

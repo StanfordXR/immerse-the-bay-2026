@@ -2,11 +2,11 @@ import type { Sponsor, SponsorTier } from "./types";
 
 /**
  * 2025 sponsors by tier — logos live in public/images/sponsors/.
- * Marquee order follows tier order (Diamond → Gold → Silver → Supported By).
+ * Marquee order follows tier order (Platinum → Gold → Silver → Supported By).
  */
 export const SPONSOR_TIERS: SponsorTier[] = [
   {
-    tier: "Diamond",
+    tier: "Platinum",
     sponsors: [
       { name: "AWE", logo: "/images/sponsors/awe.svg", url: "https://www.awexr.com", marqueeScale: 0.63 },
       {
@@ -91,7 +91,7 @@ export const SPONSOR_TIERS: SponsorTier[] = [
   },
 ];
 
-/** Flat list in tier order (Diamond → Supported By). */
+/** Flat list in tier order (Platinum → Supported By). */
 export const SPONSORS: Sponsor[] = SPONSOR_TIERS.flatMap(({ sponsors }) => sponsors);
 
 /** Partner organizations, shown in a small row below the sponsor grid. */

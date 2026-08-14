@@ -6,7 +6,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { GALLERY_IMAGES } from "@/data/gallery";
 import type { GalleryImage } from "@/data/types";
-import { Container } from "@/components/ui/Container";
 import { GALLERY_PHOTO_STYLES, type GalleryPhotoStyle } from "@/lib/gallery";
 import { cn } from "@/lib/utils";
 
@@ -19,7 +18,9 @@ const PLACEHOLDER_GRADIENTS = [
 ] as const;
 
 const GAP_PX = 20;
-const HOVER_SCALE = 1.435;
+/** Lifted photos all reach this exact height, regardless of card size. */
+const DESKTOP_LIFT_HEIGHT_PX = 380;
+const MOBILE_LIFT_HEIGHT_PX = 250;
 
 interface LiftedPhotoState {
   instanceId: string;
@@ -142,15 +143,21 @@ const SCROLL_KEYS = new Set([
 function LiftedPhotoOverlay({ state, onRelease }: LiftedPhotoOverlayProps) {
   const { rect, style, image, index } = state;
   const overlayRef = useRef<HTMLElement>(null);
-  const [liftScale, setLiftScale] = useState(HOVER_SCALE);
+  // Every photo lifts to the same on-screen height: dividing the target by
+  // each card's own height means small and large cards land identical, where
+  // a shared percentage scale left them mismatched.
+  const [liftHeight, setLiftHeight] = useState(DESKTOP_LIFT_HEIGHT_PX);
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 639px)");
-    const updateScale = () => setLiftScale(media.matches ? 1.15 : HOVER_SCALE);
-    updateScale();
-    media.addEventListener("change", updateScale);
-    return () => media.removeEventListener("change", updateScale);
+    const updateHeight = () =>
+      setLiftHeight(media.matches ? MOBILE_LIFT_HEIGHT_PX : DESKTOP_LIFT_HEIGHT_PX);
+    updateHeight();
+    media.addEventListener("change", updateHeight);
+    return () => media.removeEventListener("change", updateHeight);
   }, []);
+
+  const liftScale = liftHeight / Math.max(rect.height, 1);
 
   useEffect(() => {
     const el = overlayRef.current;
@@ -297,10 +304,11 @@ export function FloatingGallery() {
 
   return (
     <div aria-label="Hackathon photo gallery" className="relative w-full">
-      <Container className="pb-16 sm:pb-20">
+      {/* Full-bleed band: no Container, edge-to-edge with y-borders only */}
+      <div className="w-full pb-16 sm:pb-20">
         <div
           className={cn(
-            "relative w-full overflow-hidden border border-white/10",
+            "relative w-full overflow-hidden border-y border-white/10",
             "bg-gradient-to-b from-navy/95 via-void to-void",
             "shadow-[inset_0_0_60px_rgba(124,58,237,0.1)]",
             "h-[260px] sm:h-[300px] lg:h-[340px]",
@@ -345,7 +353,7 @@ export function FloatingGallery() {
             </div>
           </div>
         </div>
-      </Container>
+      </div>
 
       {mounted &&
         lifted &&
