@@ -82,7 +82,7 @@ function SponsorCard({
 export function Sponsors() {
   return (
     <section id="sponsors" className="relative py-14 sm:py-20">
-      <div className="bg-section-glow pointer-events-none absolute inset-0" aria-hidden />
+      <div className="bg-section-glow pointer-events-none absolute inset-x-0 -top-48 bottom-0" aria-hidden />
       <Container as="section">
         <SectionHeading
           eyebrow="Sponsors"

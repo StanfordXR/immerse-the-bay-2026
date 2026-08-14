@@ -305,7 +305,7 @@ export function FloatingGallery() {
   return (
     <div aria-label="Hackathon photo gallery" className="relative w-full">
       {/* Full-bleed band: no Container, edge-to-edge with y-borders only */}
-      <div className="w-full pb-16 sm:pb-20">
+      <div className="w-full pb-6 sm:pb-8">
         <div
           className={cn(
             "relative w-full overflow-hidden border-y border-white/10",

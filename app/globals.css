@@ -73,28 +73,15 @@ body {
   );
 }
 
+/* Full-strength glow whose element bleeds 12rem above its section
+   (see the -top-48 on its users): the ellipse peak sits right at the old
+   section boundary, and its upper half now renders instead of being clipped
+   into a hard horizontal line. No mask, no dimming. */
 .bg-section-glow {
   background: radial-gradient(
-    ellipse 70% 45% at 50% 0%,
+    ellipse 70% 45% at 50% 12rem,
     rgb(124 58 237 / 0.12),
     transparent 65%
-  );
-  /* The ellipse peaks exactly at the section's top edge, which drew a hard
-     horizontal line against the darker section above. Ramp the glow in from
-     zero at both edges so section boundaries stay seamless. */
-  -webkit-mask-image: linear-gradient(
-    180deg,
-    transparent 0%,
-    #000 14%,
-    #000 86%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    180deg,
-    transparent 0%,
-    #000 14%,
-    #000 86%,
-    transparent 100%
   );
 }
 
