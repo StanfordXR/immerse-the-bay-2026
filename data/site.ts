@@ -53,7 +53,7 @@ export const HERO_CTAS = [
     href: PORTAL_APPLY_URL,
     variant: "primary" as const,
     external: true,
-    tooltip: "Launching applications on the 14th!",
+    tooltip: "Applications are open!",
   },
   {
     label: "Volunteer",
