@@ -36,13 +36,13 @@ export function Accordion({ items }: AccordionProps) {
                 aria-expanded={isOpen}
                 aria-controls={panelId}
                 onClick={() => setOpenId(isOpen ? null : item.id)}
-                className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
+                className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left sm:gap-4 sm:px-5"
               >
-                <span className="font-medium">{item.question}</span>
+                <span className="text-sm font-medium leading-snug sm:text-base">{item.question}</span>
                 <motion.span
                   aria-hidden
                   animate={{ rotate: isOpen ? 45 : 0 }}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center border border-neon-indigo/30 bg-neon-indigo/10 font-mono text-neon-cyan"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center border border-neon-indigo/30 bg-neon-indigo/10 font-mono text-neon-cyan sm:h-8 sm:w-8"
                 >
                   +
                 </motion.span>
@@ -59,7 +59,7 @@ export function Accordion({ items }: AccordionProps) {
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  <p className="border-t border-white/5 px-5 pb-4 pt-2 text-sm leading-relaxed text-muted">
+                  <p className="border-t border-white/5 px-4 pb-4 pt-2 text-sm leading-relaxed text-muted sm:px-5">
                     {item.answer}
                   </p>
                 </motion.div>

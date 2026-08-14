@@ -26,7 +26,7 @@ export function SectionHeading({
       whileInView="visible"
       viewport={{ once: true, margin: "-60px" }}
       className={cn(
-        "mb-12 max-w-2xl",
+        "mb-8 max-w-2xl sm:mb-12",
         align === "center" && "mx-auto text-center",
         className,
       )}
@@ -43,7 +43,7 @@ export function SectionHeading({
           <span className="h-px w-8 bg-neon-purple-light/40" aria-hidden />
         </p>
       )}
-      <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
+      <h2 className="text-2xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
         {title}
       </h2>
       {description && (

@@ -64,7 +64,7 @@ function MobileNavItem({ link }: { link: NavLink }) {
   if (link.comingSoon) {
     return (
       <li>
-        <span className="block py-2 text-sm text-muted">
+        <span className="block py-2 text-sm text-muted sm:py-3">
           {link.label}{" "}
           <span className="text-xs text-neon-cyan/70">(Coming soon!)</span>
         </span>
@@ -79,7 +79,7 @@ function MobileNavItem({ link }: { link: NavLink }) {
           href={link.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="block py-2 text-sm text-foreground"
+          className="block py-2 text-sm text-foreground sm:py-3"
         >
           {link.label}
         </a>
@@ -89,7 +89,7 @@ function MobileNavItem({ link }: { link: NavLink }) {
 
   return (
     <li>
-      <Link href={link.href} className="block py-2 text-sm text-foreground">
+      <Link href={link.href} className="block py-2 text-sm text-foreground sm:py-3">
         {link.label}
       </Link>
     </li>
@@ -111,6 +111,15 @@ export function Navbar() {
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [open]);
 
   return (
     <motion.header
@@ -143,7 +152,7 @@ export function Navbar() {
           <img
             src="/images/logo/ITB_Standard.png"
             alt="Immerse the Bay"
-            className="h-12 w-auto shrink-0 object-contain sm:h-[3.6rem]"
+            className="h-9 max-w-[9.5rem] w-auto shrink-0 object-contain sm:h-[3.6rem] sm:max-w-none"
           />
         </Link>
 
@@ -172,7 +181,7 @@ export function Navbar() {
           </span>
           <button
             type="button"
-            className="inline-flex h-10 w-10 items-center justify-center border border-white/10 md:hidden"
+            className="inline-flex h-11 w-11 items-center justify-center border border-white/10 md:hidden"
             aria-expanded={open}
             aria-label="Toggle menu"
             onClick={() => setOpen((v) => !v)}
@@ -197,7 +206,7 @@ export function Navbar() {
                 href={PORTAL_APPLY_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block py-2 text-sm text-neon-cyan"
+                className="block py-3 text-sm text-neon-cyan"
               >
                 Apply{" "}
                 <span className="text-xs text-neon-cyan/70">

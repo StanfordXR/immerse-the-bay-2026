@@ -39,16 +39,16 @@ export function Hero() {
       <HeroBackground />
       <HudFrame />
 
-      <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-end px-4 pb-10 pt-28 text-center sm:px-6 sm:pb-14 sm:pt-32">
+      <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center px-4 pb-6 pt-24 text-center sm:px-6 sm:pb-12 sm:pt-32">
         <motion.div
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
-          className="flex flex-col items-center"
+          className="flex w-full max-w-[20rem] flex-col items-center translate-y-4 sm:max-w-none sm:translate-y-12 lg:translate-y-14"
         >
           <motion.p
             variants={fadeUp}
-            className="mb-4 flex items-center gap-3 font-mono text-xs uppercase tracking-[0.3em] text-neon-cyan sm:text-sm"
+            className="mb-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 font-mono text-xs uppercase tracking-[0.18em] text-neon-cyan sm:text-sm sm:tracking-[0.3em]"
           >
             <span className="h-px w-8 bg-neon-cyan/40" aria-hidden />
             Stanford XR Presents
@@ -61,19 +61,19 @@ export function Hero() {
           >
             <span
               data-text="Immerse the Bay"
-              className="glitch-text block bg-gradient-to-r from-white via-neon-purple-light to-neon-violet bg-clip-text text-[3.375rem] text-transparent sm:text-[5.625rem] lg:text-[6.75rem]"
+              className="glitch-text block bg-gradient-to-r from-white via-neon-purple-light to-neon-violet bg-clip-text text-[2.75rem] text-transparent sm:text-[5.625rem] lg:text-[6.75rem]"
             >
               Immerse the Bay
             </span>
             {/* neither demo display font ships digit glyphs — mono keeps it deliberate */}
-            <span className="mt-1 block font-mono text-3xl tracking-[0.4em] text-neon-fuchsia sm:mt-2 sm:text-4xl">
+            <span className="mt-1 block font-mono text-2xl tracking-[0.28em] text-neon-fuchsia sm:mt-2 sm:text-4xl sm:tracking-[0.4em]">
               2026
             </span>
           </motion.h1>
 
           <motion.p
             variants={fadeUp}
-            className="mt-5 font-glitch text-2xl uppercase tracking-wide text-foreground/90 sm:mt-6 sm:text-3xl lg:text-4xl"
+            className="mt-5 font-glitch text-xl uppercase tracking-wide text-foreground/90 sm:mt-6 sm:text-3xl lg:text-4xl"
           >
             {SITE.heroTagline}
           </motion.p>
@@ -82,10 +82,10 @@ export function Hero() {
             variants={fadeUp}
             className="mt-5 flex flex-col items-center gap-1"
           >
-            <p className="font-sans text-sm font-semibold uppercase tracking-[0.2em] text-neon-cyan/80 sm:text-base">
+            <p className="font-sans text-sm font-semibold uppercase tracking-[0.2em] text-white sm:text-base">
               {SITE.eventDate}
             </p>
-            <p className="font-sans text-xs tracking-[0.14em] text-neon-cyan/55 sm:text-sm">
+            <p className="font-sans text-xs tracking-[0.14em] text-white/80 sm:text-sm">
               {SITE.eventDateNote}
             </p>
           </motion.div>

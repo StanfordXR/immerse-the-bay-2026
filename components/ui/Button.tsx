@@ -60,7 +60,7 @@ export function Button({
       <span className={cn("cyber-clip inline-flex p-px", frameStyles[variant])}>
         <span
           className={cn(
-            "cyber-clip inline-flex items-center justify-center px-6 py-3 text-sm font-semibold uppercase tracking-[0.15em] transition-colors duration-300",
+            "cyber-clip inline-flex items-center justify-center px-4 py-3 text-xs font-semibold uppercase tracking-[0.12em] transition-colors duration-300 sm:px-6 sm:text-sm sm:tracking-[0.15em]",
             fillStyles[variant],
           )}
         >

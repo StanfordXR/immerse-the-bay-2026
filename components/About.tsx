@@ -44,14 +44,14 @@ function ExpectSection({ title, body }: { title: string; body: string }) {
   const activeItem = items[activeIndex] ?? items[0];
 
   return (
-    <GlassCard hover={false} className="w-full">
+    <GlassCard hover={false} className="w-full min-w-0">
       <h3 className="font-sans text-xl font-semibold sm:text-2xl">{title}</h3>
 
       <div className="mt-6 flex flex-col gap-4 sm:gap-5">
         <div
           role="tablist"
           aria-label="What to expect topics"
-          className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5 lg:gap-3"
+          className="grid grid-cols-1 gap-2 min-[400px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 lg:gap-3"
         >
           {items.map((item, index) => (
             <button
@@ -63,7 +63,7 @@ function ExpectSection({ title, body }: { title: string; body: string }) {
               id={`expect-tab-${index}`}
               onClick={() => setActiveIndex(index)}
               className={cn(
-                "flex flex-col items-center justify-center gap-1.5 border px-3 py-3.5 text-center text-sm font-medium transition sm:px-4 sm:py-4 sm:text-base lg:text-[0.95rem]",
+                "flex flex-col items-center justify-center gap-1.5 border px-3 py-4 text-center text-xs font-medium transition sm:px-4 sm:py-4 sm:text-base lg:text-[0.95rem]",
                 activeIndex === index
                   ? "border-neon-cyan/50 bg-neon-indigo/20 text-foreground shadow-glow-cyan"
                   : "border-white/10 bg-surface/40 text-muted hover:border-neon-blue/30 hover:text-foreground",
@@ -84,9 +84,9 @@ function ExpectSection({ title, body }: { title: string; body: string }) {
           role="tabpanel"
           id={`expect-panel-${activeIndex}`}
           aria-labelledby={`expect-tab-${activeIndex}`}
-          className="min-h-[10rem] border border-white/10 bg-void/40 px-5 py-5 sm:px-7 sm:py-6"
+          className="min-h-[8rem] border border-white/10 bg-void/40 px-4 py-5 sm:min-h-[10rem] sm:px-7 sm:py-6"
         >
-          <p className="text-base leading-relaxed text-muted sm:text-lg lg:leading-relaxed">
+          <p className="break-words text-base leading-relaxed text-muted [overflow-wrap:anywhere] sm:text-lg lg:leading-relaxed">
             {activeItem.content}
           </p>
         </div>
@@ -95,13 +95,26 @@ function ExpectSection({ title, body }: { title: string; body: string }) {
   );
 }
 
+function renderProseBody(body: string) {
+  const paragraphs = body
+    .split(/\n+/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+
+  return (
+    <div className="mt-3 space-y-3 text-sm leading-relaxed text-muted sm:mt-4 sm:text-base">
+      {paragraphs.map((paragraph, index) => (
+        <p key={index} className="break-words [overflow-wrap:anywhere]">
+          {paragraph}
+        </p>
+      ))}
+    </div>
+  );
+}
+
 function renderBoxBody(body: string, isList: boolean, horizontal = false) {
   if (!isList) {
-    return (
-      <p className="mt-3 text-sm leading-relaxed text-muted sm:text-base">
-        {body}
-      </p>
-    );
+    return renderProseBody(body);
   }
 
   const items = body
@@ -151,18 +164,18 @@ function RecapVideo() {
   const hasEmbed = Boolean(RECAP_VIDEO.embedUrl);
 
   return (
-    <GlassCard className="h-full w-full overflow-hidden p-0" hover={false}>
-      <div className="relative aspect-video w-full min-h-[220px] bg-gradient-to-br from-navy via-surface to-neon-purple/25 sm:min-h-[280px]">
+    <GlassCard className="w-full min-w-0 overflow-hidden p-0 lg:h-full" hover={false}>
+      <div className="relative aspect-video w-full min-w-0 overflow-hidden bg-gradient-to-br from-navy via-surface to-neon-purple/25">
         {hasEmbed ? (
           <iframe
-            className="absolute inset-0 h-full w-full"
+            className="absolute inset-0 h-full w-full border-0"
             src={RECAP_VIDEO.embedUrl}
             title={RECAP_VIDEO.title}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           />
         ) : (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6">
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-4 sm:p-6">
             <div className="flex h-16 w-16 items-center justify-center border border-neon-purple-light/50 bg-neon-violet/20 shadow-glow-purple">
               <span className="ml-1 text-2xl text-neon-purple-light" aria-hidden>
                 ▶
@@ -177,7 +190,7 @@ function RecapVideo() {
           </div>
         )}
       </div>
-      <div className="border-t border-white/10 px-4 py-3">
+      <div className="border-t border-white/10 px-4 py-3 sm:px-5">
         <p className="font-mono text-xs uppercase tracking-wider text-neon-purple-light">
           {RECAP_VIDEO.title}
         </p>
@@ -191,7 +204,7 @@ export function About() {
   const expectBox = ABOUT_BOXES.find((box) => box.id === "expect");
 
   return (
-    <section id="about" className="relative pt-20 sm:pt-28">
+    <section id="about" className="relative overflow-x-clip pt-20 sm:pt-28">
       <div className="bg-section-glow pointer-events-none absolute inset-0" aria-hidden />
       <Container as="div">
         <SectionHeading
@@ -205,11 +218,11 @@ export function About() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-60px" }}
-          className="grid items-start gap-8 lg:grid-cols-5 lg:gap-10"
+          className="grid min-w-0 items-start gap-6 sm:gap-8 lg:grid-cols-5 lg:items-stretch lg:gap-10"
         >
           {immerseBox && (
-            <motion.div variants={fadeUp} className="lg:col-span-2">
-              <GlassCard hover={false}>
+            <motion.div variants={fadeUp} className="min-w-0 lg:col-span-2">
+              <GlassCard hover={false} className="h-full min-w-0">
                 <h3 className="font-sans text-lg font-semibold sm:text-xl">
                   {immerseBox.title}
                 </h3>
@@ -218,7 +231,7 @@ export function About() {
             </motion.div>
           )}
 
-          <motion.div variants={fadeUp} className="w-full lg:col-span-3">
+          <motion.div variants={fadeUp} className="min-w-0 w-full lg:col-span-3">
             <RecapVideo />
           </motion.div>
         </motion.div>

@@ -22,7 +22,7 @@ export function GlassCard({
       whileHover={hover ? { y: -3 } : undefined}
       transition={{ duration: 0.2 }}
       className={cn(
-        "border border-white/10 bg-surface/50 p-6 shadow-lg backdrop-blur-xl",
+        "border border-white/10 bg-surface/50 p-4 shadow-lg backdrop-blur-xl sm:p-6",
         corners && "hud-corners",
         hover && "hover:border-neon-cyan/25 hover:shadow-glow",
         className,

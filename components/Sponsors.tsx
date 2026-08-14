@@ -15,14 +15,14 @@ const TIER_LAYOUT: Record<
   Diamond: {
     grid: "grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5",
     logoClass: "max-h-12 max-w-[160px]",
-    cardClass: "px-8 py-5",
+    cardClass: "px-4 py-4 sm:px-8 sm:py-5",
     titleClass:
       "bg-gradient-to-r from-white via-sky-100 to-cyan-200 bg-clip-text text-transparent",
   },
   Gold: {
     grid: "grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4",
     logoClass: "max-h-11 max-w-[150px]",
-    cardClass: "px-6 py-4",
+    cardClass: "px-4 py-3 sm:px-6 sm:py-4",
     titleClass: "text-amber-400",
   },
   Silver: {
@@ -33,7 +33,7 @@ const TIER_LAYOUT: Record<
   "Supported By": {
     grid: "grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5",
     logoClass: "max-h-9 max-w-[120px]",
-    cardClass: "px-5 py-[1.4rem]",
+    cardClass: "px-4 py-3 sm:px-5 sm:py-[1.4rem]",
     titleClass: "text-orange-400",
   },
 };
@@ -52,7 +52,7 @@ function SponsorCard({
       <motion.div
         whileHover={{ y: -4, scale: 1.02 }}
         className={cn(
-          "flex h-full cursor-default items-center justify-center border border-white/10 bg-surface/50 px-6 py-4 backdrop-blur-md transition hover:border-neon-cyan/40 hover:shadow-glow-cyan",
+          "flex h-full cursor-default items-center justify-center border border-white/10 bg-surface/50 px-4 py-3 backdrop-blur-md transition hover:border-neon-cyan/40 hover:shadow-glow-cyan sm:px-6 sm:py-4",
           className,
         )}
       >
@@ -105,7 +105,7 @@ export function Sponsors() {
               >
                 <p
                   className={cn(
-                    "mb-5 text-center font-mono text-2xl font-semibold uppercase tracking-[0.15em] sm:text-3xl",
+                    "mb-5 text-center font-mono text-xl font-semibold uppercase tracking-[0.1em] sm:text-3xl sm:tracking-[0.15em]",
                     layout.titleClass,
                   )}
                 >
@@ -149,7 +149,7 @@ export function Sponsors() {
                   key={partner.name}
                   sponsor={partner}
                   logoClass="max-h-12 max-w-[168px]"
-                  className="min-w-[211px] px-[1.65rem] py-[1.155rem]"
+                  className="min-w-0 w-full max-w-[211px] px-4 py-4 sm:min-w-[211px] sm:px-[1.65rem] sm:py-[1.155rem]"
                 />
               ))}
             </ul>

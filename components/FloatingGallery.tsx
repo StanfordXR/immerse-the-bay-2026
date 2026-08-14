@@ -142,6 +142,15 @@ const SCROLL_KEYS = new Set([
 function LiftedPhotoOverlay({ state, onRelease }: LiftedPhotoOverlayProps) {
   const { rect, style, image, index } = state;
   const overlayRef = useRef<HTMLElement>(null);
+  const [liftScale, setLiftScale] = useState(HOVER_SCALE);
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 639px)");
+    const updateScale = () => setLiftScale(media.matches ? 1.15 : HOVER_SCALE);
+    updateScale();
+    media.addEventListener("change", updateScale);
+    return () => media.removeEventListener("change", updateScale);
+  }, []);
 
   useEffect(() => {
     const el = overlayRef.current;
@@ -169,7 +178,7 @@ function LiftedPhotoOverlay({ state, onRelease }: LiftedPhotoOverlayProps) {
         transformOrigin: "center center",
       }}
       initial={{ scale: 1, rotate: style.rotate }}
-      animate={{ scale: HOVER_SCALE, rotate: 0 }}
+      animate={{ scale: liftScale, rotate: 0 }}
       transition={{ type: "spring", stiffness: 380, damping: 26 }}
       onPointerLeave={onRelease}
     >
@@ -294,7 +303,7 @@ export function FloatingGallery() {
             "relative w-full overflow-hidden border border-white/10",
             "bg-gradient-to-b from-navy/95 via-void to-void",
             "shadow-[inset_0_0_60px_rgba(124,58,237,0.1)]",
-            "h-[240px] sm:h-[300px] lg:h-[340px]",
+            "h-[260px] sm:h-[300px] lg:h-[340px]",
           )}
         >
           <div

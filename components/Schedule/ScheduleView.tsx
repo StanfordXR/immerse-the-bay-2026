@@ -27,7 +27,7 @@ export function ScheduleView() {
           <motion.div
             key={day.id}
             variants={fadeUp}
-            className="flex min-h-[28rem] flex-col sm:min-h-[32rem]"
+            className="flex min-h-0 flex-col sm:min-h-[32rem]"
           >
             <div className="mb-4 text-center">
               <h3 className="font-sans text-xl font-semibold uppercase tracking-[0.12em] text-foreground sm:text-2xl">

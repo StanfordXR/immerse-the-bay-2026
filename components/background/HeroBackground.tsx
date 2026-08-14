@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { HeroImageBackground } from "./HeroImageBackground";
 import { PlaceholderScene } from "./PlaceholderScene";
 
 /**
@@ -32,7 +33,7 @@ export function HeroBackground({ useThree = USE_THREE_SCENE }: HeroBackgroundPro
       aria-hidden
       data-hero-background
     >
-      {useThree ? <HeroThreeCanvas /> : <PlaceholderScene />}
+      {useThree ? <HeroThreeCanvas /> : <HeroImageBackground />}
     </div>
   );
 }

@@ -33,7 +33,7 @@ function PrimaryTrackCard({
             {icon}
           </span>
           <div>
-            <h3 className="font-sans text-lg font-semibold">{title}</h3>
+            <h3 className="font-sans text-base font-semibold sm:text-lg">{title}</h3>
             {bonus && (
               <p className="mt-0.5 font-mono text-[0.65rem] uppercase tracking-wider text-neon-purple-light">
                 Bonus track

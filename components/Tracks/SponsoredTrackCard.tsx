@@ -39,7 +39,7 @@ export function SponsoredTrackCard({
                   Presenter: <span className="text-foreground">{track.presenter}</span>
                 </p>
               )}
-              <p className="mt-2 font-mono text-xs text-muted">
+              <p className="mt-2 break-words font-mono text-xs leading-relaxed text-muted">
                 {track.sponsors.join(" · ")}
               </p>
             </div>

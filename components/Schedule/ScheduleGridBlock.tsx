@@ -7,7 +7,7 @@ const SIZE_CLASS: Record<
 > = {
   default: "min-h-[4.5rem] flex-1",
   large: "min-h-[7rem] flex-[3]",
-  fill: "min-h-[18rem] flex-1 sm:min-h-[22rem]",
+  fill: "min-h-[12rem] flex-1 sm:min-h-[22rem]",
 };
 
 export function ScheduleGridBlock({ block }: { block: RoughScheduleBlock }) {

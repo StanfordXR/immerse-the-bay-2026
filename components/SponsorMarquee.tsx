@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 /** Full band height (former py-5/py-6 + h-12/h-14) so logos clip at the edge with no inner margin. */
 const LOGO_FRAME_CLASS =
-  "flex h-[5.5rem] w-[7.5rem] shrink-0 items-center justify-center sm:h-[6.5rem] sm:w-[8.5rem]";
+  "flex h-[4.5rem] w-[6.5rem] shrink-0 items-center justify-center sm:h-[6.5rem] sm:w-[8.5rem]";
 
 function SponsorLogo({
   sponsor,
@@ -31,7 +31,7 @@ function SponsorLogo({
       role="img"
     >
       {sponsor.logo ? (
-        <span className={cn(LOGO_FRAME_CLASS, "overflow-visible")}>
+        <span className={cn(LOGO_FRAME_CLASS, "overflow-hidden sm:overflow-visible")}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={sponsor.logo}
