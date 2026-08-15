@@ -1,4 +1,9 @@
-import { SITE } from "@/data/site";
+import {
+  APPLICATIONS_OPEN_DATE,
+  EVENT_IMAGE_PATHS,
+  PORTAL_APPLY_BASE_URL,
+  SITE,
+} from "@/data/site";
 
 export function WebsiteJsonLd() {
   const schema = {
@@ -28,6 +33,7 @@ export function WebsiteJsonLd() {
         "@id": `${SITE.url}/#event`,
         name: SITE.name,
         description: SITE.seoDescription,
+        image: EVENT_IMAGE_PATHS.map((path) => `${SITE.url}${path}`),
         startDate: "2026-11-13",
         endDate: "2026-11-15",
         eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
@@ -37,12 +43,37 @@ export function WebsiteJsonLd() {
           name: "Stanford University",
           address: {
             "@type": "PostalAddress",
+            streetAddress: "450 Jane Stanford Way",
             addressLocality: "Stanford",
             addressRegion: "CA",
+            postalCode: "94305",
             addressCountry: "US",
           },
         },
-        organizer: { "@id": `${SITE.url}/#organization` },
+        organizer: {
+          "@id": `${SITE.url}/#organization`,
+          "@type": "Organization",
+          name: SITE.organizationName,
+          url: SITE.website,
+        },
+        // Stanford XR both runs the hackathon and hosts the workshops and demo
+        // fair, so it is the performing group as well as the organizer.
+        performer: {
+          "@type": "PerformingGroup",
+          name: SITE.organizationName,
+          url: SITE.website,
+        },
+        isAccessibleForFree: true,
+        offers: {
+          "@type": "Offer",
+          name: "Hacker registration",
+          description: "Free to attend for accepted applicants.",
+          url: PORTAL_APPLY_BASE_URL,
+          price: 0,
+          priceCurrency: "USD",
+          availability: "https://schema.org/InStock",
+          validFrom: APPLICATIONS_OPEN_DATE,
+        },
         url: SITE.url,
       },
     ],
