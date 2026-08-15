@@ -22,9 +22,24 @@ export const SITE = {
   heroTagline: "Take Me To The Moon",
 } as const;
 
+/** Application portal. Untagged, for links Google may surface itself. */
+export const PORTAL_APPLY_BASE_URL = "https://portal.immersethebay.org/apply";
+
 /** Application portal — utm_source=es tags traffic from the event site. */
-export const PORTAL_APPLY_URL =
-  "https://portal.immersethebay.org/apply?utm_source=es";
+export const PORTAL_APPLY_URL = `${PORTAL_APPLY_BASE_URL}?utm_source=es`;
+
+/** Date applications opened; the Event JSON-LD reports it as offers.validFrom. */
+export const APPLICATIONS_OPEN_DATE = "2026-08-12";
+
+/**
+ * Google crops Event images to whichever ratio a result layout needs, so it
+ * asks for 16x9, 4x3, and 1x1 versions rather than one image.
+ */
+export const EVENT_IMAGE_PATHS = [
+  "/images/event/event-16x9.jpg",
+  "/images/event/event-4x3.jpg",
+  "/images/event/event-1x1.jpg",
+];
 
 /** Toggle to show Live Dashboard in the navbar (route stays at /dashboard). */
 export const SHOW_LIVE_DASHBOARD_NAV = false;
