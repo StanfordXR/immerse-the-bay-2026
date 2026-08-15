@@ -49,10 +49,9 @@ function SponsorCard({
 }) {
   return (
     <motion.li variants={scaleIn}>
-      <motion.div
-        whileHover={{ y: -4, scale: 1.02 }}
+      <div
         className={cn(
-          "flex h-full cursor-default items-center justify-center border border-white/10 bg-surface/50 px-4 py-3 backdrop-blur-md transition hover:border-neon-cyan/40 hover:shadow-glow-cyan sm:px-6 sm:py-4",
+          "flex h-full cursor-default items-center justify-center border border-white/10 bg-surface/50 px-4 py-3 backdrop-blur-md sm:px-6 sm:py-4",
           className,
         )}
       >
@@ -74,7 +73,7 @@ function SponsorCard({
             {sponsor.name}
           </span>
         )}
-      </motion.div>
+      </div>
     </motion.li>
   );
 }
