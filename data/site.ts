@@ -72,9 +72,9 @@ export const HERO_CTAS = [
   },
   {
     label: "Volunteer",
-    href: "#volunteer",
+    href: "https://forms.gle/G79CFRpqjsAXD6r37",
     variant: "secondary" as const,
-    tooltip: "Coming soon!",
+    external: true,
   },
 ];
 
