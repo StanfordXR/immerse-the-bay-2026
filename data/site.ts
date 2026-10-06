@@ -16,8 +16,7 @@ export const SITE = {
   organizationName: "Stanford XR",
   year: 2026,
   foundedYear: 2019,
-  eventDate: "November 13-15*",
-  eventDateNote: "* To be finalized",
+  eventDate: "November 13–15",
   eventLocation: "Stanford, CA",
   heroTagline: "Take Me To The Moon",
 } as const;

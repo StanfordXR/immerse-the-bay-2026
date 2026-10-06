@@ -89,17 +89,12 @@ export function Hero() {
             {SITE.heroTagline}
           </motion.p>
 
-          <motion.div
+          <motion.p
             variants={fadeUp}
-            className="mt-5 flex flex-col items-center gap-1"
+            className="mt-5 font-sans text-sm font-semibold uppercase tracking-[0.2em] text-white sm:text-base"
           >
-            <p className="font-sans text-sm font-semibold uppercase tracking-[0.2em] text-white sm:text-base">
-              {SITE.eventDate}
-            </p>
-            <p className="font-sans text-xs tracking-[0.14em] text-white/80 sm:text-sm">
-              {SITE.eventDateNote}
-            </p>
-          </motion.div>
+            {SITE.eventDate}
+          </motion.p>
 
           <motion.div
             variants={fadeUp}
