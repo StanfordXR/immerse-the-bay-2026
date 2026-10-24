@@ -16,7 +16,9 @@ const nextConfig: NextConfig = {
       // here with UTMs. Codes are defined in the portal repo.
       {
         source: "/r/:code",
-        destination: "https://portal.immersethebay.org/r/:code",
+        // Preserve which public alias was used. The portal records this for
+        // referral diagnostics; direct legacy portal links default to "portal".
+        destination: "https://portal.immersethebay.org/r/:code?via=site",
         permanent: false,
       },
     ];
