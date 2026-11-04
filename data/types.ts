@@ -141,4 +141,6 @@ export interface DashboardResource {
   title: string;
   description: string;
   href: string;
+  /** CSS color for the animated accent bar above the card. */
+  accent?: string;
 }
