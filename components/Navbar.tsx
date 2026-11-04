@@ -15,6 +15,16 @@ function isNavActive(pathname: string, link: NavLink): boolean {
     : pathname.startsWith(link.href);
 }
 
+/** An internal nav link; `reload` links skip client-side navigation. */
+function NavAnchor({ link, className }: { link: NavLink; className: string }) {
+  const Anchor = link.reload ? "a" : Link;
+  return (
+    <Anchor href={link.href} className={className}>
+      {link.label}
+    </Anchor>
+  );
+}
+
 function DesktopNavItem({ link, pathname }: { link: NavLink; pathname: string }) {
   const active = isNavActive(pathname, link);
   const linkClass = cn(
@@ -53,9 +63,7 @@ function DesktopNavItem({ link, pathname }: { link: NavLink; pathname: string })
 
   return (
     <li>
-      <Link href={link.href} className={linkClass}>
-        {link.label}
-      </Link>
+      <NavAnchor link={link} className={linkClass} />
     </li>
   );
 }
@@ -89,9 +97,7 @@ function MobileNavItem({ link }: { link: NavLink }) {
 
   return (
     <li>
-      <Link href={link.href} className="block py-2 text-base text-foreground sm:py-3">
-        {link.label}
-      </Link>
+      <NavAnchor link={link} className="block py-2 text-base text-foreground sm:py-3" />
     </li>
   );
 }

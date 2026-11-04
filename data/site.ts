@@ -48,7 +48,7 @@ export const NAV_LINKS: NavLink[] = [
   { label: "Home", href: "/" },
   { label: "Schedule", href: "/schedule" },
   { label: "FAQ", href: "/faq" },
-  { label: "Live Dashboard", href: "/dashboard" },
+  { label: "Live Dashboard", href: "/dashboard", reload: true },
   { label: "Tracks & Prizes", href: "/tracks" },
   {
     label: "2025 Hackathon",
