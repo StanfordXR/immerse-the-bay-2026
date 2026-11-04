@@ -122,6 +122,12 @@ export interface NavLink {
   href: string;
   external?: boolean;
   comingSoon?: boolean;
+  /**
+   * Full page load instead of client-side navigation. Needed for routes that
+   * may redirect off-site: Next's router shows an empty page before following
+   * a cross-origin redirect.
+   */
+  reload?: boolean;
 }
 
 export interface SocialLink {
