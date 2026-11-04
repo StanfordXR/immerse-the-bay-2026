@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Announcement } from "@/lib/announcements";
 
-const POLL_INTERVAL_MS = 5_000;
+/** The API caches Discord for 10s, so polling faster than that only re-reads the cache. */
+const POLL_INTERVAL_MS = 10_000;
 
 interface AnnouncementsResponse {
   announcements: Announcement[];
@@ -45,30 +46,20 @@ export function LiveAnnouncements() {
         {loading && announcements.length === 0 ? (
           <p className="text-sm text-muted">Loading announcements…</p>
         ) : error ? (
-          <div className="space-y-2 text-sm">
-            <p className="text-red-300">{error}</p>
-            <p className="text-muted">
-              Make sure the Google Sheet is shared as{" "}
-              <span className="text-foreground">Anyone with the link → Viewer</span>.
-            </p>
-          </div>
+          <p className="text-sm text-red-300">{error}</p>
         ) : announcements.length === 0 ? (
-          <p className="text-sm text-muted">
-            No announcements yet. Type a message in column{" "}
-            <span className="text-foreground">Message</span> of the shared Google
-            Sheet — date and time are filled in automatically.
-          </p>
+          <p className="text-sm text-muted">No announcements yet. Check back soon.</p>
         ) : (
           <ul className="space-y-4">
-            {announcements.map((item, index) => (
+            {announcements.map((item) => (
               <li
-                key={`${index}-${item.id}`}
+                key={item.id}
                 className="border border-white/10 bg-void/40 px-4 py-3"
               >
                 <p className="font-mono text-xs uppercase tracking-wider text-neon-cyan">
                   {[item.date, item.time].filter(Boolean).join(" ") || "Live"}
                 </p>
-                <p className="mt-2 break-words text-sm leading-relaxed text-muted sm:text-base">
+                <p className="mt-2 whitespace-pre-line break-words text-sm leading-relaxed text-muted sm:text-base">
                   {item.message}
                 </p>
               </li>

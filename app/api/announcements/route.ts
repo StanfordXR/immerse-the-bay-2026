@@ -1,11 +1,11 @@
-import { fetchAnnouncementsFromSheet } from "@/lib/announcements";
+import { fetchAnnouncements } from "@/lib/announcements";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const announcements = await fetchAnnouncementsFromSheet();
+    const announcements = await fetchAnnouncements();
 
     return NextResponse.json(
       { announcements, fetchedAt: new Date().toISOString() },

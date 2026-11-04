@@ -4,16 +4,6 @@ import type { DashboardResource, RoughScheduleDay } from "./types";
 export const DASHBOARD_COUNTDOWN_TARGET = "2026-11-13T09:00:00-08:00";
 
 /**
- * Live announcements Google Sheet.
- * Row 1 headers: Date | Time | Message
- * Share: Anyone with the link → Viewer (organizers → Editor).
- * Auto date/time: paste scripts/google-sheets-announcements.gs into Apps Script.
- */
-export const DASHBOARD_ANNOUNCEMENTS_SHEET_ID =
-  "1Ma6zcyiXObHjrvhupr03kE5q2a_Ef0Q9sCWvgV7z8K8";
-export const DASHBOARD_ANNOUNCEMENTS_SHEET_GID = "0";
-
-/**
  * Event schedule shown on the dashboard. Hardcoded here, separate from the
  * Schedule page's ROUGH_SCHEDULE in data/schedule.ts, so the two can diverge.
  */

@@ -1,7 +1,8 @@
-import {
-  DASHBOARD_ANNOUNCEMENTS_SHEET_GID,
-  DASHBOARD_ANNOUNCEMENTS_SHEET_ID,
-} from "@/data/dashboard";
+/**
+ * Live Dashboard announcements, read from the organizers' Discord
+ * #announcements channel through a bot token. Discord is the source of truth:
+ * edits and deletions there show up here on the next refresh.
+ */
 
 export interface Announcement {
   id: string;
@@ -10,108 +11,68 @@ export interface Announcement {
   message: string;
 }
 
-function formatTime(value: string): string {
-  const trimmed = value.trim();
-  const withoutSeconds = trimmed.replace(/^(\d{1,2}:\d{2}):\d{2}(\s*[AP]M)$/i, "$1$2");
-  return withoutSeconds.replace(/\s*([AP]M)$/i, " $1");
+/** The fields we use from Discord's message object. */
+interface DiscordMessage {
+  id: string;
+  content: string;
+  timestamp: string;
+  mentions: Array<{ id: string; username: string; global_name: string | null }>;
 }
 
-function cellValue(
-  cell: { v?: string | number | boolean; f?: string } | null | undefined,
-  kind: "date" | "time" | "text",
-): string {
-  if (!cell) return "";
+/** How long Discord responses are cached, so polling clients share one request. */
+const REVALIDATE_SECONDS = 10;
 
-  const formatted = cell.f?.trim();
-  if (formatted) {
-    return kind === "time" ? formatTime(formatted) : formatted;
-  }
+const TIME_ZONE = "America/Los_Angeles";
 
-  if (cell.v == null) return "";
-  const raw = String(cell.v).trim();
-  if (raw.startsWith("Date(")) return "";
-
-  return kind === "time" ? formatTime(raw) : raw;
+/**
+ * Turns Discord's message syntax into plain text: mentions become names,
+ * custom emoji become `:name:`, `<t:…>` timestamps become Pacific time, and
+ * bold/italic/strike markers are dropped.
+ */
+export function toPlainText(message: Pick<DiscordMessage, "content" | "mentions">): string {
+  const names = new Map(message.mentions.map((u) => [u.id, u.global_name ?? u.username]));
+  return message.content
+    .replace(/<@!?(\d+)>/g, (_, id: string) => `@${names.get(id) ?? "someone"}`)
+    .replace(/<@&\d+>/g, "")
+    .replace(/<#\d+>/g, "#channel")
+    .replace(/<a?(:\w+:)\d+>/g, "$1")
+    .replace(/<t:(\d+)(?::\w)?>/g, (_, unix: string) =>
+      new Date(Number(unix) * 1000).toLocaleString("en-US", {
+        timeZone: TIME_ZONE,
+        dateStyle: "medium",
+        timeStyle: "short",
+      }),
+    )
+    .replace(/@(everyone|here)\s*/g, "")
+    .replace(/(\*\*|__|~~|\|\|)/g, "")
+    .trim();
 }
 
-function columnIndex(labels: string[], ...names: string[]): number {
-  for (const name of names) {
-    const idx = labels.findIndex((label) => label.includes(name));
-    if (idx !== -1) return idx;
-  }
-  return -1;
-}
+/** Newest first, matching Discord's ordering. */
+export async function fetchAnnouncements(): Promise<Announcement[]> {
+  const token = process.env.DISCORD_BOT_TOKEN;
+  const channelId = process.env.DISCORD_ANNOUNCEMENTS_CHANNEL_ID;
+  if (!token || !channelId) throw new Error("Announcements aren't configured");
 
-export function parseAnnouncementsFromGviz(raw: string): Announcement[] {
-  const match = raw.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\);?\s*$/);
-  if (!match) return [];
+  const response = await fetch(
+    `https://discord.com/api/v10/channels/${channelId}/messages?limit=50`,
+    {
+      headers: { Authorization: `Bot ${token}` },
+      next: { revalidate: REVALIDATE_SECONDS },
+    },
+  );
+  if (!response.ok) throw new Error(`Discord request failed (${response.status})`);
 
-  const payload = JSON.parse(match[1]) as {
-    table?: {
-      cols?: Array<{ label?: string }>;
-      rows?: Array<{
-        c?: Array<{ v?: string | number | boolean; f?: string } | null>;
-      }>;
-    };
-  };
-
-  const table = payload.table;
-  if (!table?.rows?.length) return [];
-
-  const labels = (table.cols ?? []).map((col) => (col.label ?? "").toLowerCase().trim());
-
-  let dateIdx = columnIndex(labels, "date");
-  let timeIdx = columnIndex(labels, "time");
-  let messageIdx = columnIndex(labels, "message", "announcement", "text");
-
-  if (dateIdx === -1 && timeIdx === -1 && messageIdx === -1) {
-    dateIdx = 0;
-    timeIdx = 1;
-    messageIdx = 2;
-  } else {
-    if (dateIdx === -1) dateIdx = 0;
-    if (timeIdx === -1) timeIdx = 1;
-    if (messageIdx === -1) messageIdx = Math.max(dateIdx, timeIdx, 0) + 1;
-  }
-
-  return table.rows
-    .map((row, index) => {
-      const cells = row.c ?? [];
-      const date = cellValue(cells[dateIdx], "date");
-      const time = cellValue(cells[timeIdx], "time");
-      const message = cellValue(cells[messageIdx], "text");
-
+  const messages = (await response.json()) as DiscordMessage[];
+  return messages
+    .map((m) => {
+      const sent = new Date(m.timestamp);
       return {
-        id: `row-${index}-${date}-${time}`,
-        date,
-        time,
-        message,
+        id: m.id,
+        date: sent.toLocaleDateString("en-US", { timeZone: TIME_ZONE, month: "short", day: "numeric" }),
+        time: sent.toLocaleTimeString("en-US", { timeZone: TIME_ZONE, hour: "numeric", minute: "2-digit" }),
+        message: toPlainText(m),
       };
     })
-    .filter((item) => item.message.length > 0)
-    .filter(
-      (item) =>
-        !(
-          item.date.toLowerCase() === "date" &&
-          item.time.toLowerCase() === "time" &&
-          item.message.toLowerCase() === "message"
-        ),
-    )
-    .reverse();
-}
-
-export async function fetchAnnouncementsFromSheet(): Promise<Announcement[]> {
-  const url = `https://docs.google.com/spreadsheets/d/${DASHBOARD_ANNOUNCEMENTS_SHEET_ID}/gviz/tq?tqx=out:json&gid=${DASHBOARD_ANNOUNCEMENTS_SHEET_GID}`;
-
-  const response = await fetch(url, {
-    next: { revalidate: 0 },
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error(`Google Sheet request failed (${response.status})`);
-  }
-
-  const raw = await response.text();
-  return parseAnnouncementsFromGviz(raw);
+    .filter((a) => a.message.length > 0);
 }
