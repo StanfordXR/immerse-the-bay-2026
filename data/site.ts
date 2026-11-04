@@ -21,6 +21,10 @@ export const SITE = {
   heroTagline: "Take Me To The Moon",
 } as const;
 
+/** Application portal origin. Overridable so local dev can point at a local portal. */
+export const PORTAL_URL =
+  process.env.NEXT_PUBLIC_PORTAL_URL ?? "https://portal.immersethebay.org";
+
 /** Application portal. Untagged, for links Google may surface itself. */
 export const PORTAL_APPLY_BASE_URL = "https://portal.immersethebay.org/apply";
 
@@ -40,19 +44,11 @@ export const EVENT_IMAGE_PATHS = [
   "/images/event/event-1x1.jpg",
 ];
 
-/** Toggle to show Live Dashboard in the navbar (route stays at /dashboard). */
-export const SHOW_LIVE_DASHBOARD_NAV = false;
-
-const LIVE_DASHBOARD_NAV_LINK: NavLink = {
-  label: "Live Dashboard",
-  href: "/dashboard",
-};
-
 export const NAV_LINKS: NavLink[] = [
   { label: "Home", href: "/" },
   { label: "Schedule", href: "/schedule" },
   { label: "FAQ", href: "/faq" },
-  ...(SHOW_LIVE_DASHBOARD_NAV ? [LIVE_DASHBOARD_NAV_LINK] : []),
+  { label: "Live Dashboard", href: "/dashboard" },
   { label: "Tracks & Prizes", href: "/tracks" },
   {
     label: "2025 Hackathon",
