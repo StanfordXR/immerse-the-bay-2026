@@ -10,7 +10,7 @@ interface HackerBadgeProps {
 export function HackerBadge({ name, qrSrc }: HackerBadgeProps) {
   return (
     <GlassCard hover={false} className="flex h-full w-full flex-col overflow-hidden p-0">
-      <div className="border-b border-white/10 px-6 py-4">
+      <div className="px-6 py-4">
         <h3 className="font-sans text-lg font-semibold sm:text-xl">
           Hacker badge
         </h3>
@@ -18,6 +18,11 @@ export function HackerBadge({ name, qrSrc }: HackerBadgeProps) {
           Show this QR code at the check-in desk.
         </p>
       </div>
+      <div
+        className="resource-shine h-1"
+        style={{ "--shine-color": "#a855f7" } as React.CSSProperties}
+        aria-hidden
+      />
 
       <div className="flex flex-1 flex-col items-center justify-center gap-5 bg-void/50 px-6 py-8 text-center">
         <div>

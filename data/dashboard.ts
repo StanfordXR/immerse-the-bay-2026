@@ -47,7 +47,7 @@ export const DASHBOARD_SCHEDULE: RoughScheduleDay[] = [
  * https://open.spotify.com/embed/playlist/PLAYLIST_ID?utm_source=generator&theme=0
  */
 export const DASHBOARD_SPOTIFY_EMBED_URL =
-  "https://open.spotify.com/embed/playlist/7j8FJVYFvenzQ4Sj22Iic0?utm_source=generator&theme=0&height=152";
+  "https://open.spotify.com/embed/playlist/7j8FJVYFvenzQ4Sj22Iic0?utm_source=generator&theme=0";
 
 /** Optional link for “Open in Spotify” (Share → Copy link to playlist). */
 export const DASHBOARD_SPOTIFY_PLAYLIST_URL =
@@ -56,38 +56,24 @@ export const DASHBOARD_SPOTIFY_PLAYLIST_URL =
 export const DASHBOARD_RESOURCES: DashboardResource[] = [
   {
     id: "discord",
-    title: "Discord Server",
-    description: "Chat with organizers, find teammates, and get help in real time.",
-    href: "https://discord.gg/stanfordxr",
+    title: "Hackathon Discord Server",
+    description: "Join the Immerse the Bay 2026 Discord server here:",
+    href: "https://discord.gg/jCqYbN6t4",
+    accent: "#ec4899",
   },
   {
     id: "devpost",
     title: "Devpost / Submissions",
-    description: "Project submission portal — link will go live closer to demo day.",
-    href: "#",
+    description: "Project submission portal. Link will go live closer to demo day.",
+    // Placeholder: last year's Devpost until the 2026 page is up.
+    href: "https://immerse-the-bay-xr-2025.devpost.com/",
+    accent: "#3b82f6",
   },
   {
-    id: "hardware",
-    title: "Hardware Lending",
-    description: "Headset checkout policies and inventory list for the weekend.",
-    href: "#",
-  },
-  {
-    id: "wifi",
-    title: "Venue Wi‑Fi",
-    description: "Network name and guest access instructions for the hackathon space.",
-    href: "#",
-  },
-  {
-    id: "code-of-conduct",
-    title: "Code of Conduct",
-    description: "Community guidelines for a safe, inclusive building environment.",
-    href: "#",
-  },
-  {
-    id: "emergency",
-    title: "Emergency Contacts",
-    description: "On-site organizer numbers and campus safety resources.",
-    href: "#",
+    id: "stanfordxr-discord",
+    title: "StanfordXR Discord Server",
+    description: "Join the StanfordXR Discord server here:",
+    href: "https://discord.gg/FqxQSafU",
+    accent: "#a855f7",
   },
 ];
