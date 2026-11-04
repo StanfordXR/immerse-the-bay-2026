@@ -40,7 +40,7 @@ export function LiveAnnouncements() {
   }, [load]);
 
   return (
-    <div className="flex h-[320px] w-full flex-col sm:h-[380px]">
+    <div className="flex h-[400px] w-full flex-col sm:h-[475px]">
       <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
         {loading && announcements.length === 0 ? (
           <p className="text-sm text-muted">Loading announcements…</p>

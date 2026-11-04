@@ -1,4 +1,4 @@
-import type { DashboardResource } from "./types";
+import type { DashboardResource, RoughScheduleDay } from "./types";
 
 /** ISO datetime for countdown target (Pacific). */
 export const DASHBOARD_COUNTDOWN_TARGET = "2026-11-13T09:00:00-08:00";
@@ -14,11 +14,41 @@ export const DASHBOARD_ANNOUNCEMENTS_SHEET_ID =
 export const DASHBOARD_ANNOUNCEMENTS_SHEET_GID = "0";
 
 /**
- * Public Google Calendar embed URL.
- * In Google Calendar: Settings → Integrate calendar → copy embed code src.
+ * Event schedule shown on the dashboard. Hardcoded here, separate from the
+ * Schedule page's ROUGH_SCHEDULE in data/schedule.ts, so the two can diverge.
  */
-export const DASHBOARD_CALENDAR_EMBED_URL =
-  "https://calendar.google.com/calendar/embed?src=dea89397aa12e3b95bad5724b4561b35fb04aa33b71bb72ee9afc34d17a80862%40group.calendar.google.com&ctz=America%2FLos_Angeles&bgcolor=%2306040c&color=%23c084fc";
+export const DASHBOARD_SCHEDULE: RoughScheduleDay[] = [
+  {
+    id: "friday",
+    label: "Friday",
+    date: "November 13",
+    blocks: [
+      { id: "fri-workshops", title: "Workshops", time: "12–6 pm", size: "large" },
+      { id: "fri-dinner", title: "Dinner", time: "6–7 pm" },
+      { id: "fri-opening", title: "Opening Ceremony", time: "7–8:30 pm" },
+      { id: "fri-hacking", title: "Hacking", time: "9 pm" },
+    ],
+  },
+  {
+    id: "saturday",
+    label: "Saturday",
+    date: "November 14",
+    blocks: [
+      { id: "sat-hacking", title: "Hacking", time: "All day", size: "fill" },
+    ],
+  },
+  {
+    id: "sunday",
+    label: "Sunday",
+    date: "November 15",
+    blocks: [
+      { id: "sun-hacking-ends", title: "Hacking Ends", time: "9 am" },
+      { id: "sun-judging", title: "Judging", time: "9:30 am–12 pm" },
+      { id: "sun-lunch", title: "Lunch", time: "12 pm" },
+      { id: "sun-closing", title: "Closing Ceremony", time: "1:30 pm" },
+    ],
+  },
+];
 
 /**
  * Spotify playlist embed URL (iframe src).
