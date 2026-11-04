@@ -2,21 +2,22 @@
 
 import { motion } from "framer-motion";
 import { CountdownTimer } from "@/components/Dashboard/CountdownTimer";
+import { HackerBadge } from "@/components/Dashboard/HackerBadge";
 import { LiveAnnouncements } from "@/components/Dashboard/LiveAnnouncements";
+import { ScheduleGridBlock } from "@/components/Schedule/ScheduleGridBlock";
 import { Container } from "@/components/ui/Container";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import {
-  DASHBOARD_CALENDAR_EMBED_URL,
   DASHBOARD_COUNTDOWN_TARGET,
   DASHBOARD_RESOURCES,
+  DASHBOARD_SCHEDULE,
   DASHBOARD_SPOTIFY_EMBED_URL,
   DASHBOARD_SPOTIFY_PLAYLIST_URL,
 } from "@/data/dashboard";
 import { fadeUp, staggerContainer } from "@/lib/motion";
 
 export function DashboardView() {
-  const hasCalendar = Boolean(DASHBOARD_CALENDAR_EMBED_URL);
   const hasSpotify = Boolean(DASHBOARD_SPOTIFY_EMBED_URL);
 
   return (
@@ -53,7 +54,7 @@ export function DashboardView() {
                   Vibes playlist
                 </h3>
                 <p className="mt-1 text-sm text-muted">
-                  Send song recs to organizers on Discord at #music-recs channel!
+                  Music inspires creativity! Send recs to organizers on Discord at #suggestions channel!
                 </p>
               </div>
               <div className="relative h-[168px] w-full bg-void/50 sm:h-[211px]">
@@ -94,48 +95,54 @@ export function DashboardView() {
         </div>
 
         <div className="flex flex-col gap-8">
-          <motion.div variants={fadeUp} className="w-full">
-            <GlassCard hover={false} className="w-full overflow-hidden p-0">
-              <div className="border-b border-white/10 px-6 py-4">
-                <h3 className="font-sans text-lg font-semibold sm:text-xl">
-                  Live announcements
-                </h3>
-                <p className="mt-1 text-sm text-muted">
-                  Real-time updates on announcements from the organizers.
-                </p>
-              </div>
-              <LiveAnnouncements />
-            </GlassCard>
-          </motion.div>
+          <div className="grid gap-8 lg:grid-cols-2">
+            <motion.div variants={fadeUp} className="w-full">
+              <GlassCard hover={false} className="h-full w-full overflow-hidden p-0">
+                <div className="border-b border-white/10 px-6 py-4">
+                  <h3 className="font-sans text-lg font-semibold sm:text-xl">
+                    Live announcements
+                  </h3>
+                  <p className="mt-1 text-sm text-muted">
+                    Real-time updates on announcements from the organizers.
+                  </p>
+                </div>
+                <LiveAnnouncements />
+              </GlassCard>
+            </motion.div>
+
+            <motion.div variants={fadeUp} className="w-full">
+              <HackerBadge />
+            </motion.div>
+          </div>
 
           <motion.div variants={fadeUp} className="w-full">
             <GlassCard hover={false} className="w-full overflow-hidden p-0">
               <div className="border-b border-white/10 px-6 py-4">
                 <h3 className="font-sans text-lg font-semibold sm:text-xl">
-                  Live calendar
+                  Schedule
                 </h3>
                 <p className="mt-1 text-sm text-muted">
-                  Shared Google Calendar for workshops, meals, and key events.
+                  Workshops, meals, and key events across the weekend.
                 </p>
               </div>
-              <div className="relative h-[380px] w-full bg-void/50 sm:h-[420px]">
-                {hasCalendar ? (
-                  <iframe
-                    className="absolute inset-0 h-full w-full border-0"
-                    src={DASHBOARD_CALENDAR_EMBED_URL}
-                    title="Immerse the Bay live calendar"
-                  />
-                ) : (
-                  <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
-                    <p className="max-w-sm text-sm text-muted">
-                      Add your public Google Calendar embed URL in{" "}
-                      <code className="text-neon-purple-light">data/dashboard.ts</code>
-                    </p>
-                    <p className="font-mono text-xs text-muted/70">
-                      Google Calendar → Settings → Integrate calendar → Embed code
-                    </p>
+              <div className="grid grid-cols-1 gap-6 bg-void/50 p-6 md:grid-cols-3 md:gap-5 lg:gap-6">
+                {DASHBOARD_SCHEDULE.map((day) => (
+                  <div key={day.id} className="flex min-h-0 flex-col sm:min-h-[32rem]">
+                    <div className="mb-4 text-center">
+                      <h4 className="font-sans text-xl font-semibold uppercase tracking-[0.12em] text-foreground sm:text-2xl">
+                        {day.label}
+                      </h4>
+                      <p className="mt-1 font-mono text-xs uppercase tracking-[0.18em] text-neon-cyan/70">
+                        {day.date}
+                      </p>
+                    </div>
+                    <div className="flex flex-1 flex-col gap-3">
+                      {day.blocks.map((block) => (
+                        <ScheduleGridBlock key={block.id} block={block} />
+                      ))}
+                    </div>
                   </div>
-                )}
+                ))}
               </div>
             </GlassCard>
           </motion.div>
