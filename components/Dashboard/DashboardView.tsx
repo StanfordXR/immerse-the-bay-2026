@@ -57,26 +57,34 @@ export function DashboardView() {
                   Music inspires creativity! Send recs to organizers on Discord at #suggestions channel!
                 </p>
               </div>
-              <div className="relative h-[168px] w-full bg-void/50 sm:h-[211px]">
-                {hasSpotify ? (
-                  <iframe
-                    className="absolute inset-0 h-full w-full border-0"
-                    src={DASHBOARD_SPOTIFY_EMBED_URL}
-                    title="Immerse the Bay Spotify playlist"
-                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
-                    <p className="max-w-sm text-sm text-muted">
-                      Add your Spotify embed URL in{" "}
-                      <code className="text-neon-purple-light">data/dashboard.ts</code>
-                    </p>
-                    <p className="font-mono text-xs text-muted/70">
-                      Spotify → playlist → Share → Embed playlist
-                    </p>
-                  </div>
-                )}
+              <div className="flex w-full items-center gap-4 bg-void/50 py-4 pr-4 sm:gap-6 sm:pr-6">
+                <div className="relative h-[152px] min-w-0 flex-1">
+                  {hasSpotify ? (
+                    <iframe
+                      className="absolute inset-0 h-full w-full border-0"
+                      src={DASHBOARD_SPOTIFY_EMBED_URL}
+                      title="Immerse the Bay Spotify playlist"
+                      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
+                      <p className="max-w-sm text-sm text-muted">
+                        Add your Spotify embed URL in{" "}
+                        <code className="text-neon-purple-light">data/dashboard.ts</code>
+                      </p>
+                      <p className="font-mono text-xs text-muted/70">
+                        Spotify → playlist → Share → Embed playlist
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <div
+                  className="shrink-0 drop-shadow-[0_0_12px_rgb(217_70_239_/_0.45)]"
+                  aria-hidden
+                >
+                  <div className="vinyl-record aspect-square h-[120px] sm:h-[152px]" />
+                </div>
               </div>
               {DASHBOARD_SPOTIFY_PLAYLIST_URL ? (
                 <div className="border-t border-white/10 px-6 py-2 text-center">
@@ -98,7 +106,7 @@ export function DashboardView() {
           <div className="grid gap-8 lg:grid-cols-2">
             <motion.div variants={fadeUp} className="w-full">
               <GlassCard hover={false} className="h-full w-full overflow-hidden p-0">
-                <div className="border-b border-white/10 px-6 py-4">
+                <div className="px-6 py-4">
                   <h3 className="font-sans text-lg font-semibold sm:text-xl">
                     Live announcements
                   </h3>
@@ -106,6 +114,11 @@ export function DashboardView() {
                     Real-time updates on announcements from the organizers.
                   </p>
                 </div>
+                <div
+                  className="resource-shine h-1"
+                  style={{ "--shine-color": "#ef4444" } as React.CSSProperties}
+                  aria-hidden
+                />
                 <LiveAnnouncements />
               </GlassCard>
             </motion.div>
@@ -155,18 +168,33 @@ export function DashboardView() {
             </h3>
             <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {DASHBOARD_RESOURCES.map((resource) => (
-                <li key={resource.id}>
-                  <a
-                    href={resource.href}
-                    className="group block h-full border border-white/10 bg-void/40 p-4 transition hover:border-neon-cyan/30 hover:shadow-glow-cyan"
-                  >
-                    <p className="font-semibold text-foreground group-hover:text-neon-cyan">
-                      {resource.title}
-                    </p>
-                    <p className="mt-2 text-sm leading-relaxed text-muted">
-                      {resource.description}
-                    </p>
-                  </a>
+                <li
+                  key={resource.id}
+                  className="h-full border border-white/10 bg-void/40 p-4 pt-0"
+                >
+                  {resource.accent ? (
+                    <div
+                      className="resource-shine -mx-4 mb-4 h-1"
+                      style={{ "--shine-color": resource.accent } as React.CSSProperties}
+                      aria-hidden
+                    />
+                  ) : (
+                    <div className="mb-4" aria-hidden />
+                  )}
+                  <p className="font-semibold text-foreground">{resource.title}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">
+                    {resource.description}
+                  </p>
+                  {resource.href && resource.href !== "#" ? (
+                    <a
+                      href={resource.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-block break-all text-sm text-neon-cyan underline underline-offset-4 hover:text-neon-purple-light"
+                    >
+                      {resource.href}
+                    </a>
+                  ) : null}
                 </li>
               ))}
             </ul>
