@@ -4,6 +4,8 @@ export interface Sponsor {
   name: string;
   logo?: string;
   url?: string;
+  /** Shown when hovering or focusing the sponsor card. */
+  description?: string;
   /** Marquee logo size multiplier (default 1). */
   marqueeScale?: number;
   /** Sponsor grid logo size multiplier (default 1). */

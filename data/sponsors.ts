@@ -1,97 +1,77 @@
 import type { Sponsor, SponsorTier } from "./types";
 
 /**
- * 2025 sponsors by tier — logos live in public/images/sponsors/.
- * Marquee order follows tier order (Platinum → Gold → Silver → Supported By).
+ * 2026 sponsors by tier — logos live in public/images/sponsors/.
+ * Sponsors without a logo render as their name. A tier with no sponsors
+ * renders a "TBD" placeholder. Marquee order follows tier order.
  */
 export const SPONSOR_TIERS: SponsorTier[] = [
   {
     tier: "Platinum",
-    sponsors: [
-      { name: "AWE", logo: "/images/sponsors/awe.svg", url: "https://www.awexr.com", marqueeScale: 0.63 },
-      {
-        name: "ByteDance",
-        logo: "/images/sponsors/ByteDance.png",
-        url: "https://www.bytedance.com",
-        marqueeScale: 1.37,
-        marqueeSpacingAfter: 1.5,
-      },
-      { name: "OpenBCI", logo: "/images/sponsors/OpenBCI.png", url: "https://openbci.com", marqueeScale: 1.37 },
-      {
-        name: "Meta",
-        logo: "/images/sponsors/meta.png",
-        url: "https://www.meta.com",
-        marqueeScale: 0.95,
-        logoScale: 0.81,
-        marqueeSpacingAfter: 0.9,
-      },
-      {
-        name: "XR Bootcamp by Meta",
-        logo: "/images/sponsors/XRMeta.png",
-        url: "https://xrbootcamp.com",
-        marqueeScale: 0.72,
-        logoScale: 1.21,
-        marqueeSpacingAfter: 0.9,
-      },
-    ],
+    sponsors: [],
   },
   {
     tier: "Gold",
     sponsors: [
       {
-        name: "Raven Resonance",
-        logo: "/images/sponsors/Raven.png",
-        url: "#",
-        marqueeScale: 1.07,
-        marqueeSpacingAfter: 1.65,
+        name: "ManageXR",
+        logo: "/images/sponsors/managexr.svg",
+        url: "https://www.managexr.com",
+        description:
+          "The management platform for VR and AR deployments. Distribute content, customize the user experience, and troubleshoot devices with end-to-end visibility and control. Solve the challenges of working with XR at scale.",
       },
-      { name: "Afference", logo: "/images/sponsors/Afference.png", url: "https://www.afference.com", marqueeScale: 1.56, logoScale: 1.452 },
-      { name: "XREAL", logo: "/images/sponsors/XREAL.png", url: "https://www.xreal.com", logoScale: 0.8 },
-      { name: "Meshy AI", logo: "/images/sponsors/Meshy.png", url: "https://www.meshy.ai", marqueeScale: 0.9, logoScale: 0.88 },
+      {
+        name: "Raven Resonance",
+        logo: "/images/sponsors/raven-resonance.png",
+        url: "http://raven.computer/",
+        description:
+          "Raven Resonance is a San Francisco startup empowering technical creatives to envision and build groundbreaking ambient computing apps. Our flagship product, Raven Prism, is a standalone Linux computer in everyday glasses, controlled by eye and voice, featuring hot-swappable Raven Wings™ batteries and hardware-level privacy. Creators can build with our open Python-based SDK and desktop simulator, then deploy straight to the glasses.",
+      },
+      {
+        name: "AWE",
+        logo: "/images/sponsors/awe.png",
+        url: "https://www.awexr.com/",
+        marqueeScale: 0.6,
+        description:
+          "Since 2010, AWE has been the world’s largest XR and AI community, helping connect, educate, and enable commercial growth and market adoption for 5,000+ companies and 80,000+ professionals in the ecosystem.",
+      },
+      { name: "MyDearest / Mogura VR" },
     ],
   },
   {
     tier: "Silver",
     sponsors: [
-      { name: "ShapesXR", logo: "/images/sponsors/shapesxr.svg", url: "https://www.shapesxr.com", marqueeScale: 1.2 },
-      { name: "Snap AR", logo: "/images/sponsors/Snap_AR.png", url: "https://ar.snap.com", marqueeScale: 0.95, logoScale: 1.097 },
-      { name: "CVRE", logo: "/images/sponsors/CVRE.png", url: "#", marqueeScale: 0.9, marqueeSpacingAfter: 0.5 },
-    ],
-  },
-  {
-    tier: "Supported By",
-    sponsors: [
-      { name: "Red Bull", logo: "/images/sponsors/Redbull.png", url: "https://www.redbull.com", marqueeScale: 0.8, logoScale: 1.69 },
-      { name: "Shake Shack", logo: "/images/sponsors/shakeshack.png", url: "https://www.shakeshack.com", marqueeScale: 1.54, logoScale: 1.521 },
+      { name: "ShapesXR", logo: "/images/sponsors/shapesxr.svg", url: "https://www.shapesxr.com" },
       {
-        name: "Panda Express",
-        logo: "/images/sponsors/Panda.png",
-        url: "https://www.pandaexpress.com",
-        marqueeScale: 0.72,
-        logoScale: 1.606,
-        marqueeSpacingAfter: 0.45,
+        name: "Attractor Labs",
+        logo: "/images/sponsors/attractor-labs.svg",
+        url: "https://attractor.world",
+        marqueeScale: 1.4,
+        logoScale: 1.3,
+        description:
+          "Attractor Labs builds audio world models. Our first product, SATIE, is an AI audio director for 3D worlds. Game developers and immersive worldbuilders use SATIE to create rich, interactive soundscapes, down to footsteps that change with floor materials, muffled sound underwater, and engines that rise in pitch as cars accelerate. Whether you're building without a sound team or designing sound professionally, SATIE lets you create, direct, and refine every detail of how your world sounds.",
+      },
+      { name: "DreamPark" },
+      { name: "Shizuku AI", logo: "/images/sponsors/shizuku-ai.png", url: "https://shizuku.ai/" },
+      {
+        name: "Aelven",
+        logo: "/images/sponsors/aelven.png",
+        url: "https://aelven.ai",
+        marqueeScale: 0.55,
+        description:
+          "Aelven creates rich, coherent datasets from human activity across physical and digital environments, connecting context across modalities and over time. Domes is its first consumer product, building real-time models of users’ worlds.",
       },
       {
-        name: "Insomnia Cookies",
-        logo: "/images/sponsors/Insomnia.png",
-        url: "https://insomniacookies.com",
-        marqueeScale: 0.72,
-        logoScale: 1.606,
-        marqueeSpacingAfter: 0.6,
-      },
-      {
-        name: "Ike's Love & Sandwiches",
-        logo: "/images/sponsors/Ike.png",
-        url: "https://www.ilikeikesplace.com",
-        marqueeScale: 1.26,
-        logoScale: 2.9,
-        marqueeSpacingAfter: 0.8,
+        name: "Visko",
+        url: "https://www.visko.ai",
+        description:
+          "Visko is an AI research company pioneering Live Models and the creator of Orbis, a foundation model that generates and streams living worlds in real time. Orbis unites persistent memory, steerable interactivity, and generation grounded in real-world physics to power the next generation of media, entertainment, gaming, and embodied AI.",
       },
     ],
   },
 ];
 
-/** Flat list in tier order (Platinum → Supported By). */
+/** Flat list in tier order (Platinum → Silver). */
 export const SPONSORS: Sponsor[] = SPONSOR_TIERS.flatMap(({ sponsors }) => sponsors);
 
 /** Partner organizations, shown in a small row below the sponsor grid. */
@@ -99,15 +79,5 @@ export const PARTNERS: Sponsor[] = [
   { name: "UC Berkeley XR", logo: "/images/sponsors/berkeley.png", url: "#" },
 ];
 
-/** Homepage sponsor marquee — tier order, excluding catering partners. */
-const MARQUEE_EXCLUDED_SPONSORS = new Set([
-  "Red Bull",
-  "Shake Shack",
-  "Panda Express",
-  "Insomnia Cookies",
-  "Ike's Love & Sandwiches",
-]);
-
-export const MARQUEE_SPONSORS = SPONSORS.filter(
-  (sponsor) => !MARQUEE_EXCLUDED_SPONSORS.has(sponsor.name),
-);
+/** Homepage sponsor marquee, in tier order. */
+export const MARQUEE_SPONSORS = SPONSORS;
