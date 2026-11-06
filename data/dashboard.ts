@@ -1,4 +1,4 @@
-import type { DashboardResource, RoughScheduleDay } from "./types";
+import type { DashboardResource, DashboardWorkshop, RoughScheduleDay } from "./types";
 
 /** ISO datetime for countdown target (Pacific). */
 export const DASHBOARD_COUNTDOWN_TARGET = "2026-11-13T09:00:00-08:00";
@@ -38,6 +38,20 @@ export const DASHBOARD_SCHEDULE: RoughScheduleDay[] = [
       { id: "sun-closing", title: "Closing Ceremony", time: "1:30 pm" },
     ],
   },
+];
+
+/** Friday sponsor workshops (12–6 pm), shown under the dashboard schedule. */
+export const DASHBOARD_WORKSHOPS: DashboardWorkshop[] = [
+  { id: "impact", time: "12 pm", title: "Impact Workshop", room: "Packard 101", tentative: true },
+  { id: "visko", time: "12:30 pm", title: "Visko Workshop", room: "Packard 101" },
+  { id: "shapesxr", time: "1 pm", title: "ShapesXR Workshop", room: "Packard 101", tentative: true },
+  { id: "attractor", time: "1:30 pm", title: "Attractor Labs Workshop", room: "Packard 101" },
+  { id: "shizuku", time: "2 pm", title: "Shizuku AI Workshop", room: "Packard 101" },
+  { id: "dreampark", time: "2:30 pm", title: "DreamPark Workshop", room: "Packard 101" },
+  { id: "berkeley", time: "3–4 pm", title: "XR@Berkeley Workshop", room: "Packard 101", tentative: true },
+  { id: "aelven", time: "3–4 pm", title: "Aelven Founder Office Hours", room: "Y2E2 111" },
+  { id: "raven", time: "4–5 pm", title: "Raven Resonance Workshop", room: "Packard 101" },
+  { id: "managexr", time: "5–6 pm", title: "ManageXR Workshop", room: "Packard 101" },
 ];
 
 /**
