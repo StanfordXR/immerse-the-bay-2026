@@ -2,14 +2,9 @@ import type { Sponsor, SponsorTier } from "./types";
 
 /**
  * 2026 sponsors by tier — logos live in public/images/sponsors/.
- * Sponsors without a logo render as their name. A tier with no sponsors
- * renders a "TBD" placeholder. Marquee order follows tier order.
+ * Sponsors without a logo render as their name. Marquee order follows tier order.
  */
 export const SPONSOR_TIERS: SponsorTier[] = [
-  {
-    tier: "Platinum",
-    sponsors: [],
-  },
   {
     tier: "Gold",
     sponsors: [
@@ -71,7 +66,7 @@ export const SPONSOR_TIERS: SponsorTier[] = [
   },
 ];
 
-/** Flat list in tier order (Platinum → Silver). */
+/** Flat list in tier order (Gold → Silver). */
 export const SPONSORS: Sponsor[] = SPONSOR_TIERS.flatMap(({ sponsors }) => sponsors);
 
 /** Partner organizations, shown in a small row below the sponsor grid. */

@@ -191,34 +191,17 @@ export function Sponsors() {
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true, margin: "-40px" }}
-                  className={cn(
-                    sponsors.length > 0 ? cn("grid", layout.grid) : "flex justify-center",
-                  )}
+                  className={cn("grid", layout.grid)}
                 >
-                  {sponsors.length > 0 ? (
-                    sponsors.map((sponsor, index) => (
-                      <SponsorCard
-                        key={sponsor.name}
-                        sponsor={sponsor}
-                        logoClass={layout.logoClass}
-                        className={layout.cardClass}
-                        popoverClass={popoverAlignClass(index, layout.cols)}
-                      />
-                    ))
-                  ) : (
-                    <motion.li variants={scaleIn}>
-                      <div
-                        className={cn(
-                          "flex min-w-[180px] items-center justify-center border border-dashed border-white/15 bg-surface/30 px-6 py-4 backdrop-blur-md",
-                          layout.cardClass,
-                        )}
-                      >
-                        <span className="font-mono text-lg font-semibold uppercase tracking-[0.2em] text-foreground/50">
-                          TBD
-                        </span>
-                      </div>
-                    </motion.li>
-                  )}
+                  {sponsors.map((sponsor, index) => (
+                    <SponsorCard
+                      key={sponsor.name}
+                      sponsor={sponsor}
+                      logoClass={layout.logoClass}
+                      className={layout.cardClass}
+                      popoverClass={popoverAlignClass(index, layout.cols)}
+                    />
+                  ))}
                 </motion.ul>
               </motion.div>
             );
