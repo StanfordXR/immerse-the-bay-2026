@@ -30,6 +30,13 @@ export const SPONSOR_TIERS: SponsorTier[] = [
         description:
           "Since 2010, AWE has been the world’s largest XR and AI community, helping connect, educate, and enable commercial growth and market adoption for 5,000+ companies and 80,000+ professionals in the ecosystem.",
       },
+      {
+        name: "Visko",
+        logo: "/images/sponsors/visko.png",
+        url: "https://www.visko.ai",
+        description:
+          "Visko is an AI research company pioneering Live Models and the creator of Orbis, a foundation model that generates and streams living worlds in real time. Orbis unites persistent memory, steerable interactivity, and generation grounded in real-world physics to power the next generation of media, entertainment, gaming, and embodied AI.",
+      },
       { name: "MyDearest / Mogura VR" },
     ],
   },
@@ -46,7 +53,14 @@ export const SPONSOR_TIERS: SponsorTier[] = [
         description:
           "Attractor Labs builds audio world models. Our first product, SATIE, is an AI audio director for 3D worlds. Game developers and immersive worldbuilders use SATIE to create rich, interactive soundscapes, down to footsteps that change with floor materials, muffled sound underwater, and engines that rise in pitch as cars accelerate. Whether you're building without a sound team or designing sound professionally, SATIE lets you create, direct, and refine every detail of how your world sounds.",
       },
-      { name: "DreamPark" },
+      {
+        name: "DreamPark",
+        logo: "/images/sponsors/dreampark.png",
+        url: "https://dreampark.app",
+        marqueeScale: 0.6,
+        description:
+          "DreamPark turns any room, gym, or field into a video game. Using Meta Quest headsets, players jump into shared mixed reality games like laser tag and Super Adventure Land, no special venue or setup needed. We bring the headsets and run the session, for schools, parties, and events.",
+      },
       { name: "Shizuku AI", logo: "/images/sponsors/shizuku-ai.png", url: "https://shizuku.ai/" },
       {
         name: "Aelven",
@@ -55,12 +69,6 @@ export const SPONSOR_TIERS: SponsorTier[] = [
         marqueeScale: 0.55,
         description:
           "Aelven creates rich, coherent datasets from human activity across physical and digital environments, connecting context across modalities and over time. Domes is its first consumer product, building real-time models of users’ worlds.",
-      },
-      {
-        name: "Visko",
-        url: "https://www.visko.ai",
-        description:
-          "Visko is an AI research company pioneering Live Models and the creator of Orbis, a foundation model that generates and streams living worlds in real time. Orbis unites persistent memory, steerable interactivity, and generation grounded in real-world physics to power the next generation of media, entertainment, gaming, and embodied AI.",
       },
     ],
   },
