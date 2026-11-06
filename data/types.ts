@@ -43,6 +43,15 @@ export interface RoughScheduleDay {
   blocks: RoughScheduleBlock[];
 }
 
+export interface DashboardWorkshop {
+  id: string;
+  time: string;
+  title: string;
+  room: string;
+  /** Tentative sessions get a "TBD" tag until the sponsor confirms. */
+  tentative?: boolean;
+}
+
 export interface ScheduleEvent {
   id: string;
   time: string;

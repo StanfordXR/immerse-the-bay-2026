@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { CountdownTimer } from "@/components/Dashboard/CountdownTimer";
 import { HackerBadge } from "@/components/Dashboard/HackerBadge";
@@ -8,17 +9,26 @@ import { ScheduleGridBlock } from "@/components/Schedule/ScheduleGridBlock";
 import { Container } from "@/components/ui/Container";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { TabButton, TabPanel } from "@/components/ui/Tabs";
 import {
   DASHBOARD_COUNTDOWN_TARGET,
   DASHBOARD_RESOURCES,
   DASHBOARD_SCHEDULE,
   DASHBOARD_SPOTIFY_EMBED_URL,
   DASHBOARD_SPOTIFY_PLAYLIST_URL,
+  DASHBOARD_WORKSHOPS,
 } from "@/data/dashboard";
 import { fadeUp, staggerContainer } from "@/lib/motion";
 
+/** Schedule block that lists DASHBOARD_WORKSHOPS; it gets the wide left column. */
+const WORKSHOPS_BLOCK_ID = "fri-workshops";
+
 export function DashboardView() {
   const hasSpotify = Boolean(DASHBOARD_SPOTIFY_EMBED_URL);
+  const [activeDayId, setActiveDayId] = useState(DASHBOARD_SCHEDULE[0].id);
+  const activeDay =
+    DASHBOARD_SCHEDULE.find((day) => day.id === activeDayId) ?? DASHBOARD_SCHEDULE[0];
+  const hasWorkshops = activeDay.blocks.some((block) => block.id === WORKSHOPS_BLOCK_ID);
 
   return (
     <Container as="section" className="relative pb-20 pt-8 sm:pb-28">
@@ -138,24 +148,70 @@ export function DashboardView() {
                   Workshops, meals, and key events across the weekend.
                 </p>
               </div>
-              <div className="grid grid-cols-1 gap-6 bg-void/50 p-6 md:grid-cols-3 md:gap-5 lg:gap-6">
-                {DASHBOARD_SCHEDULE.map((day) => (
-                  <div key={day.id} className="flex min-h-0 flex-col sm:min-h-[32rem]">
-                    <div className="mb-4 text-center">
-                      <h4 className="font-sans text-xl font-semibold uppercase tracking-[0.12em] text-foreground sm:text-2xl">
-                        {day.label}
-                      </h4>
-                      <p className="mt-1 font-mono text-xs uppercase tracking-[0.18em] text-neon-cyan/70">
-                        {day.date}
-                      </p>
-                    </div>
-                    <div className="flex flex-1 flex-col gap-3">
-                      {day.blocks.map((block) => (
-                        <ScheduleGridBlock key={block.id} block={block} />
-                      ))}
-                    </div>
-                  </div>
-                ))}
+              <div className="bg-void/50 p-6">
+                <div
+                  role="tablist"
+                  aria-label="Schedule day"
+                  className="grid grid-cols-3 gap-2 sm:gap-3"
+                >
+                  {DASHBOARD_SCHEDULE.map((day) => (
+                    <TabButton
+                      key={day.id}
+                      id={`schedule-${day.id}`}
+                      label={`${day.label} · ${day.date.replace("November", "Nov")}`}
+                      isActive={day.id === activeDay.id}
+                      onClick={() => setActiveDayId(day.id)}
+                    />
+                  ))}
+                </div>
+                <TabPanel
+                  id={`schedule-${activeDay.id}`}
+                  labelledBy={`tab-schedule-${activeDay.id}`}
+                  className={
+                    hasWorkshops
+                      ? "mt-6 grid gap-3 lg:grid-cols-[2fr_1fr]"
+                      : "mt-6 grid gap-3 sm:auto-cols-fr sm:grid-flow-col"
+                  }
+                >
+                  {activeDay.blocks.map((block) => (
+                    <ScheduleGridBlock
+                      key={block.id}
+                      block={block}
+                      compact
+                      className={
+                        block.id === WORKSHOPS_BLOCK_ID
+                          ? "lg:row-span-3"
+                          : "sm:min-h-[5.5rem]"
+                      }
+                    >
+                      {block.id === WORKSHOPS_BLOCK_ID ? (
+                        <ul className="mt-4 w-full divide-y divide-white/10 border-t border-white/10 text-left">
+                          {DASHBOARD_WORKSHOPS.map((workshop) => (
+                            <li
+                              key={workshop.id}
+                              className="grid grid-cols-[5rem_1fr] gap-x-4 py-2 sm:grid-cols-[7rem_1fr_auto] sm:items-baseline"
+                            >
+                              <span className="pt-0.5 font-mono text-xs uppercase tracking-[0.08em] text-neon-cyan/80 sm:text-sm">
+                                {workshop.time}
+                              </span>
+                              <p className="font-sans text-sm font-semibold leading-snug text-foreground sm:text-base">
+                                {workshop.title}
+                                {workshop.tentative ? (
+                                  <span className="ml-2 rounded border border-white/20 px-1 py-px align-middle font-mono text-[0.6rem] uppercase tracking-wider text-muted">
+                                    TBD
+                                  </span>
+                                ) : null}
+                              </p>
+                              <span className="col-start-2 mt-0.5 text-xs text-muted sm:col-start-auto sm:mt-0 sm:text-sm">
+                                {workshop.room}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                    </ScheduleGridBlock>
+                  ))}
+                </TabPanel>
               </div>
             </GlassCard>
           </motion.div>
