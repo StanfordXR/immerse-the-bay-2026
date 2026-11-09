@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { SponsorLogoImage } from "@/components/SponsorLogoImage";
 import { SPONSOR_TIERS, PARTNERS } from "@/data/sponsors";
 import type { Sponsor, SponsorTierName } from "@/data/types";
 import { Container } from "@/components/ui/Container";
@@ -54,29 +55,21 @@ const TIER_LAYOUT: Record<
     titleClass: string;
   }
 > = {
-  Platinum: {
-    grid: "grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5",
-    cols: { base: 2, sm: 3, lg: 5 },
-    logoClass: "max-h-12 max-w-[160px]",
-    cardClass: "px-4 py-4 sm:px-8 sm:py-5",
-    titleClass:
-      "bg-gradient-to-r from-white via-sky-100 to-cyan-200 bg-clip-text text-transparent",
-  },
   Gold: {
-    grid: "grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4",
-    cols: { base: 2, sm: 2, lg: 4 },
-    logoClass: "max-h-11 max-w-[150px]",
+    grid: "[&>li]:w-[calc(50%-0.375rem)] sm:[&>li]:w-[calc((100%-1.5rem)/3)] lg:[&>li]:w-[calc((100%-3rem)/5)]",
+    cols: { base: 2, sm: 3, lg: 5 },
+    logoClass: "max-h-11 max-w-full",
     cardClass: "px-4 py-3 sm:px-6 sm:py-4",
     titleClass: "text-amber-400",
   },
   Silver: {
-    grid: "grid-cols-2 gap-3 sm:grid-cols-3",
-    cols: { base: 2, sm: 3, lg: 3 },
-    logoClass: "max-h-10 max-w-[140px]",
+    grid: "[&>li]:w-[calc(50%-0.375rem)] sm:[&>li]:w-[calc((100%-1.5rem)/3)] lg:[&>li]:w-[calc((100%-2.25rem)/4)]",
+    cols: { base: 2, sm: 3, lg: 4 },
+    logoClass: "max-h-10 max-w-full",
     titleClass: "text-neutral-300",
   },
   "Supported By": {
-    grid: "grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5",
+    grid: "[&>li]:w-[calc(50%-0.375rem)] sm:[&>li]:w-[calc((100%-1.5rem)/3)] lg:[&>li]:w-[calc((100%-3rem)/5)]",
     cols: { base: 2, sm: 3, lg: 5 },
     logoClass: "max-h-9 max-w-[120px]",
     cardClass: "px-4 py-3 sm:px-5 sm:py-[1.4rem]",
@@ -95,40 +88,40 @@ function SponsorCard({
   className?: string;
   popoverClass?: string;
 }) {
+  const href = sponsor.url && sponsor.url !== "#" ? sponsor.url : undefined;
+  const Card = href ? "a" : "div";
   return (
     <motion.li
       variants={scaleIn}
-      className="group relative focus-within:z-30 hover:z-30"
+      className="group relative flex flex-col focus-within:z-30 hover:z-30"
     >
-      <div
-        tabIndex={sponsor.description ? 0 : undefined}
+      <Card
+        href={href}
+        target={href ? "_blank" : undefined}
+        rel={href ? "noopener noreferrer" : undefined}
+        tabIndex={!href && sponsor.description ? 0 : undefined}
         aria-describedby={sponsor.description ? descriptionId(sponsor) : undefined}
         className={cn(
-          "flex h-full cursor-default items-center justify-center border border-white/10 bg-surface/50 px-4 py-3 backdrop-blur-md transition-colors sm:px-6 sm:py-4",
+          "flex min-h-20 flex-1 items-center justify-center rounded-lg border border-white/10 bg-surface/50 px-4 py-3 text-center backdrop-blur-md transition-colors sm:px-6 sm:py-4",
+          href && "hover:border-neon-cyan/50 focus-visible:outline-2 focus-visible:outline-neon-cyan",
           sponsor.description &&
             "outline-none group-hover:border-white/25 focus-visible:border-neon-cyan/60",
           className,
         )}
       >
         {sponsor.logo ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={sponsor.logo}
-            alt={sponsor.name}
+          <SponsorLogoImage
+            sponsor={sponsor}
             loading="lazy"
-            className={cn("w-auto object-contain", logoClass)}
-            style={
-              sponsor.logoScale
-                ? { transform: `scale(${sponsor.logoScale})` }
-                : undefined
-            }
+            className={cn("w-auto", logoClass)}
+            scale={sponsor.logoScale}
           />
         ) : (
           <span className="font-sans font-semibold text-foreground/85">
             {sponsor.name}
           </span>
         )}
-      </div>
+      </Card>
       {sponsor.description && (
         <div
           id={descriptionId(sponsor)}
@@ -191,7 +184,7 @@ export function Sponsors() {
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true, margin: "-40px" }}
-                  className={cn("grid", layout.grid)}
+                  className={cn("flex flex-wrap justify-center gap-3", layout.grid)}
                 >
                   {sponsors.map((sponsor, index) => (
                     <SponsorCard

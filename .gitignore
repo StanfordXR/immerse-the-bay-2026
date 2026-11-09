@@ -34,6 +34,10 @@ yarn-error.log*
 .env*
 !.env.example
 
+# Attendee-only schedule snapshots are not public source.
+/data/notion-public-schedule.json
+/data/attendee-config.local.json
+
 # vercel
 .vercel
 

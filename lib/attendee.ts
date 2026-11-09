@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { PORTAL_URL } from "@/data/site";
+import { parseAttendee, type Attendee } from "@/lib/dashboard-access";
 
 /**
  * Who is looking at the Live Dashboard. Sign-in lives on the portal: its
@@ -8,12 +9,6 @@ import { PORTAL_URL } from "@/data/site";
  * whether that hacker was accepted and confirmed their spot.
  */
 const SHARED_SESSION_COOKIE = "itb_session";
-
-/** Mirrors `AttendeeStatus` in the portal repo's lib/live-dashboard.ts. */
-export type Attendee =
-  | { status: "signed-out" }
-  | { status: "not-confirmed" }
-  | { status: "confirmed"; name: string };
 
 /** Returns null when the portal couldn't be reached, so callers don't mistake an outage for "signed out". */
 export async function getAttendee(): Promise<Attendee | null> {
@@ -25,7 +20,7 @@ export async function getAttendee(): Promise<Attendee | null> {
       headers: { cookie: `${SHARED_SESSION_COOKIE}=${encodeURIComponent(token)}` },
       cache: "no-store",
     });
-    return res.ok ? ((await res.json()) as Attendee) : null;
+    return res.ok ? parseAttendee(await res.json()) : null;
   } catch {
     return null;
   }

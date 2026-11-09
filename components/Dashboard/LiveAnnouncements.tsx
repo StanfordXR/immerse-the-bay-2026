@@ -11,7 +11,7 @@ interface AnnouncementsResponse {
   error?: string;
 }
 
-export function LiveAnnouncements() {
+export function LiveAnnouncements({ discordUrl }: { discordUrl?: string }) {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,18 +35,24 @@ export function LiveAnnouncements() {
   }, []);
 
   useEffect(() => {
-    void load();
+    const firstLoad = window.setTimeout(() => void load(), 0);
     const interval = window.setInterval(() => void load(), POLL_INTERVAL_MS);
-    return () => window.clearInterval(interval);
+    return () => {
+      window.clearTimeout(firstLoad);
+      window.clearInterval(interval);
+    };
   }, [load]);
 
   return (
-    <div className="flex h-[400px] w-full flex-col sm:h-[475px]">
-      <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
+    <div className="max-h-80 overflow-y-auto">
+      <div className="min-h-0">
         {loading && announcements.length === 0 ? (
           <p className="text-sm text-muted">Loading announcements…</p>
         ) : error ? (
-          <p className="text-sm text-red-300">{error}</p>
+          <p className="text-sm text-muted">
+            Live announcements are temporarily unavailable.
+            {discordUrl && <>{" "}Check the <a href={discordUrl} className="text-neon-cyan underline">event Discord</a> for updates.</>}
+          </p>
         ) : announcements.length === 0 ? (
           <p className="text-sm text-muted">No announcements yet. Check back soon.</p>
         ) : (

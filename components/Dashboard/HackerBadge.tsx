@@ -1,9 +1,9 @@
 import { GlassCard } from "@/components/ui/GlassCard";
 
 interface HackerBadgeProps {
-  /** Signed-in hacker's name. Placeholder until dashboard login exists. */
+  /** Signed-in hacker's name, verified through the portal. */
   name?: string;
-  /** Check-in QR code (image URL or data URI). Placeholder until generated. */
+  /** Check-in QR provided by the authorized badge issuer when available. */
   qrSrc?: string;
 }
 
@@ -15,7 +15,7 @@ export function HackerBadge({ name, qrSrc }: HackerBadgeProps) {
           Hacker badge
         </h3>
         <p className="mt-1 text-sm text-muted">
-          Show this QR code at the check-in desk.
+          {qrSrc ? "Show this QR code at the check-in desk." : "If you don't have a QR code, have your confirmation email handy and ask a check-in volunteer for help."}
         </p>
       </div>
       <div
@@ -34,16 +34,12 @@ export function HackerBadge({ name, qrSrc }: HackerBadgeProps) {
           </p>
         </div>
 
-        <div className="flex h-48 w-48 items-center justify-center border border-white/20 bg-white/10 sm:h-56 sm:w-56">
-          {qrSrc ? (
+        {qrSrc ? (
+          <div className="flex h-48 w-48 items-center justify-center border border-white/20 bg-white/10 sm:h-56 sm:w-56">
             // eslint-disable-next-line @next/next/no-img-element -- data URI QR, nothing to optimize
             <img src={qrSrc} alt="Check-in QR code" className="h-full w-full bg-white p-3" />
-          ) : (
-            <p className="px-4 font-mono text-xs uppercase tracking-wider text-muted">
-              QR code appears here after you sign in
-            </p>
-          )}
-        </div>
+          </div>
+        ) : <p className="text-sm text-muted">QR code not available yet.</p>}
       </div>
     </GlassCard>
   );

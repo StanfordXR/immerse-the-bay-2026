@@ -11,8 +11,8 @@ export function TracksPageContent() {
     <Container as="section" className="py-20 sm:py-28">
       <SectionHeading
         eyebrow="Tracks & Prizes"
-        title="2025 Tracks & Prizes"
-        description="Compete across sponsor-backed challenges, primary judging categories, and a bonus wild card track. Each sponsored track includes dedicated resources, mentorship, and prizes."
+        title="Tracks & Prizes"
+        description="2026 tracks and prizes will be revealed at the November 13 opening ceremony so everyone starts on equal footing. Friday sponsor workshops are a chance to hear from the teams behind sponsored tracks. The 2025 archive below is for reference."
       />
 
       <div className="mb-10 flex justify-center">
@@ -21,6 +21,7 @@ export function TracksPageContent() {
         </Button>
       </div>
 
+      <h3 className="mb-4 text-center font-sans text-xl font-semibold">2025 archive</h3>
       <TracksOverview embedded />
     </Container>
   );

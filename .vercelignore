@@ -1,0 +1,12 @@
+# Deployment inputs are source and public assets, never local config.
+.env*
+.vercel/
+.git/
+.next/
+node_modules/
+coverage/
+data/notion-public-schedule.json
+data/attendee-config.local.json
+*.pem
+*.key
+*.p12

@@ -1,58 +1,69 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { DashboardView } from "@/components/Dashboard/DashboardView";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { PORTAL_URL, SITE } from "@/data/site";
 import { getAttendee } from "@/lib/attendee";
+import { dashboardAccess, DASHBOARD_OPENS_ON } from "@/lib/dashboard-access";
 
 export const metadata: Metadata = {
   title: "Live Dashboard",
   description:
     "Live countdown, announcements, calendar, and resources for Immerse the Bay hackers.",
+  robots: { index: false, follow: false },
 };
 
 /** The portal route that signs hackers in and hands their session to this site. */
 const SIGN_IN_URL = `${PORTAL_URL}/live-dashboard`;
 
-/**
- * Only accepted hackers who confirmed their spot see the dashboard. Everyone
- * else is sent to sign in on the portal, or told why they can't get in.
- */
+const COMING_SOON = "Live dashboard is coming Wednesday";
+const LAUNCH_DETAILS = `Confirmed hackers can sign in starting ${DASHBOARD_OPENS_ON}.`;
+
+/** Only portal-verified staff have early access. */
 export default async function DashboardPage({
   searchParams,
 }: {
   searchParams: Promise<{ signed_in?: string }>;
 }) {
-  const attendee = await getAttendee();
-  // Coming straight back from the portal without a session means the cookie
-  // didn't make it; redirecting again would loop.
-  const justSignedIn = (await searchParams).signed_in !== undefined;
-  if (attendee?.status === "signed-out" && !justSignedIn) redirect(SIGN_IN_URL);
+  const [attendee, params] = await Promise.all([getAttendee(), searchParams]);
+  const access = dashboardAccess(attendee);
+  const { isOpen } = access;
 
   return (
-    <main className="relative min-h-screen pt-20">
+    <main className="relative min-h-screen">
       <div className="bg-section-glow pointer-events-none absolute inset-0" aria-hidden />
-      {attendee?.status === "confirmed" ? (
-        <DashboardView />
-      ) : attendee?.status === "not-confirmed" ? (
+      {access.status === "allowed" ? (
+        <DashboardView name={access.name} />
+      ) : access.status === "waiting" ? (
         <Gate
-          title="This dashboard is for confirmed hackers"
-          body="It opens once you've been accepted and confirmed your spot. Check your status on the portal, or sign in with the account you applied with."
+          title={COMING_SOON}
+          body={`You're confirmed for Immerse the Bay. Your live dashboard opens ${DASHBOARD_OPENS_ON}.`}
           action={{ label: "Open the portal", href: `${PORTAL_URL}/dashboard` }}
         />
-      ) : attendee?.status === "signed-out" ? (
+      ) : access.status === "not-confirmed" ? (
         <Gate
-          title="We couldn't keep you signed in"
-          body={`Try signing in again. If this keeps happening, email ${SITE.email}.`}
-          action={{ label: "Sign in", href: SIGN_IN_URL }}
+          title={isOpen ? "Dashboard access" : COMING_SOON}
+          body={isOpen
+            ? "The dashboard is available to staff, reviewers, and hackers who have confirmed their spot. You can check your status in the portal."
+            : `${LAUNCH_DETAILS} You can check your RSVP in the portal.`}
+          action={{ label: "Open the portal", href: `${PORTAL_URL}/dashboard` }}
+        />
+      ) : access.status === "signed-out" ? (
+        <Gate
+          title={isOpen ? "Sign in to the live dashboard" : COMING_SOON}
+          body={params.signed_in !== undefined
+            ? `We couldn't keep you signed in. Try again, or email ${SITE.email} for help.`
+            : isOpen
+              ? "Use your Immerse the Bay portal account."
+              : `${LAUNCH_DETAILS} Staff and reviewers can sign in now.`}
+          action={{ label: "Sign in with the portal", href: SIGN_IN_URL }}
         />
       ) : (
         <Gate
           title="The dashboard is unavailable"
           body="We couldn't check your sign-in just now. Refresh in a moment."
-          action={{ label: "Try again", href: "/dashboard" }}
+          action={{ label: "Try again", href: "" }}
         />
       )}
     </main>
@@ -74,6 +85,7 @@ function Gate({
         <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{title}</h1>
         <p className="leading-relaxed text-muted">{body}</p>
         <Button href={action.href}>{action.label}</Button>
+        <a href={SITE.url} className="text-sm text-neon-cyan underline underline-offset-4">Back to the main site</a>
       </GlassCard>
     </Container>
   );

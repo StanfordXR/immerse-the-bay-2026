@@ -1,19 +1,26 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ROUGH_SCHEDULE } from "@/data/schedule";
+import { LIVE_DASHBOARD_URL } from "@/data/site";
+import type { RoughScheduleDay } from "@/data/types";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { fadeUp, staggerContainer } from "@/lib/motion";
 import { ScheduleGridBlock } from "./ScheduleGridBlock";
 
-export function ScheduleView() {
+export function ScheduleView({ days }: { days: RoughScheduleDay[] }) {
   return (
     <Container as="section" className="py-20 sm:py-28">
       <SectionHeading
         eyebrow="Schedule"
         title="Schedule"
-        description="More details will be released closer to date of hackathon."
+        description={
+          <>
+            The full schedule and room details are on the{" "}
+            <a href={LIVE_DASHBOARD_URL} className="text-neon-cyan underline underline-offset-4">live dashboard</a>
+            {" "}for confirmed hackers. All times are Pacific.
+          </>
+        }
       />
 
       <motion.div
@@ -23,7 +30,7 @@ export function ScheduleView() {
         viewport={{ once: true, margin: "-40px" }}
         className="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-5 lg:gap-6"
       >
-        {ROUGH_SCHEDULE.map((day) => (
+        {days.map((day) => (
           <motion.div
             key={day.id}
             variants={fadeUp}

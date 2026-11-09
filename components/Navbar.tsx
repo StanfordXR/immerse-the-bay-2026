@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { NAV_LINKS, PORTAL_APPLY_URL } from "@/data/site";
+import { LIVE_DASHBOARD_URL, NAV_LINKS, PORTAL_APPLY_URL } from "@/data/site";
 import type { NavLink } from "@/data/types";
 import { cn } from "@/lib/utils";
 
@@ -165,6 +165,12 @@ export function Navbar() {
         </ul>
 
         <div className="flex items-center gap-3">
+          <a
+            href={LIVE_DASHBOARD_URL}
+            className="border border-neon-cyan/50 px-3 py-2 text-sm font-semibold text-neon-cyan transition hover:bg-neon-indigo/30 sm:px-4 sm:text-base"
+          >
+            Live
+          </a>
           <span className="group relative hidden sm:inline-flex">
             <a
               href={PORTAL_APPLY_URL}

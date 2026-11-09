@@ -5,31 +5,31 @@ export const FAQ_ITEMS: FAQItem[] = [
     id: "arrive-leave",
     question: "What is the latest I should arrive and the earliest I should leave?",
     answer:
-      "It is very important to arrive before the opening ceremony at 7pm on Friday, November 13. In addition, you give yourself enough time to check-in at the front desk, socialize to meet potential team members, and enjoy some dinner. Our closing ceremony ends at 3pm on Sunday, November 15. This is where we announce our winners, but if you absolutely have to leave earlier, judging ends at 12pm.",
+      "Plan to arrive Friday before the evening opening ceremony and stay through Sunday afternoon for closing and awards. Confirmed attendees can find check-in windows, room assignments, and late-arrival instructions on the live dashboard.",
   },
   {
     id: "own-hardware",
     question: "Can I bring my own hardware to hack on?",
     answer:
-      'All hardware equipment used must be provided by sponsors or consumer off-the-shelf devices (no hardware modifications). All teams using devices not included in the above category will only be eligible for the "Wild West" prize track. Final judgement on what hardware is allowed in the general tracks will be provided by the Immerse the Bay organizers.',
+      "You’re welcome to bring your own headset or other XR gear. Loaners are limited; the live dashboard has request timing. Check the announced track rules for any hardware eligibility requirements.",
   },
   {
     id: "predetermined-group",
     question: "Can I come with a pre-determined hacking group?",
     answer:
-      "The spirit of our hackathon is the connections and community we cultivate through events like this, so we highly encourage you to work with new people to make awesome projects! It is also allowed to form teams with people that you know or have worked with in the past.",
+      "Yes. Teams can have up to four people. We also encourage you to come solo and meet new people: staff will help with team formation Friday evening.",
   },
   {
     id: "besides-hacking",
     question: "Is there anything else happening besides hacking?",
     answer:
-      'Yes! Other than the free food, we will also have "sidequests" that you can participate in to take a break from the hacking. Campus tours from our students, field games, anime watch parties, and card games are planned during the course of the hackathon, so come join us for some fun :D',
+      "Yes! Check the schedule for workshops, founder office hours, meals, demos, and awards. Watch the live dashboard for event updates.",
   },
   {
     id: "overnight",
     question: "Are hackers allowed to stay in the building overnight?",
     answer:
-      "Yes, hackers are allowed to stay in Huang Engineering Center overnight. However, please wear your badge at all times so that we can identify you as a part of the hackathon. If you are not wearing your badge, we may ask you to check-in again or leave the premises.",
+      "Staying overnight Friday or Saturday is optional. Wear your event badge, keep entrances and hallways clear, and follow staff directions. Confirmed attendees should check the live dashboard and arrival guide for details.",
   },
   {
     id: "food-dietary",

@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { Share_Tech_Mono } from "next/font/google";
-import { Footer } from "@/components/Footer";
-import { Navbar } from "@/components/Navbar";
 import { WebsiteJsonLd } from "@/components/WebsiteJsonLd";
 import { SITE } from "@/data/site";
 import { fontDystopian, fontGlitch } from "@/lib/fonts";
@@ -71,9 +69,7 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${shareTechMono.className} min-h-screen bg-void text-foreground antialiased`}
       >
-        <Navbar />
         {children}
-        <Footer />
       </body>
     </html>
   );

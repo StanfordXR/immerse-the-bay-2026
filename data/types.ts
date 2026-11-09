@@ -1,8 +1,12 @@
-export type SponsorTierName = "Platinum" | "Gold" | "Silver" | "Supported By";
+export type SponsorTierName = "Gold" | "Silver" | "Supported By";
 
 export interface Sponsor {
   name: string;
   logo?: string;
+  /** Dark wordmark that needs a light backing for contrast. */
+  lightLogoBackground?: boolean;
+  /** Color treatment for artwork shown against the site's dark surfaces. */
+  logoTone?: "reversed" | "brightened";
   url?: string;
   /** Shown when hovering or focusing the sponsor card. */
   description?: string;
@@ -26,6 +30,21 @@ export interface FAQItem {
 }
 
 export type ScheduleDayId = "friday" | "saturday" | "sunday";
+
+export interface AttendeeScheduleDay {
+  id: ScheduleDayId;
+  label: string;
+  date: string;
+  events: {
+    id: string;
+    title: string;
+    time: string;
+    start?: string;
+    location?: string;
+    description?: string;
+    workshop?: boolean;
+  }[];
+}
 
 export type RoughScheduleBlockSize = "default" | "large" | "fill";
 

@@ -25,6 +25,9 @@ export const SITE = {
 export const PORTAL_URL =
   process.env.NEXT_PUBLIC_PORTAL_URL ?? "https://portal.immersethebay.org";
 
+/** Opt in only after the sibling domain is connected to this same app. */
+export const LIVE_DASHBOARD_URL = process.env.NEXT_PUBLIC_LIVE_URL || "/dashboard";
+
 /** Application portal. Untagged, for links Google may surface itself. */
 export const PORTAL_APPLY_BASE_URL = "https://portal.immersethebay.org/apply";
 
@@ -48,10 +51,9 @@ export const NAV_LINKS: NavLink[] = [
   { label: "Home", href: "/" },
   { label: "Schedule", href: "/schedule" },
   { label: "FAQ", href: "/faq" },
-  { label: "Live Dashboard", href: "/dashboard", reload: true },
   { label: "Tracks & Prizes", href: "/tracks" },
   {
-    label: "2025 Hackathon",
+    label: "2025",
     href: "https://2025.immersethebay.org/",
     external: true,
   },
@@ -91,11 +93,11 @@ export const ABOUT_BOXES: AboutBox[] = [
   {
     id: "expect",
     title: "What to expect",
-    body: `Next-Gen Hardware: Get hands-on access to over $300k worth of XR equipment, including headsets, controllers, and spatial computing peripherals loaned for the full weekend.
+    body: `Next-Gen Hardware: Last year, hackers had access to over $300K worth of XR equipment. This year's loaner inventory is limited; check the live dashboard for lending details.
 
 Industry Support: Level up your skills with engaging workshops, live demos, and direct mentorship from engineers and designers at leading immersive technology companies.
 
-Massive Prizes: Showcase your live prototype at the demo fair and compete for over $30k in prizes across multiple tracks and sponsor awards.
+Tracks & Prizes: Showcase your prototype at the demo fair. Last year featured over $30K in prizes; 2026 tracks and prizes will be revealed at the November 13 opening ceremony.
 
 Global Networking: Connect with a vibrant XR community that previously drew participants from over 175 universities and organizations across 13 countries.
 
