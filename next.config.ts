@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { DASHBOARD_PAGES, dashboardPath } from "./data/dashboard-nav";
 
 const liveOrigin = process.env.NEXT_PUBLIC_LIVE_URL
   ? new URL(process.env.NEXT_PUBLIC_LIVE_URL).origin
@@ -12,22 +13,26 @@ const liveHost = liveOrigin
 
 const nextConfig: NextConfig = {
   async rewrites() {
-    return { beforeFiles: liveHost ? [{
-      source: "/",
-      has: [{ type: "host", value: liveHost }],
-      destination: "/dashboard",
-    }] : [] };
+    return {
+      beforeFiles: liveHost
+        ? DASHBOARD_PAGES.map(({ id }) => ({
+          source: dashboardPath(id, true),
+          has: [{ type: "host" as const, value: liveHost }],
+          destination: dashboardPath(id, false),
+        }))
+        : [],
+    };
   },
   async redirects() {
     return [
-      ...(liveOrigin ? [{
-        // Also handles the existing portal callback, preserving signed_in and
-        // the shared cookie. Never redirect the live host back to itself.
-        source: "/dashboard",
+      // Preserve the portal's callback and query string on the Home route.
+      // Redirect only from the marketing hostname, never from the live host.
+      ...(liveOrigin ? DASHBOARD_PAGES.map(({ id }) => ({
+        source: dashboardPath(id, false),
         has: [{ type: "host" as const, value: "immersethebay\\.org" }],
-        destination: liveOrigin,
+        destination: id === "home" ? liveOrigin : `${liveOrigin}${dashboardPath(id, true)}`,
         permanent: false,
-      }] : []),
+      })) : []),
       // www duplicates the site for SEO and splits analytics by host.
       {
         source: "/:path*",

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { HeroBackground } from "@/components/background/HeroBackground";
 import { SponsorMarquee } from "@/components/SponsorMarquee";
 import { Button } from "@/components/ui/Button";
-import { HERO_CTAS, SITE } from "@/data/site";
+import { APPLICATION_STATUS_LABEL, HERO_CTAS, SITE } from "@/data/site";
 import { fadeUp, staggerContainer } from "@/lib/motion";
 
 function HudFrame() {
@@ -100,18 +100,26 @@ export function Hero() {
             variants={fadeUp}
             className="mt-10 flex flex-wrap justify-center gap-3 sm:gap-4"
           >
-            {HERO_CTAS.map((cta) => (
-              <Button
-                key={cta.label}
-                href={cta.href}
-                variant={cta.variant}
-                external={"external" in cta ? cta.external : false}
-                tooltip={cta.tooltip}
-              >
-                {cta.label}
-              </Button>
-            ))}
+            {HERO_CTAS.map((cta) =>
+              "href" in cta ? (
+                <Button
+                  key={cta.label}
+                  href={cta.href}
+                  variant={cta.variant}
+                  external={cta.external}
+                >
+                  {cta.label}
+                </Button>
+              ) : (
+                <Button key={cta.label} variant={cta.variant} disabled>
+                  {cta.label} ({cta.status})
+                </Button>
+              ),
+            )}
           </motion.div>
+          <motion.p variants={fadeUp} className="mt-3 text-sm text-foreground/80">
+            {APPLICATION_STATUS_LABEL}
+          </motion.p>
 
           {/* Static scroll cue: hero art fills the viewport, so first-time
               visitors need a signifier that the page continues (NN/g's

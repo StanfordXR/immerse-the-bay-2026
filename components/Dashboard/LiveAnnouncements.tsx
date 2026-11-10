@@ -63,7 +63,7 @@ export function LiveAnnouncements({ discordUrl }: { discordUrl?: string }) {
                 className="border border-white/10 bg-void/40 px-4 py-3"
               >
                 <p className="font-mono text-xs uppercase tracking-wider text-neon-cyan">
-                  {[item.date, item.time].filter(Boolean).join(" ") || "Live"}
+                  {[item.pinned && "Pinned", [item.date, item.time].filter(Boolean).join(" ")].filter(Boolean).join(" · ") || "Live"}
                 </p>
                 <p className="mt-2 whitespace-pre-line break-words text-sm leading-relaxed text-muted sm:text-base">
                   {item.message}

@@ -34,6 +34,8 @@ export const PORTAL_APPLY_BASE_URL = "https://portal.immersethebay.org/apply";
 /** Application portal — utm_source=es tags traffic from the event site. */
 export const PORTAL_APPLY_URL = `${PORTAL_APPLY_BASE_URL}?utm_source=es`;
 
+export const APPLICATION_STATUS_LABEL = "Applications closed";
+
 /** Date applications opened; the Event JSON-LD reports it as offers.validFrom. */
 export const APPLICATIONS_OPEN_DATE = "2026-08-12";
 
@@ -63,17 +65,15 @@ export const HERO_CTAS = [
   {
     label: "Apply",
     href: PORTAL_APPLY_URL,
-    variant: "primary" as const,
+    variant: "primary",
     external: true,
-    tooltip: "Open now!",
   },
   {
     label: "Volunteer",
-    href: "https://forms.gle/G79CFRpqjsAXD6r37",
-    variant: "secondary" as const,
-    external: true,
+    variant: "secondary",
+    status: "Closed",
   },
-];
+] as const;
 
 export const SOCIAL_LINKS: SocialLink[] = [
   { label: "Discord", href: "https://discord.gg/stanfordxr", icon: "discord" },

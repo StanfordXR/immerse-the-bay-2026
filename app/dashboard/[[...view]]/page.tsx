@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
+import { notFound } from "next/navigation";
 import { DashboardView } from "@/components/Dashboard/DashboardView";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { GlassCard } from "@/components/ui/GlassCard";
-import { PORTAL_URL, SITE } from "@/data/site";
+import { isDashboardPage } from "@/data/dashboard-nav";
+import { LIVE_DASHBOARD_URL, PORTAL_URL, SITE } from "@/data/site";
 import { getAttendee } from "@/lib/attendee";
 import { dashboardAccess, DASHBOARD_OPENS_ON } from "@/lib/dashboard-access";
 
@@ -14,6 +17,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+export const dynamic = "force-dynamic";
+
 /** The portal route that signs hackers in and hands their session to this site. */
 const SIGN_IN_URL = `${PORTAL_URL}/live-dashboard`;
 
@@ -22,19 +27,30 @@ const LAUNCH_DETAILS = `Confirmed hackers can sign in starting ${DASHBOARD_OPENS
 
 /** Only portal-verified staff have early access. */
 export default async function DashboardPage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ view?: string[] }>;
   searchParams: Promise<{ signed_in?: string }>;
 }) {
-  const [attendee, params] = await Promise.all([getAttendee(), searchParams]);
-  const access = dashboardAccess(attendee);
+  const { view = [] } = await params;
+  const page = view[0] ?? "home";
+  if (view.length > 1 || (view.length === 1 && page === "home") || !isDashboardPage(page)) {
+    notFound();
+  }
+
+  const [attendee, query, requestHeaders] = await Promise.all([getAttendee(), searchParams, headers()]);
+  const now = Date.now();
+  const access = dashboardAccess(attendee, now);
   const { isOpen } = access;
+  const onLiveHost = LIVE_DASHBOARD_URL.startsWith("https://")
+    && requestHeaders.get("host") === new URL(LIVE_DASHBOARD_URL).host;
 
   return (
     <main className="relative min-h-screen">
       <div className="bg-section-glow pointer-events-none absolute inset-0" aria-hidden />
       {access.status === "allowed" ? (
-        <DashboardView name={access.name} />
+        <DashboardView name={access.name} page={page} onLiveHost={onLiveHost} now={now} />
       ) : access.status === "waiting" ? (
         <Gate
           title={COMING_SOON}
@@ -52,7 +68,7 @@ export default async function DashboardPage({
       ) : access.status === "signed-out" ? (
         <Gate
           title={isOpen ? "Sign in to the live dashboard" : COMING_SOON}
-          body={params.signed_in !== undefined
+          body={query.signed_in !== undefined
             ? `We couldn't keep you signed in. Try again, or email ${SITE.email} for help.`
             : isOpen
               ? "Use your Immerse the Bay portal account."

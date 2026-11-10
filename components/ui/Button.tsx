@@ -5,14 +5,14 @@ import { cn } from "@/lib/utils";
 
 type ButtonVariant = "primary" | "secondary" | "ghost";
 
-interface ButtonProps {
-  href: string;
+type ButtonProps = {
   children: React.ReactNode;
   variant?: ButtonVariant;
   className?: string;
-  external?: boolean;
-  tooltip?: string;
-}
+} & (
+  | { href: string; external?: boolean; tooltip?: string; disabled?: false }
+  | { disabled: true; href?: never; external?: never; tooltip?: never }
+);
 
 /* Notched frames are built from two clipped layers: the outer layer paints the
  * border color, the inner layer paints the fill 1px smaller. Glow lives on the
@@ -43,7 +43,34 @@ export function Button({
   className,
   external = false,
   tooltip,
+  disabled = false,
 }: ButtonProps) {
+  const content = (
+    <span
+      className={cn(
+        "cyber-clip inline-flex p-px",
+        disabled ? frameStyles.ghost : frameStyles[variant],
+      )}
+    >
+      <span
+        className={cn(
+          "cyber-clip inline-flex items-center justify-center px-4 py-3 text-xs font-semibold uppercase tracking-[0.12em] transition-colors duration-300 sm:px-6 sm:text-sm sm:tracking-[0.15em]",
+          disabled ? "bg-void/80 text-muted" : fillStyles[variant],
+        )}
+      >
+        {children}
+      </span>
+    </span>
+  );
+
+  if (disabled) {
+    return (
+      <button type="button" disabled className={cn("inline-flex cursor-not-allowed", className)}>
+        {content}
+      </button>
+    );
+  }
+
   const button = (
     <motion.a
       href={href}
@@ -57,16 +84,7 @@ export function Button({
         className,
       )}
     >
-      <span className={cn("cyber-clip inline-flex p-px", frameStyles[variant])}>
-        <span
-          className={cn(
-            "cyber-clip inline-flex items-center justify-center px-4 py-3 text-xs font-semibold uppercase tracking-[0.12em] transition-colors duration-300 sm:px-6 sm:text-sm sm:tracking-[0.15em]",
-            fillStyles[variant],
-          )}
-        >
-          {children}
-        </span>
-      </span>
+      {content}
     </motion.a>
   );
 

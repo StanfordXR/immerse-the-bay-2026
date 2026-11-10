@@ -9,6 +9,7 @@ export interface Announcement {
   date: string;
   time: string;
   message: string;
+  pinned: boolean;
 }
 
 /** The fields we use from Discord's message object. */
@@ -16,6 +17,7 @@ interface DiscordMessage {
   id: string;
   content: string;
   timestamp: string;
+  pinned?: boolean;
   mentions: Array<{ id: string; username: string; global_name: string | null }>;
 }
 
@@ -48,7 +50,7 @@ export function toPlainText(message: Pick<DiscordMessage, "content" | "mentions"
     .trim();
 }
 
-/** Newest first, matching Discord's ordering. */
+/** Pinned messages first, with Discord's newest-first order within each group. */
 export async function fetchAnnouncements(): Promise<Announcement[]> {
   const token = process.env.DISCORD_BOT_TOKEN;
   const channelId = process.env.DISCORD_ANNOUNCEMENTS_CHANNEL_ID;
@@ -72,7 +74,9 @@ export async function fetchAnnouncements(): Promise<Announcement[]> {
         date: sent.toLocaleDateString("en-US", { timeZone: TIME_ZONE, month: "short", day: "numeric" }),
         time: sent.toLocaleTimeString("en-US", { timeZone: TIME_ZONE, hour: "numeric", minute: "2-digit" }),
         message: toPlainText(m),
+        pinned: m.pinned === true,
       };
     })
-    .filter((a) => a.message.length > 0);
+    .filter((a) => a.message.length > 0)
+    .sort((a, b) => Number(b.pinned) - Number(a.pinned));
 }

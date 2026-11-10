@@ -11,9 +11,9 @@ export function HackerBadge({ name, qrSrc }: HackerBadgeProps) {
   return (
     <GlassCard hover={false} className="flex h-full w-full flex-col overflow-hidden p-0">
       <div className="px-6 py-4">
-        <h3 className="font-sans text-lg font-semibold sm:text-xl">
+        <h2 className="font-sans text-lg font-semibold sm:text-xl">
           Hacker badge
-        </h3>
+        </h2>
         <p className="mt-1 text-sm text-muted">
           {qrSrc ? "Show this QR code at the check-in desk." : "If you don't have a QR code, have your confirmation email handy and ask a check-in volunteer for help."}
         </p>

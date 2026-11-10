@@ -40,6 +40,7 @@ export interface AttendeeScheduleDay {
     title: string;
     time: string;
     start?: string;
+    end?: string | null;
     location?: string;
     description?: string;
     workshop?: boolean;
@@ -170,13 +171,4 @@ export interface HackathonStat {
   id: string;
   value: string;
   label: string;
-}
-
-export interface DashboardResource {
-  id: string;
-  title: string;
-  description: string;
-  href: string;
-  /** CSS color for the animated accent bar above the card. */
-  accent?: string;
 }

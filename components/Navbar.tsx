@@ -4,7 +4,12 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LIVE_DASHBOARD_URL, NAV_LINKS, PORTAL_APPLY_URL } from "@/data/site";
+import {
+  APPLICATION_STATUS_LABEL,
+  LIVE_DASHBOARD_URL,
+  NAV_LINKS,
+  PORTAL_APPLY_URL,
+} from "@/data/site";
 import type { NavLink } from "@/data/types";
 import { cn } from "@/lib/utils";
 
@@ -181,10 +186,10 @@ export function Navbar() {
               Apply
             </a>
             <span
-              className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 -translate-x-1/2 whitespace-nowrap border border-white/10 bg-navy/95 px-3 py-1.5 text-xs text-neon-cyan opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100"
+              className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 -translate-x-1/2 whitespace-nowrap border border-white/10 bg-navy/95 px-3 py-1.5 text-xs text-neon-cyan opacity-0 shadow-lg transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100"
               role="tooltip"
             >
-              Open now!
+              {APPLICATION_STATUS_LABEL}
             </span>
           </span>
           <button
@@ -218,7 +223,7 @@ export function Navbar() {
               >
                 Apply{" "}
                 <span className="text-xs text-neon-cyan/70">
-                  (Open now!)
+                  ({APPLICATION_STATUS_LABEL})
                 </span>
               </a>
             </li>

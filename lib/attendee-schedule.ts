@@ -29,8 +29,33 @@ const labels = (value: unknown) => new Map(
     : [],
 );
 
+function approvedLink(value: unknown): string | undefined {
+  if (typeof value !== "string") return;
+  try {
+    const url = new URL(value);
+    if (url.protocol === "https:" && !url.username && !url.password) return url.href;
+  } catch {
+    return;
+  }
+}
+
+function approvedDeadline(value: unknown): string | undefined {
+  if (typeof value === "string"
+      && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?(?:Z|[+-]\d{2}:\d{2})$/.test(value)
+      && Number.isFinite(Date.parse(value))) return value;
+}
+
+interface AttendeeDashboardConfig {
+  schedule: AttendeeScheduleDay[];
+  discordUrl?: string;
+  arrivalGuideUrl?: string;
+  tracksUrl?: string;
+  submissionUrl?: string;
+  submissionDeadline?: string;
+}
+
 /** Loaded only after the server has authorized access to the live dashboard. */
-export function getAttendeeSchedule(): { schedule: AttendeeScheduleDay[]; discordUrl?: string } {
+export function getAttendeeSchedule(): AttendeeDashboardConfig {
   const empty = { schedule: [] };
   const raw = process.env.ITB_ATTENDEE_CONFIG_JSON;
   if (!raw) return empty;
@@ -42,15 +67,16 @@ export function getAttendeeSchedule(): { schedule: AttendeeScheduleDay[]; discor
     return empty;
   }
   if (!config || typeof config !== "object") return empty;
-  const { rows, titles, notes, roomLabels, discordUrl } = config as Record<string, unknown>;
-  if (!Array.isArray(rows) || !rows.length || !rows.every(isRow)) return empty;
+  const { rows, titles, notes, roomLabels, discordUrl, arrivalGuideUrl, tracksUrl, submissionUrl, submissionDeadline } =
+    config as Record<string, unknown>;
+  const validRows = Array.isArray(rows) && rows.every(isRow) ? rows : [];
   const names = labels(titles);
   const descriptions = labels(notes);
   const locations = labels(roomLabels);
 
-  const schedule = days.map(([id, label, date, iso]) => ({
-    id, label, date, iso,
-    events: rows.flatMap(([id, raw, start, end, rooms]) => {
+  const schedule = validRows.length ? days.map(([id, label, date, iso]) => ({
+    id, label, date,
+    events: validRows.flatMap(([id, raw, start, end, rooms]) => {
       if (!start.startsWith(iso)) return [];
       return [{
         id, start, end,
@@ -62,10 +88,14 @@ export function getAttendeeSchedule(): { schedule: AttendeeScheduleDay[]; discor
         workshop: /workshop|founder office hours/i.test(raw),
       }];
     }),
-  }));
+  })) : [];
   return {
     schedule,
     discordUrl: typeof discordUrl === "string" && /^https:\/\/discord\.gg\/[A-Za-z0-9-]+\/?$/.test(discordUrl)
       ? discordUrl : undefined,
+    arrivalGuideUrl: approvedLink(arrivalGuideUrl),
+    tracksUrl: approvedLink(tracksUrl),
+    submissionUrl: approvedLink(submissionUrl),
+    submissionDeadline: approvedDeadline(submissionDeadline),
   };
 }
