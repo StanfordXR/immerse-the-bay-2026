@@ -105,6 +105,58 @@ body {
   background-size: 100% 4px;
 }
 
+/* Sparse starfield for the live dashboard backdrop: two tiled layers of
+ * tiny dots at different scales, so the repeat isn't obvious. */
+.dashboard-stars {
+  background-image:
+    radial-gradient(1px 1px at 23px 41px, rgb(255 255 255 / 0.55), transparent),
+    radial-gradient(1px 1px at 141px 97px, rgb(255 255 255 / 0.35), transparent),
+    radial-gradient(1.5px 1.5px at 211px 183px, rgb(216 180 254 / 0.6), transparent),
+    radial-gradient(1px 1px at 87px 229px, rgb(255 255 255 / 0.3), transparent),
+    radial-gradient(1px 1px at 61px 131px, rgb(255 255 255 / 0.25), transparent),
+    radial-gradient(1.5px 1.5px at 317px 67px, rgb(255 255 255 / 0.45), transparent),
+    radial-gradient(1px 1px at 389px 311px, rgb(216 180 254 / 0.4), transparent);
+  background-size: 260px 260px, 260px 260px, 260px 260px, 260px 260px, 430px 430px, 430px 430px, 430px 430px;
+  animation: stars-twinkle 6s ease-in-out infinite alternate;
+}
+
+@keyframes stars-twinkle {
+  from { opacity: 0.6; }
+  to { opacity: 1; }
+}
+
+/* Shooting stars: a bright head with a fading tail, travelling down-left.
+ * Each streak waits most of its cycle invisible, so they pass one at a time.
+ * Position and timing come from inline custom properties. */
+.shooting-star {
+  position: absolute;
+  top: var(--top);
+  left: var(--left);
+  width: 140px;
+  height: 1px;
+  background: linear-gradient(90deg, rgb(255 255 255 / 0.9), rgb(216 180 254 / 0.4) 30%, transparent);
+  border-radius: 9999px;
+  filter: drop-shadow(0 0 4px rgb(216 180 254 / 0.8));
+  opacity: 0;
+  transform: rotate(-35deg);
+  animation: shooting-star var(--duration, 9s) ease-in var(--delay, 0s) infinite;
+}
+
+@keyframes shooting-star {
+  0% { opacity: 0; transform: rotate(-35deg) translateX(0); }
+  2% { opacity: 1; }
+  10% { opacity: 0; transform: rotate(-35deg) translateX(-420px); }
+  100% { opacity: 0; transform: rotate(-35deg) translateX(-420px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-stars,
+  .hero-grid,
+  .shooting-star {
+    animation: none;
+  }
+}
+
 .hero-grid {
   background-image:
     linear-gradient(rgb(147 51 234 / 0.08) 1px, transparent 1px),

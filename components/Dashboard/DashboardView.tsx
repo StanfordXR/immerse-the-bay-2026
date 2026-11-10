@@ -1,15 +1,25 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
-import { CountdownTimer } from "@/components/Dashboard/CountdownTimer";
+import type { IconType } from "react-icons";
+import { LuArrowUpRight, LuCalendarClock, LuChevronDown, LuMail, LuMapPin, LuMessageCircle, LuMusic, LuPackage, LuRocket, LuTrophy, LuUsers, LuWifi } from "react-icons/lu";
+import { ActionLink } from "@/components/Dashboard/ActionLink";
+import { DashboardBackdrop } from "@/components/Dashboard/DashboardBackdrop";
 import { CheckInBadge } from "@/components/Dashboard/CheckInBadge";
 import { LiveAnnouncements } from "@/components/Dashboard/LiveAnnouncements";
+import { LiveDot, LiveHero } from "@/components/Dashboard/LiveHero";
+import { MobileTabBar } from "@/components/Dashboard/MobileTabBar";
+import { SponsorsCard } from "@/components/Dashboard/SponsorsCard";
 import { ScheduleTabs } from "@/components/Schedule/ScheduleTabs";
 import { Accordion } from "@/components/ui/Accordion";
 import { Container } from "@/components/ui/Container";
 import { GlassCard } from "@/components/ui/GlassCard";
 import {
+  CLOSING_START,
   DASHBOARD_COUNTDOWN_TARGET,
   DASHBOARD_EQUIPMENT_URL,
+  DASHBOARD_EYEBROW,
+  HACKING_END,
+  HACKING_START,
   DASHBOARD_SPOTIFY_EMBED_URL,
   DASHBOARD_SPOTIFY_PLAYLIST_URL,
   STANFORD_CAMPUS_MAP_URL,
@@ -21,6 +31,7 @@ import { getArrivalGuideFaq } from "@/lib/attendee-help";
 import { getAttendeeSchedule } from "@/lib/attendee-schedule";
 import type { StaffRole } from "@/lib/dashboard-access";
 import { dashboardHighlights } from "@/lib/dashboard-highlights";
+import type { EventTimeline } from "@/lib/dashboard-phase";
 import { cn } from "@/lib/utils";
 
 const copy: Record<DashboardPageId, { title: string; description: string }> = {
@@ -28,7 +39,7 @@ const copy: Record<DashboardPageId, { title: string; description: string }> = {
   schedule: { title: "Schedule", description: "Plan your weekend. All times are Pacific." },
   equipment: { title: "Equipment", description: "Request a headset or other loaner gear through the equipment portal." },
   tracks: { title: "Tracks & Submit", description: "Find the challenges, prize details, and how to submit your project." },
-  help: { title: "Help", description: "Get to campus, find your way around, and reach the event team." },
+  help: { title: "Help", description: "Get to campus, find teammates, and reach the event team." },
   badge: { title: "My Badge", description: "Your personal check-in information." },
 };
 
@@ -52,135 +63,191 @@ export function DashboardView({ name, audience, staffRole, badgeQr, page, onLive
   const highlights = page === "home" && schedule.length ? dashboardHighlights(schedule, now) : null;
   const opened = now >= Date.parse(DASHBOARD_COUNTDOWN_TARGET);
   const arrivalFaq = page === "help" ? getArrivalGuideFaq() : [];
+  const timeline: EventTimeline = {
+    opening: Date.parse(DASHBOARD_COUNTDOWN_TARGET),
+    hackingStart: Date.parse(HACKING_START),
+    hackingEnd: Date.parse(submissionDeadline ?? HACKING_END),
+    closing: Date.parse(CLOSING_START),
+  };
+  const firstName = name.trim().split(/\s+/)[0] || "hacker";
 
   return (
     <>
+      <DashboardBackdrop />
       <a href="#dashboard-content" className="sr-only z-50 bg-void px-4 py-3 focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
         Skip to dashboard content
       </a>
       <header data-live-header className="sticky top-0 z-40 border-b border-white/10 bg-void/95 backdrop-blur">
-        <Container as="nav" aria-label="Live dashboard navigation" className="pt-3">
-          <div className="flex items-center justify-between gap-3">
-            <a
-              href={href("home")}
-              aria-label="Immerse the Bay Live home"
-              className={cn("inline-flex min-w-0 items-center rounded-sm", focus)}
-            >
-              <span className="relative block aspect-[2/1] w-24 shrink-0 overflow-hidden sm:w-28">
-                <Image
-                  src="/images/logo/ITB_Standard.png"
-                  alt=""
-                  width={1080}
-                  height={1080}
-                  unoptimized
-                  loading="eager"
-                  className="absolute left-0 top-1/2 h-auto w-full -translate-y-1/2"
-                />
-              </span>
-            </a>
-            <a href={SITE.url} className={cn("hidden text-sm text-muted hover:text-foreground sm:inline", focus)}>Main site ↗</a>
-          </div>
-          <div className="mt-2 flex min-w-0 items-center gap-1 text-sm sm:gap-4 sm:text-base lg:text-lg">
-            <ul aria-label="Event pages" className="flex min-w-0 gap-x-1 overflow-x-auto [scrollbar-color:rgba(255,255,255,0.28)_transparent] [scrollbar-width:thin] sm:gap-x-2 lg:gap-x-3">
+        {/* One wrapping row: on phones the account links sit beside the logo (event tabs are in
+            the bottom bar); from sm up they wrap onto a full-width row with the tabs. */}
+        <Container as="nav" aria-label="Live dashboard navigation" className="flex flex-wrap items-center gap-x-3 py-3 sm:pb-0">
+          <a
+            href={href("home")}
+            aria-label="Immerse the Bay Live home"
+            className={cn("inline-flex min-w-0 items-center rounded-sm", focus)}
+          >
+            <span className="relative block aspect-[2/1] w-24 shrink-0 overflow-hidden sm:w-28">
+              <Image
+                src="/images/logo/ITB_Standard.png"
+                alt=""
+                width={1080}
+                height={1080}
+                unoptimized
+                loading="eager"
+                className="absolute left-0 top-1/2 h-auto w-full -translate-y-1/2"
+              />
+            </span>
+          </a>
+          <a href={SITE.url} className={cn("ml-auto hidden text-sm text-muted hover:text-foreground sm:inline", focus)}>Main site ↗</a>
+          <div className="ml-auto flex min-w-0 items-center gap-1 text-sm sm:mt-2 sm:w-full sm:gap-4 sm:text-base lg:text-lg">
+            <ul aria-label="Event pages" className="hidden min-w-0 gap-x-1 overflow-x-auto sm:flex [scrollbar-color:rgba(255,255,255,0.28)_transparent] [scrollbar-width:thin] sm:gap-x-2 lg:gap-x-3">
               {DASHBOARD_TABS.map(({ id, label }) => (
                 <DashboardNavItem key={id} url={href(id)} label={label} current={page === id} />
               ))}
             </ul>
-            <ul aria-label="Account and staff pages" className="ml-auto flex shrink-0 items-center gap-x-1 border-l border-white/30 pl-1 sm:gap-x-2 sm:pl-4">
+            <ul aria-label="Account and staff pages" className="ml-auto flex shrink-0 items-center gap-x-1 sm:gap-x-2 sm:border-l sm:border-white/30 sm:pl-4">
               <DashboardNavItem url={href(DASHBOARD_BADGE.id)} label={DASHBOARD_BADGE.label} current={page === DASHBOARD_BADGE.id} />
               {isStaff && <DashboardNavItem url={`${PORTAL_URL}/review/check-in`} label="Check-in" />}
             </ul>
           </div>
         </Container>
       </header>
-      <Container id="dashboard-content" className="relative scroll-mt-36 space-y-7 pb-20 pt-8 sm:pt-11">
-        <div>
-          <p className="text-sm uppercase tracking-widest text-neon-cyan">November 13–15 · Stanford</p>
-          <h1 className="mt-2 font-sans text-3xl font-semibold sm:text-5xl">{copy[page].title}</h1>
-          <p className="mt-3 text-muted">{copy[page].description}</p>
-        </div>
-        {page === "home" && (
-          <div className="grid gap-5 md:min-h-[max(32rem,calc(100svh_-_16rem))] md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
-            <GlassCard hover={false} className="min-h-[25rem] min-w-0">
-              {!opened && (
-                <div className="mb-6 border-b border-white/10 pb-5">
-                  <p className="mb-3 text-sm text-muted">Countdown to Friday’s opening ceremony</p>
-                  <CountdownTimer targetIso={DASHBOARD_COUNTDOWN_TARGET} compact />
-                </div>
-              )}
-              <h2 className="mb-1 font-sans text-xl font-semibold">Live announcements</h2>
-              <p className="mb-4 text-sm text-muted">Updates from the event Discord’s #announcements channel.</p>
-              <LiveAnnouncements discordUrl={discordUrl} />
-            </GlassCard>
-            <DashboardCard title="Now & next" className="min-h-64">
-              {highlights ? (
-                <div className="space-y-5">
-                  <EventHighlights heading="Happening now" events={highlights.current} empty="No timed sessions right now." />
-                  <EventHighlights heading="Up next" events={highlights.next} empty="No upcoming sessions on the schedule." />
-                </div>
-              ) : <p className="text-sm text-muted">The detailed schedule is temporarily unavailable.</p>}
-              <DashboardLink href={href("schedule")}>View the full schedule</DashboardLink>
-            </DashboardCard>
+      <Container id="dashboard-content" className="relative scroll-mt-36 space-y-7 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-6 sm:pb-20 sm:pt-11">
+        {page === "home" ? (
+          <LiveHero
+            firstName={firstName}
+            timeline={timeline}
+            initialNow={now}
+            submissionUrl={submissionUrl}
+            discordUrl={discordUrl}
+            badgeHref={audience === "hacker" ? href(DASHBOARD_BADGE.id) : undefined}
+          />
+        ) : (
+          <div>
+            <p className="font-mono text-xs uppercase tracking-[0.22em] text-neon-purple-light">{DASHBOARD_EYEBROW}</p>
+            <h1 className="mt-2 font-sans text-3xl font-semibold sm:text-5xl">{copy[page].title}</h1>
+            <p className="mt-3 text-muted">{copy[page].description}</p>
           </div>
         )}
         {page === "home" && (
-          <details className="rounded-xl border border-white/15 bg-surface/50 p-4">
-            <summary className="cursor-pointer font-sans font-semibold">Event playlist</summary>
-            <iframe className="mt-3 h-40 w-full border-0" src={DASHBOARD_SPOTIFY_EMBED_URL} title="Immerse the Bay Spotify playlist" loading="lazy" />
-            <DashboardLink href={DASHBOARD_SPOTIFY_PLAYLIST_URL}>Open in Spotify</DashboardLink>
-          </details>
+          <div className="grid gap-5 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+            <div className="flex min-w-0 flex-col gap-5">
+              <GlassCard hover={false} className="min-w-0">
+                <h2 className="mb-1 flex items-center gap-2.5 font-sans text-xl font-semibold">
+                  {opened && <LiveDot />}
+                  Announcements
+                </h2>
+                <p className="mb-4 text-sm text-muted">From the event Discord’s #announcements channel.</p>
+                <LiveAnnouncements discordUrl={discordUrl} />
+              </GlassCard>
+              <SponsorsCard className="md:flex-1" />
+            </div>
+            <div className="grid min-w-0 content-start gap-5">
+              <DashboardCard title={highlights?.current.length ? "Now & next" : "Up next"} icon={LuCalendarClock}>
+                {highlights ? (
+                  <div className="space-y-5">
+                    {highlights.current.length > 0 && <EventHighlights heading="Happening now" events={highlights.current} />}
+                    <EventHighlights
+                      heading={highlights.current.length ? "Up next" : undefined}
+                      events={highlights.next}
+                      empty="That's everything on the schedule."
+                    />
+                  </div>
+                ) : <p>The detailed schedule isn’t posted yet.</p>}
+                <DashboardLink href={href("schedule")}>Full schedule</DashboardLink>
+              </DashboardCard>
+              <details open className="group border border-white/10 bg-surface/50 backdrop-blur-xl">
+                <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-4 sm:px-6 [&::-webkit-details-marker]:hidden">
+                  <LuMusic aria-hidden className="h-5 w-5 text-neon-purple-light" />
+                  <span className="flex-1">
+                    <span className="block font-sans font-semibold">Event playlist</span>
+                    <span className="block text-sm text-muted">Something to hack to</span>
+                  </span>
+                  <LuChevronDown aria-hidden className="h-5 w-5 text-muted transition-transform group-open:rotate-180" />
+                </summary>
+                <div className="px-4 pb-4 sm:px-6">
+                  <iframe className="h-40 w-full border-0" src={DASHBOARD_SPOTIFY_EMBED_URL} title="Immerse the Bay Spotify playlist" loading="lazy" />
+                  <DashboardLink href={DASHBOARD_SPOTIFY_PLAYLIST_URL}>Open in Spotify</DashboardLink>
+                </div>
+              </details>
+            </div>
+          </div>
         )}
         {page === "schedule" && (schedule.length
           ? <ScheduleTabs days={schedule} initialNow={now} />
           : <p className="text-muted">The detailed schedule is temporarily unavailable. Check event announcements for updates.</p>)}
         {page === "equipment" && (
-          <div className="grid gap-5 sm:grid-cols-2">
-            <DashboardCard title="Request and match">
-              <p>Requests are expected to open around midday Friday after inventory is checked in. Requests submitted before the first match at <strong className="text-foreground">9:30 PM Pacific on Friday</strong> get equal priority.</p>
-              <DashboardLink href={DASHBOARD_EQUIPMENT_URL}>Open the equipment portal</DashboardLink>
-            </DashboardCard>
-            <DashboardCard title="Pick up and return">
-              <p>Check the equipment portal and event announcements for pickup and return instructions. Return your gear to the lending team so they can check it back in.</p>
-            </DashboardCard>
-          </div>
+          <>
+            <ol className="grid gap-4 sm:grid-cols-3">
+              {EQUIPMENT_STEPS.map(({ title, body }, index) => (
+                <li key={title}>
+                  <GlassCard hover={false} className="h-full">
+                    <p className="font-mono text-xs uppercase tracking-[0.22em] text-neon-purple-light">Step {index + 1}</p>
+                    <h2 className="mt-2 font-sans text-lg font-semibold">{title}</h2>
+                    <p className="mt-2 text-sm leading-relaxed text-muted">{body}</p>
+                  </GlassCard>
+                </li>
+              ))}
+            </ol>
+            <ActionLink href={DASHBOARD_EQUIPMENT_URL} primary icon={LuPackage} className="w-full sm:w-auto">
+              Open the equipment portal
+            </ActionLink>
+          </>
         )}
         {page === "tracks" && (
-          <div className="grid gap-5 sm:grid-cols-2">
-            <DashboardCard title="Tracks & prizes">
-              <p>{!opened ? "Track rules, judging criteria, and prizes will be revealed at Friday’s opening ceremony."
+          <div className="grid gap-5 md:grid-cols-2">
+            <DashboardCard title="Tracks & prizes" icon={LuTrophy}>
+              <p>{!opened ? "Track rules, judging criteria, and prizes will be revealed at Friday’s opening ceremony, so everyone starts on equal footing."
                 : tracksUrl ? "See the official challenges, judging criteria, and prizes."
                   : "Check event announcements for the official track rules, judging criteria, and prizes."}</p>
-              {opened && tracksUrl && <DashboardLink href={tracksUrl}>See track details</DashboardLink>}
+              <CardActions>
+                {opened && tracksUrl
+                  ? <ActionLink href={tracksUrl} primary icon={LuArrowUpRight}>See track details</ActionLink>
+                  : <ActionLink href={`${SITE.url}/tracks`} icon={LuArrowUpRight}>Browse last year’s tracks</ActionLink>}
+              </CardActions>
             </DashboardCard>
-            <DashboardCard title="Submit your project">
+            <DashboardCard title="Submit your project" icon={LuRocket}>
               {opened && submissionDeadline ? (
                 <p><strong className="text-foreground">Deadline:</strong>{" "}
                   <time dateTime={submissionDeadline}>{formatDeadline(submissionDeadline)} Pacific</time>
                 </p>
-              ) : <p>Check the official submission announcement for the link and deadline.</p>}
-              {opened && submissionUrl
-                ? <DashboardLink href={submissionUrl}>Open project submissions</DashboardLink>
-                : discordUrl && <DashboardLink href={discordUrl}>Check event Discord</DashboardLink>}
+              ) : <p>The submission link and deadline are announced at the opening ceremony. Submit early; you can keep editing until the deadline.</p>}
+              <CardActions>
+                {opened && submissionUrl
+                  ? <ActionLink href={submissionUrl} primary icon={LuRocket}>Open project submissions</ActionLink>
+                  : discordUrl && <ActionLink href={discordUrl} icon={LuMessageCircle}>Check event Discord</ActionLink>}
+              </CardActions>
             </DashboardCard>
           </div>
         )}
         {page === "help" && (
           <>
-            <DashboardCard title="Ask on Discord">
+            <DashboardCard title="Ask on Discord" icon={LuMessageCircle}>
               <p>For general event questions, post in <strong className="text-foreground">#event-questions</strong>. We check Discord more often than email. Follow <strong className="text-foreground">#announcements</strong> for updates.</p>
-              {discordUrl ? <DashboardLink href={discordUrl}>Open event Discord</DashboardLink> : <p className="mt-3">Find the invite in your attendee email.</p>}
+              <p className="mt-3 flex gap-2"><LuUsers aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-neon-purple-light" />
+                <span>Looking for teammates? Introduce yourself in <strong className="text-foreground">#introduction</strong>, or join the staff-assisted team formation on Friday.</span>
+              </p>
+              <CardActions>
+                {discordUrl
+                  ? <ActionLink href={discordUrl} primary icon={LuMessageCircle}>Open event Discord</ActionLink>
+                  : <p>Find the invite in your attendee email.</p>}
+              </CardActions>
             </DashboardCard>
-            <div className="grid gap-5 sm:grid-cols-2">
-              <DashboardCard title="Arrival and check-in">
+            <div className="grid gap-5 md:grid-cols-2">
+              <DashboardCard title="Arrival and check-in" icon={LuMapPin}>
                 <p>See the Hacker Arrival Guide for check-in windows, directions, and what to bring. If you expect to arrive after 10 PM Friday, email the organizers as soon as possible.</p>
-                {arrivalGuideUrl
-                  ? <DashboardLink href={arrivalGuideUrl}>Open the Hacker Arrival Guide</DashboardLink>
-                  : <p className="mt-3">Find the guide in your “Know before you go” email.</p>}
-                <DashboardLink href={STANFORD_CAMPUS_MAP_URL}>Stanford campus map</DashboardLink>
+                <CardActions>
+                  {arrivalGuideUrl
+                    ? <ActionLink href={arrivalGuideUrl} icon={LuCalendarClock}>Open the Hacker Arrival Guide</ActionLink>
+                    : <p>Find the guide in your “Know before you go” email.</p>}
+                  <ActionLink href={STANFORD_CAMPUS_MAP_URL} icon={LuMapPin}>Stanford campus map</ActionLink>
+                </CardActions>
               </DashboardCard>
-              <DashboardCard title="Wi-Fi and on-site support">
+              <DashboardCard title="Wi-Fi and on-site support" icon={LuWifi}>
                 <p>If you have trouble connecting or need help on site, ask a volunteer at check-in. For private dietary or accessibility questions, speak to an organizer or email us.</p>
-                <DashboardLink href={`mailto:${SITE.email}`}>{SITE.email}</DashboardLink>
+                <CardActions>
+                  <ActionLink href={`mailto:${SITE.email}`} icon={LuMail}>{SITE.email}</ActionLink>
+                </CardActions>
               </DashboardCard>
             </div>
             {arrivalFaq.length > 0 && (
@@ -202,6 +269,7 @@ export function DashboardView({ name, audience, staffRole, badgeQr, page, onLive
           </div>
         )}
       </Container>
+      <MobileTabBar tabs={DASHBOARD_TABS.map(({ id, label }) => ({ id, label, url: href(id) }))} current={page} />
     </>
   );
 }
@@ -223,13 +291,32 @@ function DashboardNavItem({ url, label, current }: { url: string; label: string;
   );
 }
 
-function DashboardCard({ title, children, className }: { title: string; children: ReactNode; className?: string }) {
+const EQUIPMENT_STEPS = [
+  { title: "Request", body: "Requests open around midday Friday, once inventory is checked in." },
+  { title: "Get matched", body: "The first match runs at 9:30 PM Pacific on Friday. Requests in before then get equal priority." },
+  { title: "Pick up and return", body: "Check the portal and announcements for pickup. Return your gear to the lending team so they can check it back in." },
+];
+
+function DashboardCard({ title, icon: Icon, children, className }: {
+  title: string;
+  icon?: IconType;
+  children: ReactNode;
+  className?: string;
+}) {
   return (
     <GlassCard hover={false} className={cn("h-full", className)}>
-      <h2 className="mb-3 font-sans text-xl font-semibold">{title}</h2>
+      <h2 className="mb-3 flex items-center gap-2.5 font-sans text-xl font-semibold">
+        {Icon && <Icon aria-hidden className="h-5 w-5 shrink-0 text-neon-purple-light" />}
+        {title}
+      </h2>
       <div className="text-sm leading-relaxed text-muted">{children}</div>
     </GlassCard>
   );
+}
+
+/** Row of buttons at the bottom of a card; stacks full-width on phones. */
+function CardActions({ children }: { children: ReactNode }) {
+  return <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap [&>a]:w-full sm:[&>a]:w-auto">{children}</div>;
 }
 
 function DashboardLink({ href, children }: { href: string; children: ReactNode }) {
@@ -241,23 +328,24 @@ function DashboardLink({ href, children }: { href: string; children: ReactNode }
 }
 
 function EventHighlights({ heading, events, empty }: {
-  heading: string;
+  heading?: string;
   events: ReturnType<typeof dashboardHighlights>["current"];
-  empty: string;
+  empty?: string;
 }) {
+  if (!events.length && !empty) return null;
   return (
     <div>
-      <h3 className="font-mono text-xs font-semibold uppercase tracking-widest text-neon-cyan">{heading}</h3>
+      {heading && <h3 className="mb-2 font-mono text-xs font-semibold uppercase tracking-widest text-neon-cyan">{heading}</h3>}
       {events.length ? (
-        <ul className="mt-2 space-y-3">
+        <ul className="divide-y divide-white/10">
           {events.map((event) => (
-            <li key={event.id}>
+            <li key={event.id} className="py-2.5 first:pt-0 last:pb-0">
               <p className="font-semibold text-foreground">{event.title}</p>
               <p className="text-xs">{[event.day, event.time, event.location].filter(Boolean).join(" · ")}</p>
             </li>
           ))}
         </ul>
-      ) : <p className="mt-1">{empty}</p>}
+      ) : <p>{empty}</p>}
     </div>
   );
 }

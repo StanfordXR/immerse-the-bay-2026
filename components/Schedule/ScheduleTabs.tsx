@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import type { AttendeeScheduleDay } from "@/data/types";
-import { pickScheduleAnchor, scheduleClock, scheduleEventState, type ScheduleAnchor } from "@/lib/schedule-timing";
+import { pickScheduleAnchor, scheduleClock, scheduleEventState, scheduleStarted, type ScheduleAnchor } from "@/lib/schedule-timing";
 import { cn } from "@/lib/utils";
 
 const eventKey = (dayIndex: number, eventId: string) => `${dayIndex}:${eventId}`;
@@ -12,14 +12,14 @@ export function ScheduleTabs({ days, initialNow }: {
   initialNow: number;
 }) {
   const id = useId();
-  const [selection, setSelection] = useState<ScheduleAnchor>(() => pickScheduleAnchor(days, initialNow));
+  const [initialAnchor] = useState(() => pickScheduleAnchor(days, initialNow));
+  const [selection, setSelection] = useState<ScheduleAnchor>(initialAnchor);
   const [now, setNow] = useState(initialNow);
   const active = selection.dayIndex;
   const clock = scheduleClock(now);
   const root = useRef<HTMLDivElement>(null);
   const controls = useRef<HTMLDivElement>(null);
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
-  const panels = useRef<(HTMLElement | null)[]>([]);
   const eventNodes = useRef(new Map<string, HTMLLIElement>());
 
   useEffect(() => {
@@ -37,12 +37,16 @@ export function ScheduleTabs({ days, initialNow }: {
     return () => observer.disconnect();
   }, []);
 
+  // Opens on the right day; during the event, also glides to the current session
+  // unless it's the day's first. Before the event the page stays put, and
+  // switching days never scrolls.
   useEffect(() => {
-    const target = selection.eventId
-      ? eventNodes.current.get(eventKey(selection.dayIndex, selection.eventId))
-      : panels.current[selection.dayIndex];
-    target?.scrollIntoView({ block: "start", behavior: "instant" });
-  }, [selection]);
+    const { dayIndex, eventId } = initialAnchor;
+    if (!eventId || !scheduleStarted(days, initialNow) || days[dayIndex]?.events[0]?.id === eventId) return;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    eventNodes.current.get(eventKey(dayIndex, eventId))
+      ?.scrollIntoView({ block: "start", behavior: reduceMotion ? "instant" : "smooth" });
+  }, [days, initialNow, initialAnchor]);
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 30_000);
@@ -90,7 +94,6 @@ export function ScheduleTabs({ days, initialNow }: {
       {days.map((day, index) => (
         <section
           key={day.id}
-          ref={(node) => { panels.current[index] = node; }}
           id={`${id}-day-${day.id}`}
           role="tabpanel"
           aria-labelledby={`${id}-tab-${day.id}`}

@@ -183,7 +183,9 @@ try {
       assert.equal(html.includes("Immerse the Bay Spotify playlist"), path === "/", "Playlist belongs on Home only");
       if (path !== "/help") assert.ok(!html.includes(guideUrl) && !html.includes(snapshotGuideUrl), "Guide belongs on Help only");
       if (path !== "/help") assert.ok(!html.includes(guideFaq), "Guide FAQs belong on Help only");
-      assert.match(html, new RegExp(`<h1[^>]*>${heading}</h1>`));
+      // Home's h1 is the live hero's countdown headline, which changes with the event phase.
+      if (path === "/") assert.match(html, /id="live-hero-title"/);
+      else assert.match(html, new RegExp(`<h1[^>]*>${heading}</h1>`));
       for (const href of Object.keys(views)) assert.ok(html.includes(`href="${href}"`), `Missing nav link ${href}`);
       assert.ok(html.includes(`href="${path}" aria-current="page"`), `Missing current-page state on ${path}`);
       const expectedName = fixtures[session].name;
@@ -191,11 +193,12 @@ try {
         if (name && (name !== expectedName || path !== "/badge")) assert.ok(!html.includes(name), "Unexpected identity exposed");
       }
       if (path === "/") {
-        assert.match(html, /Live announcements/);
-        assert.match(html, /Happening now/);
+        assert.match(html, /Announcements<\/h2>/);
+        // Before opening nothing is on yet, so the card lists what's next; at opening the ceremony is live.
+        assert.match(html, afterOpening ? /Happening now/ : /Up next/);
         assert.ok(html.includes(privateRoom));
-        assert.ok(html.indexOf(">Event playlist</summary>") > html.indexOf(">Up next</h3>"));
-        if (!afterOpening) assert.ok(html.indexOf("Countdown to Friday") < html.indexOf(">Live announcements</h2>"));
+        assert.ok(html.indexOf("Event playlist") > html.indexOf("Up next"));
+        assert.ok(html.indexOf('id="live-hero-title"') < html.indexOf("Announcements</h2>"));
       } else if (path === "/schedule") {
         assert.match(html, /role="tablist"/);
         assert.doesNotMatch(html, /Schedule filter|>Workshops<|>All events</);

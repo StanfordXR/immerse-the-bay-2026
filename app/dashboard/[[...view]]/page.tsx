@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { DashboardView } from "@/components/Dashboard/DashboardView";
@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+/** Lets the phone tab bar sit above the iOS home indicator via safe-area insets. */
+export const viewport: Viewport = { viewportFit: "cover" };
+
 export const dynamic = "force-dynamic";
 
 /** The portal route that signs hackers in and hands their session to this site. */
@@ -31,7 +34,7 @@ export default async function DashboardPage({
   searchParams,
 }: {
   params: Promise<{ view?: string[] }>;
-  searchParams: Promise<{ signed_in?: string }>;
+  searchParams: Promise<{ signed_in?: string; now?: string }>;
 }) {
   const { view = [] } = await params;
   const page = view[0] ?? "home";
@@ -40,7 +43,7 @@ export default async function DashboardPage({
   }
 
   const [attendee, query, requestHeaders] = await Promise.all([getAttendee(page === "badge"), searchParams, headers()]);
-  const now = Date.now();
+  const now = requestTime(query.now);
   const access = dashboardAccess(attendee, now);
   const { isOpen } = access;
   const onLiveHost = LIVE_DASHBOARD_URL.startsWith("https://")
@@ -92,6 +95,12 @@ export default async function DashboardPage({
       )}
     </main>
   );
+}
+
+/** The time to render at. In dev, `?now=2026-11-14T12:00-08:00` previews other event phases. */
+function requestTime(preview: string | undefined) {
+  const previewNow = process.env.NODE_ENV === "development" && preview ? Date.parse(preview) : NaN;
+  return Number.isFinite(previewNow) ? previewNow : Date.now();
 }
 
 function Gate({

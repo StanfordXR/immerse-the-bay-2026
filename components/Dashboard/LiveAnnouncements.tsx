@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { Announcement } from "@/lib/announcements";
+import { cn } from "@/lib/utils";
 
 /** The API caches Discord for 10s, so polling faster than that only re-reads the cache. */
 const POLL_INTERVAL_MS = 10_000;
@@ -54,18 +55,24 @@ export function LiveAnnouncements({ discordUrl }: { discordUrl?: string }) {
             {discordUrl && <>{" "}Check the <a href={discordUrl} className="text-neon-cyan underline">event Discord</a> for updates.</>}
           </p>
         ) : announcements.length === 0 ? (
-          <p className="text-sm text-muted">No announcements yet. Check back soon.</p>
+          <p className="text-sm text-muted">Announcements will show up here once the event starts :)</p>
         ) : (
-          <ul className="space-y-4">
-            {announcements.map((item) => (
+          <ul className="space-y-3">
+            {announcements.map((item, index) => (
               <li
                 key={item.id}
-                className="border border-white/10 bg-void/40 px-4 py-3"
+                className={cn(
+                  "border px-4 py-3",
+                  index === 0 ? "border-neon-purple-light/40 bg-neon-violet/10" : "border-white/10 bg-void/40",
+                )}
               >
                 <p className="font-mono text-xs uppercase tracking-wider text-neon-cyan">
-                  {[item.pinned && "Pinned", [item.date, item.time].filter(Boolean).join(" ")].filter(Boolean).join(" · ") || "Live"}
+                  {[index === 0 && !item.pinned && "Latest", item.pinned && "Pinned", [item.date, item.time].filter(Boolean).join(" ")].filter(Boolean).join(" · ") || "Live"}
                 </p>
-                <p className="mt-2 whitespace-pre-line break-words text-sm leading-relaxed text-muted sm:text-base">
+                <p className={cn(
+                  "mt-2 whitespace-pre-line break-words text-sm leading-relaxed sm:text-base",
+                  index === 0 ? "text-foreground" : "text-muted",
+                )}>
                   {item.message}
                 </p>
               </li>
