@@ -39,11 +39,20 @@ test("the release date does not grant access to unconfirmed or unauthenticated u
   }
 });
 
-test("a badge is accepted only as a bounded PNG from an explicitly identified hacker session", () => {
+test("a badge is accepted only as a bounded PNG from an explicitly identified session", () => {
   const png = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jKc8AAAAASUVORK5CYII=";
   const fromPortal = (audience, badgeQr) => parseAttendee({ status: "confirmed", name, audience, badgeQr });
   assert.equal(fromPortal("hacker", png).badgeQr, png);
-  for (const [audience, badgeQr] of [["staff", png], [undefined, png], ["hacker", "https://example.test/qr.png"], ["hacker", "data:image/svg+xml;base64,AAAA"], ["hacker", png + "A".repeat(20_000)]]) {
+  assert.equal(fromPortal("staff", png).badgeQr, png);
+  for (const [audience, badgeQr] of [[undefined, png], ["hacker", "https://example.test/qr.png"], ["staff", "data:image/svg+xml;base64,AAAA"], ["hacker", png + "A".repeat(20_000)]]) {
     assert.equal(fromPortal(audience, badgeQr).badgeQr, undefined);
   }
+});
+
+test("only known staff roles are accepted from a verified staff response", () => {
+  const fromPortal = (audience, staffRole) => parseAttendee({ status: "confirmed", name, audience, staffRole });
+  assert.equal(fromPortal("staff", "reviewer").staffRole, "reviewer");
+  assert.equal(fromPortal("staff", "admin").staffRole, "admin");
+  assert.equal(fromPortal("staff", "organizer").staffRole, undefined);
+  assert.equal(fromPortal("hacker", "admin").staffRole, undefined);
 });

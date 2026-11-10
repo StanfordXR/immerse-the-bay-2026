@@ -53,6 +53,7 @@ export default async function DashboardPage({
         <DashboardView
           name={access.name}
           audience={attendee?.status === "confirmed" ? attendee.audience : undefined}
+          staffRole={page === "badge" && attendee?.status === "confirmed" ? attendee.staffRole : undefined}
           badgeQr={page === "badge" && attendee?.status === "confirmed" ? attendee.badgeQr : undefined}
           page={page}
           onLiveHost={onLiveHost}

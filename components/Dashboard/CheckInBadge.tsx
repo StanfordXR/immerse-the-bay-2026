@@ -1,22 +1,29 @@
 import Image from "next/image";
 import { GlassCard } from "@/components/ui/GlassCard";
 
-interface HackerBadgeProps {
-  /** Signed-in hacker's name, verified through the portal. */
-  name?: string;
+interface CheckInBadgeProps {
+  /** The badge holder's name and role, verified through the portal. */
+  name: string;
+  roleLabel: string;
+  isStaff: boolean;
   /** Check-in QR provided by the authorized badge issuer when available. */
   qrSrc?: string;
 }
 
-export function HackerBadge({ name, qrSrc }: HackerBadgeProps) {
+export function CheckInBadge({ name, roleLabel, isStaff, qrSrc }: CheckInBadgeProps) {
+  const fallback = isStaff
+    ? "If it won’t scan, ask a check-in volunteer for help."
+    : "If it won’t scan, have your confirmation email handy.";
   return (
     <GlassCard hover={false} className="flex h-full w-full flex-col overflow-hidden p-0">
       <div className="px-6 py-4">
         <h2 className="font-sans text-lg font-semibold sm:text-xl">
-          Hacker badge
+          Check-in Badge
         </h2>
         <p className="mt-1 text-sm text-muted">
-          {qrSrc ? "Show this QR code at the check-in desk. If it won’t scan, have your confirmation email handy." : "If you don't have a QR code, have your confirmation email handy and ask a check-in volunteer for help."}
+          {qrSrc ? `Show this QR code at the check-in desk. ${fallback}`
+            : isStaff ? "If your QR code isn’t available, ask a check-in volunteer for help."
+              : "If you don’t have a QR code, show your confirmation email to a check-in volunteer."}
         </p>
       </div>
       <div
@@ -31,8 +38,9 @@ export function HackerBadge({ name, qrSrc }: HackerBadgeProps) {
             Immerse the Bay 2026
           </p>
           <p className="mt-2 font-sans text-2xl font-semibold text-foreground sm:text-3xl">
-            {name ?? "Your name"}
+            {name}
           </p>
+          <p className="mt-1 text-sm font-medium text-neon-cyan">{roleLabel}</p>
         </div>
 
         {qrSrc ? (

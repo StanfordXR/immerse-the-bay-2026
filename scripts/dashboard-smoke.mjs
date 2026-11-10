@@ -39,8 +39,8 @@ const attendeeConfig = JSON.stringify({
   submissionDeadline: "2026-11-15T09:00:00-08:00",
 });
 const fixtures = {
-  reviewer: { status: "confirmed", name: "Test Reviewer", audience: "staff" },
-  admin: { status: "confirmed", name: "Test Admin", audience: "staff" },
+  reviewer: { status: "confirmed", name: "Test Reviewer", audience: "staff", staffRole: "reviewer" },
+  admin: { status: "confirmed", name: "Test Admin", audience: "staff", staffRole: "admin" },
   "accepted-fixture": { status: "confirmed", name: "Test Hacker", audience: "hacker" },
   legacy: { status: "confirmed", name: "Test Legacy Account" },
   expired: { status: "signed-out" },
@@ -50,7 +50,7 @@ const portal = createServer((req, res) => {
   const token = (req.headers.cookie ?? "").match(/itb_session=(\S+)$/)?.[1];
   res.setHeader("Content-Type", "application/json");
   const result = fixtures[token] ?? { status: "not-confirmed" };
-  res.end(JSON.stringify(req.url.endsWith("?badge=1") && token === "accepted-fixture"
+  res.end(JSON.stringify(req.url.endsWith("?badge=1") && (result.audience === "staff" || (afterLaunch && token === "accepted-fixture"))
     ? { ...result, badgeQr: badgePng }
     : result));
 });
@@ -142,7 +142,6 @@ try {
     "/equipment": "Equipment",
     "/tracks": "Tracks &amp; Submit",
     "/help": "Help",
-    "/people": "People",
     "/badge": "My Badge",
   };
   for (const session of ["", "not-approved", "expired", ...(afterLaunch ? [] : ["accepted-fixture", "legacy"])]) {
@@ -172,8 +171,14 @@ try {
       assert.match(response.headers["cache-control"], /no-store/);
       const html = await response.text();
       assert.match(html, /Live dashboard navigation/);
-      assert.equal(html.includes("/review/check-in"), session === "reviewer" || session === "admin");
-      assert.equal(html.includes(badgePng), path === "/badge" && session === "accepted-fixture");
+      const staff = session === "reviewer" || session === "admin";
+      assert.equal(html.includes("/review/check-in"), staff);
+      assert.equal(html.includes(badgePng), path === "/badge" && (staff || session === "accepted-fixture"));
+      const accountNav = html.match(/<ul[^>]*aria-label="Account and staff pages"[^>]*>[\s\S]*?<\/ul>/)?.[0] ?? "";
+      assert.match(accountNav, /border-l/);
+      assert.match(accountNav, /href="\/badge"/);
+      assert.equal(accountNav.includes("/review/check-in"), staff);
+      assert.doesNotMatch(html, /href="\/people"|>People<|Your profile/i);
       assert.ok(html.includes('src="/images/logo/ITB_Standard.png"'), "Missing the branded live wordmark");
       assert.equal(html.includes("Immerse the Bay Spotify playlist"), path === "/", "Playlist belongs on Home only");
       if (path !== "/help") assert.ok(!html.includes(guideUrl) && !html.includes(snapshotGuideUrl), "Guide belongs on Help only");
@@ -213,12 +218,12 @@ try {
         assert.ok(html.includes(privateInvite) && html.includes(guideUrl));
         assert.ok(html.includes("Open the Hacker Arrival Guide") && !html.includes(snapshotGuideUrl));
         assert.ok(html.includes("#event-questions") && html.includes(guideFaq) && html.includes("What is the latest I should arrive"));
-      } else if (path === "/people") {
-        assert.match(html, /There are no shared profiles listed here/);
       } else if (path === "/badge") {
         assert.ok(html.includes(expectedName));
-        assert.match(html, /Your profile/);
-        assert.match(html, /confirmation email/);
+        const role = session === "admin" ? "Admin" : session === "reviewer" ? "Reviewer" : "Hacker";
+        assert.match(html, /Check-in Badge/);
+        assert.match(html, new RegExp(`>${expectedName}</p><p[^>]*>${role}</p>`));
+        if (!staff) assert.match(html, /confirmation email/);
         for (const marker of privateMarkers.filter((value) => value !== badgePng)) {
           assert.ok(!html.includes(marker), "Unexpected attendee data in the badge");
         }
@@ -238,8 +243,11 @@ try {
   assert.equal(deepLink.headers.location, "https://live.immersethebay.org/schedule");
   const invalidRoute = await request("/dashboard/organizer-roster", { ...live, cookie: "itb_session=reviewer" });
   assert.equal(invalidRoute.status, 404);
+  for (const removed of ["/people", "/dashboard/people"]) {
+    assert.equal((await request(removed, { ...live, cookie: "itb_session=reviewer" })).status, 404);
+  }
   const phase = afterOpening ? "at the track reveal" : afterLaunch ? "at launch" : "before launch";
-  console.log(`Public grid, live tabs, schedule position, gated FAQ, private profile, role gate, track embargo, announcements, and hostname handoff passed ${phase}.`);
+  console.log(`Public grid, grouped tabs, schedule position, gated FAQ, private badges, role gate, track embargo, announcements, and hostname handoff passed ${phase}.`);
 } finally {
   child.kill("SIGTERM");
   portal.close();

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { CountdownTimer } from "@/components/Dashboard/CountdownTimer";
-import { HackerBadge } from "@/components/Dashboard/HackerBadge";
+import { CheckInBadge } from "@/components/Dashboard/CheckInBadge";
 import { LiveAnnouncements } from "@/components/Dashboard/LiveAnnouncements";
 import { ScheduleTabs } from "@/components/Schedule/ScheduleTabs";
 import { Accordion } from "@/components/ui/Accordion";
@@ -19,6 +19,7 @@ import { FAQ_ITEMS } from "@/data/faq";
 import { PORTAL_URL, SITE } from "@/data/site";
 import { getArrivalGuideFaq } from "@/lib/attendee-help";
 import { getAttendeeSchedule } from "@/lib/attendee-schedule";
+import type { StaffRole } from "@/lib/dashboard-access";
 import { dashboardHighlights } from "@/lib/dashboard-highlights";
 import { cn } from "@/lib/utils";
 
@@ -28,24 +29,23 @@ const copy: Record<DashboardPageId, { title: string; description: string }> = {
   equipment: { title: "Equipment", description: "Request a headset or other loaner gear through the equipment portal." },
   tracks: { title: "Tracks & Submit", description: "Find the challenges, prize details, and how to submit your project." },
   help: { title: "Help", description: "Get to campus, find your way around, and reach the event team." },
-  people: { title: "People", description: "Meet other hackers and find teammates." },
   badge: { title: "My Badge", description: "Your personal check-in information." },
 };
 
 const focus = "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-neon-cyan";
 
-export function DashboardView({ name, audience, badgeQr, page, onLiveHost, now }: {
+export function DashboardView({ name, audience, staffRole, badgeQr, page, onLiveHost, now }: {
   name: string;
   audience?: "staff" | "hacker";
+  staffRole?: StaffRole;
   badgeQr?: string;
   page: DashboardPageId;
   onLiveHost: boolean;
   now: number;
 }) {
   const href = (id: DashboardPageId) => dashboardPath(id, onLiveHost);
-  const tabs = DASHBOARD_TABS.map(({ id, label }) => ({ id, label, url: href(id) }));
-  const checkInTab = { id: "check-in", label: "Check-in", url: `${PORTAL_URL}/review/check-in` };
-  const visibleTabs = audience === "staff" ? [tabs[0], checkInTab, ...tabs.slice(1)] : tabs;
+  const isStaff = audience === "staff";
+  const roleLabel = !isStaff ? "Hacker" : staffRole === "admin" ? "Admin" : staffRole === "reviewer" ? "Reviewer" : "Staff";
   const config: ReturnType<typeof getAttendeeSchedule> =
     page === "badge" || page === "equipment" ? { schedule: [] } : getAttendeeSchedule();
   const { schedule, discordUrl, arrivalGuideUrl, tracksUrl, submissionUrl, submissionDeadline } = config;
@@ -78,37 +78,19 @@ export function DashboardView({ name, audience, badgeQr, page, onLiveHost, now }
                 />
               </span>
             </a>
-            <div className="flex shrink-0 items-center gap-4">
-              <a href={SITE.url} className={cn("hidden text-sm text-muted hover:text-foreground sm:inline", focus)}>Main site ↗</a>
-              <a
-                href={href(DASHBOARD_BADGE.id)}
-                aria-current={page === DASHBOARD_BADGE.id ? "page" : undefined}
-                className={cn(
-                  "inline-flex min-h-10 items-center rounded-lg border border-neon-cyan/45 px-3 py-2 text-sm font-semibold text-neon-cyan hover:bg-neon-cyan/10",
-                  page === DASHBOARD_BADGE.id && "bg-neon-cyan/10",
-                  focus,
-                )}
-              >
-                {DASHBOARD_BADGE.label}
-              </a>
-            </div>
+            <a href={SITE.url} className={cn("hidden text-sm text-muted hover:text-foreground sm:inline", focus)}>Main site ↗</a>
           </div>
-          <ul className="mt-2 flex gap-x-1 overflow-x-auto text-sm sm:gap-x-3 sm:text-base lg:gap-x-4 lg:text-lg">
-            {visibleTabs.map(({ id, label, url }) => (
-              <li key={id} className="shrink-0">
-                <a
-                  href={url}
-                  aria-current={page === id ? "page" : undefined}
-                  className={cn(
-                    "flex min-h-11 items-center whitespace-nowrap border-b-2 px-2 py-2 font-semibold focus-visible:rounded focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-neon-cyan sm:min-h-12 sm:px-3 lg:min-h-14 lg:px-4",
-                    page === id ? "border-neon-cyan text-neon-cyan" : "border-transparent text-muted hover:text-foreground",
-                  )}
-                >
-                  {label}
-                </a>
-              </li>
-            ))}
-          </ul>
+          <div className="mt-2 flex min-w-0 items-center gap-1 text-sm sm:gap-4 sm:text-base lg:text-lg">
+            <ul aria-label="Event pages" className="flex min-w-0 gap-x-1 overflow-x-auto [scrollbar-color:rgba(255,255,255,0.28)_transparent] [scrollbar-width:thin] sm:gap-x-2 lg:gap-x-3">
+              {DASHBOARD_TABS.map(({ id, label }) => (
+                <DashboardNavItem key={id} url={href(id)} label={label} current={page === id} />
+              ))}
+            </ul>
+            <ul aria-label="Account and staff pages" className="ml-auto flex shrink-0 items-center gap-x-1 border-l border-white/30 pl-1 sm:gap-x-2 sm:pl-4">
+              <DashboardNavItem url={href(DASHBOARD_BADGE.id)} label={DASHBOARD_BADGE.label} current={page === DASHBOARD_BADGE.id} />
+              {isStaff && <DashboardNavItem url={`${PORTAL_URL}/review/check-in`} label="Check-in" />}
+            </ul>
+          </div>
         </Container>
       </header>
       <Container id="dashboard-content" className="relative scroll-mt-36 space-y-7 pb-20 pt-8 sm:pt-11">
@@ -214,26 +196,30 @@ export function DashboardView({ name, audience, badgeQr, page, onLiveHost, now }
             <a href={SITE.url} className={cn("inline-block text-sm text-muted hover:text-foreground sm:hidden", focus)}>Main site ↗</a>
           </>
         )}
-        {page === "people" && (
-          <DashboardCard title="Meet other hackers" className="max-w-2xl">
-            <p>There are no shared profiles listed here. Introduce yourself in <strong className="text-foreground">#introduction</strong> on Discord, or join the staff-assisted team formation on Friday.</p>
-            {discordUrl && <DashboardLink href={discordUrl}>Open event Discord</DashboardLink>}
-          </DashboardCard>
-        )}
         {page === "badge" && (
-          <div className="ph-no-capture grid max-w-4xl gap-5 sm:grid-cols-2">
-            <HackerBadge name={name} qrSrc={badgeQr} />
-            <DashboardCard title="Your profile">
-              <dl className="space-y-3">
-                <div><dt>Display name</dt><dd className="font-semibold text-foreground">{name}</dd></div>
-                {audience && <div><dt>Event role</dt><dd className="font-semibold text-foreground">{audience === "staff" ? "Staff / reviewer" : "Hacker"}</dd></div>}
-              </dl>
-              <p className="mt-4">Only you can see this profile here. It isn’t listed on the People tab.</p>
-            </DashboardCard>
+          <div className="ph-no-capture mx-auto w-full max-w-lg">
+            <CheckInBadge name={name} roleLabel={roleLabel} isStaff={isStaff} qrSrc={badgeQr} />
           </div>
         )}
       </Container>
     </>
+  );
+}
+
+function DashboardNavItem({ url, label, current }: { url: string; label: string; current?: boolean }) {
+  return (
+    <li className="shrink-0">
+      <a
+        href={url}
+        aria-current={current ? "page" : undefined}
+        className={cn(
+          "flex min-h-11 items-center whitespace-nowrap border-b-2 px-2 py-2 font-semibold focus-visible:rounded focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-neon-cyan sm:min-h-12 sm:px-3 lg:min-h-14 lg:px-4",
+          current ? "border-neon-cyan text-neon-cyan" : "border-transparent text-muted hover:text-foreground",
+        )}
+      >
+        {label}
+      </a>
+    </li>
   );
 }
 

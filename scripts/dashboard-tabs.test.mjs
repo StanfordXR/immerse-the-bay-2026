@@ -17,13 +17,14 @@ const { dashboardHighlights } = await load("../lib/dashboard-highlights.ts");
 const { pickScheduleAnchor, scheduleClock, scheduleEventState } = await load("../lib/schedule-timing.ts");
 
 test("all primary tabs and My Badge have canonical and local paths", () => {
-  assert.deepEqual(DASHBOARD_TABS.map(({ id }) => id), ["home", "schedule", "equipment", "tracks", "help", "people"]);
+  assert.deepEqual(DASHBOARD_TABS.map(({ id }) => id), ["home", "schedule", "equipment", "tracks", "help"]);
   for (const { id } of [...DASHBOARD_TABS, DASHBOARD_BADGE]) {
     assert.equal(isDashboardPage(id), true);
     assert.equal(dashboardPath(id, true), id === "home" ? "/" : `/${id}`);
     assert.equal(dashboardPath(id, false), id === "home" ? "/dashboard" : `/dashboard/${id}`);
   }
   assert.equal(isDashboardPage("organizer-roster"), false);
+  assert.equal(isDashboardPage("people"), false);
 });
 
 test("Home highlights current and parallel next sessions without treating all-day or expired events as ongoing", () => {

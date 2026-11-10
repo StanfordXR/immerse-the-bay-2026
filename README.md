@@ -33,13 +33,14 @@ For a schedule refresh, set `NOTION_SCHEDULE_TOKEN` and `NOTION_SCHEDULE_SOURCE_
 
 ## Optional live subdomain
 
-The dashboard works under `/dashboard` without configuration. When `live.immersethebay.org` is attached to the same website project, set `NEXT_PUBLIC_LIVE_URL=https://live.immersethebay.org` at build time. Home, Schedule, Equipment, Tracks & Submit, Help, People, and My Badge have their own URLs on the live host. People does not import names from the attendee roster. The existing marketing-domain `/dashboard` redirects there, preserving the portal's sign-in callback query. The public Schedule and Tracks URLs stay separate. The portal must continue to set its secure attendee cookie on `.immersethebay.org`; do not use an unrelated domain with this handoff.
+The dashboard works under `/dashboard` without configuration. When `live.immersethebay.org` is attached to the same website project, set `NEXT_PUBLIC_LIVE_URL=https://live.immersethebay.org` at build time. Home, Schedule, Equipment, Tracks & Submit, Help, and My Badge have their own URLs on the live host. The existing marketing-domain `/dashboard` redirects there, preserving the portal's sign-in callback query. The public Schedule and Tracks URLs stay separate. The portal must continue to set its secure attendee cookie on `.immersethebay.org`; do not use an unrelated domain with this handoff.
 
 Staff and reviewers have early access. Accepted hackers who confirmed their spot can use the dashboard and its announcements after midnight Pacific on Wednesday, November 11. Before launch, the portal's `/api/attendee` response must identify staff explicitly; legacy responses do not receive early access.
 
-Staff see a **Check-in** tab linking to the portal’s authenticated reviewer desk.
-The **My Badge** page requests a signed QR image for the current confirmed
-hacker only. The QR stays in the signed-in badge page and is excluded from replay.
+**My Badge** and the staff-only **Check-in** link are grouped after the navigation
+divider. Check-in links to the authenticated reviewer desk. My Badge requests a
+signed QR for the current account only: staff can use it before launch, and
+confirmed hackers can use it from the opening time. The QR is excluded from replay.
 
 Before rollout, verify the complete sign-in and callback in a nonproduction environment and test staff, confirmed hackers, and unconfirmed attendees. Configure the dashboard’s Discord announcements channel and bot credentials server-side. The schedule requires no Notion credentials at runtime.
 

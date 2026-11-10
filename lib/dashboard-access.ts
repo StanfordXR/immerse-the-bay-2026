@@ -2,10 +2,12 @@
 export const DASHBOARD_OPENS_AT = Date.parse("2026-11-11T00:00:00-08:00");
 export const DASHBOARD_OPENS_ON = "Wednesday, November 11";
 
+export type StaffRole = "reviewer" | "admin";
+
 export type Attendee =
   | { status: "signed-out" }
   | { status: "not-confirmed" }
-  | { status: "confirmed"; name: string; audience?: "staff" | "hacker"; badgeQr?: string };
+  | { status: "confirmed"; name: string; audience?: "staff" | "hacker"; staffRole?: StaffRole; badgeQr?: string };
 
 export type DashboardAccess = { isOpen: boolean } & (
   | { status: "allowed"; name: string }
@@ -14,14 +16,15 @@ export type DashboardAccess = { isOpen: boolean } & (
 
 export function parseAttendee(body: unknown): Attendee | null {
   if (!body || typeof body !== "object") return null;
-  const { status, name, audience, badgeQr } = body as Record<string, unknown>;
+  const { status, name, audience, staffRole, badgeQr } = body as Record<string, unknown>;
   if (status === "signed-out" || status === "not-confirmed") return { status };
   if (status !== "confirmed" || typeof name !== "string") return null;
   return {
     status,
     name,
     audience: audience === "staff" || audience === "hacker" ? audience : undefined,
-    ...(audience === "hacker" && typeof badgeQr === "string" && badgeQr.length <= 20_000
+    ...(audience === "staff" && (staffRole === "reviewer" || staffRole === "admin") ? { staffRole } : {}),
+    ...((audience === "staff" || audience === "hacker") && typeof badgeQr === "string" && badgeQr.length <= 20_000
       && /^data:image\/png;base64,iVBORw0KGgo[A-Za-z0-9+/]+={0,2}$/.test(badgeQr) ? { badgeQr } : {}),
   };
 }
