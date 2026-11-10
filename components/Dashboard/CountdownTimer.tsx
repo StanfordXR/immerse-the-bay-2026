@@ -38,7 +38,7 @@ function Unit({
     <div
       className={
         compact
-          ? "flex min-w-[4.25rem] flex-col items-center border border-white/10 bg-void/60 px-2 py-[0.65rem] sm:min-w-[6.15rem] sm:px-[1.15rem] sm:py-[0.96rem]"
+          ? "flex min-w-0 flex-col items-center border border-white/10 bg-void/60 px-1 py-[0.65rem] sm:px-2 sm:py-[0.96rem]"
           : "flex min-w-[4.5rem] flex-col items-center border border-white/10 bg-void/60 px-3 py-4 sm:min-w-[5.5rem] sm:px-4 sm:py-5"
       }
     >
@@ -94,7 +94,7 @@ export function CountdownTimer({ targetIso, compact = false }: CountdownTimerPro
   }
 
   return (
-    <div className={`flex flex-wrap justify-center ${compact ? "gap-2 sm:gap-[0.77rem]" : "gap-2 sm:gap-3"}`}>
+    <div className={compact ? "grid grid-cols-4 gap-2 sm:gap-3" : "flex flex-wrap justify-center gap-2 sm:gap-3"}>
       <Unit value={timeLeft.days} label="Days" compact={compact} />
       <Unit value={timeLeft.hours} label="Hours" compact={compact} />
       <Unit value={timeLeft.minutes} label="Min" compact={compact} />

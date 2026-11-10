@@ -4,6 +4,7 @@ import { CountdownTimer } from "@/components/Dashboard/CountdownTimer";
 import { HackerBadge } from "@/components/Dashboard/HackerBadge";
 import { LiveAnnouncements } from "@/components/Dashboard/LiveAnnouncements";
 import { ScheduleTabs } from "@/components/Schedule/ScheduleTabs";
+import { Accordion } from "@/components/ui/Accordion";
 import { Container } from "@/components/ui/Container";
 import { GlassCard } from "@/components/ui/GlassCard";
 import {
@@ -14,7 +15,9 @@ import {
   STANFORD_CAMPUS_MAP_URL,
 } from "@/data/dashboard";
 import { DASHBOARD_BADGE, DASHBOARD_TABS, dashboardPath, type DashboardPageId } from "@/data/dashboard-nav";
+import { FAQ_ITEMS } from "@/data/faq";
 import { SITE } from "@/data/site";
+import { getArrivalGuideFaq } from "@/lib/attendee-help";
 import { getAttendeeSchedule } from "@/lib/attendee-schedule";
 import { dashboardHighlights } from "@/lib/dashboard-highlights";
 import { cn } from "@/lib/utils";
@@ -25,13 +28,15 @@ const copy: Record<DashboardPageId, { title: string; description: string }> = {
   equipment: { title: "Equipment", description: "Request a headset or other loaner gear through the equipment portal." },
   tracks: { title: "Tracks & Submit", description: "Find the challenges, prize details, and how to submit your project." },
   help: { title: "Help", description: "Get to campus, find your way around, and reach the event team." },
+  people: { title: "People", description: "Meet other hackers and find teammates." },
   badge: { title: "My Badge", description: "Your personal check-in information." },
 };
 
 const focus = "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-neon-cyan";
 
-export function DashboardView({ name, page, onLiveHost, now }: {
+export function DashboardView({ name, audience, page, onLiveHost, now }: {
   name: string;
+  audience?: "staff" | "hacker";
   page: DashboardPageId;
   onLiveHost: boolean;
   now: number;
@@ -42,19 +47,20 @@ export function DashboardView({ name, page, onLiveHost, now }: {
   const { schedule, discordUrl, arrivalGuideUrl, tracksUrl, submissionUrl, submissionDeadline } = config;
   const highlights = page === "home" && schedule.length ? dashboardHighlights(schedule, now) : null;
   const opened = now >= Date.parse(DASHBOARD_COUNTDOWN_TARGET);
+  const arrivalFaq = page === "help" ? getArrivalGuideFaq() : [];
 
   return (
     <>
       <a href="#dashboard-content" className="sr-only z-50 bg-void px-4 py-3 focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
         Skip to dashboard content
       </a>
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-void/95 backdrop-blur">
+      <header data-live-header className="sticky top-0 z-40 border-b border-white/10 bg-void/95 backdrop-blur">
         <Container as="nav" aria-label="Live dashboard navigation" className="pt-3">
           <div className="flex items-center justify-between gap-3">
             <a
               href={href("home")}
               aria-label="Immerse the Bay Live home"
-              className={cn("inline-flex min-w-0 items-center gap-2.5 rounded-sm", focus)}
+              className={cn("inline-flex min-w-0 items-center rounded-sm", focus)}
             >
               <span className="relative block aspect-[2/1] w-24 shrink-0 overflow-hidden sm:w-28">
                 <Image
@@ -66,9 +72,6 @@ export function DashboardView({ name, page, onLiveHost, now }: {
                   loading="eager"
                   className="absolute left-0 top-1/2 h-auto w-full -translate-y-1/2"
                 />
-              </span>
-              <span aria-hidden="true" className="rounded border border-neon-cyan/40 px-1.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-neon-cyan">
-                Live
               </span>
             </a>
             <div className="flex shrink-0 items-center gap-4">
@@ -86,14 +89,14 @@ export function DashboardView({ name, page, onLiveHost, now }: {
               </a>
             </div>
           </div>
-          <ul className="mt-2 flex gap-x-4 overflow-x-auto text-sm sm:gap-x-6">
+          <ul className="mt-2 flex gap-x-1 overflow-x-auto text-sm sm:gap-x-3 sm:text-base lg:gap-x-4 lg:text-lg">
             {DASHBOARD_TABS.map(({ id, label }) => (
               <li key={id} className="shrink-0">
                 <a
                   href={href(id)}
                   aria-current={page === id ? "page" : undefined}
                   className={cn(
-                    "flex min-h-11 items-center whitespace-nowrap border-b-2 px-0.5 py-2 font-medium focus-visible:rounded focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-neon-cyan",
+                    "flex min-h-11 items-center whitespace-nowrap border-b-2 px-2 py-2 font-semibold focus-visible:rounded focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-neon-cyan sm:min-h-12 sm:px-3 lg:min-h-14 lg:px-4",
                     page === id ? "border-neon-cyan text-neon-cyan" : "border-transparent text-muted hover:text-foreground",
                   )}
                 >
@@ -104,24 +107,26 @@ export function DashboardView({ name, page, onLiveHost, now }: {
           </ul>
         </Container>
       </header>
-      <Container id="dashboard-content" className="relative scroll-mt-32 space-y-7 pb-20 pt-8 sm:pt-11">
+      <Container id="dashboard-content" className="relative scroll-mt-36 space-y-7 pb-20 pt-8 sm:pt-11">
         <div>
           <p className="text-sm uppercase tracking-widest text-neon-cyan">November 13–15 · Stanford</p>
           <h1 className="mt-2 font-sans text-3xl font-semibold sm:text-5xl">{copy[page].title}</h1>
           <p className="mt-3 text-muted">{copy[page].description}</p>
         </div>
         {page === "home" && (
-          <div className="grid gap-5 md:grid-cols-[1.2fr_1fr]">
-            <DashboardCard title="Live announcements">
-              <LiveAnnouncements discordUrl={discordUrl} />
+          <div className="grid gap-5 md:min-h-[max(32rem,calc(100svh_-_16rem))] md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+            <GlassCard hover={false} className="min-h-[25rem] min-w-0">
               {!opened && (
-                <div className="mt-6 border-t border-white/10 pt-5">
+                <div className="mb-6 border-b border-white/10 pb-5">
                   <p className="mb-3 text-sm text-muted">Countdown to Friday’s opening ceremony</p>
                   <CountdownTimer targetIso={DASHBOARD_COUNTDOWN_TARGET} compact />
                 </div>
               )}
-            </DashboardCard>
-            <DashboardCard title="Now & next">
+              <h2 className="mb-1 font-sans text-xl font-semibold">Live announcements</h2>
+              <p className="mb-4 text-sm text-muted">Updates from the event Discord’s #announcements channel.</p>
+              <LiveAnnouncements discordUrl={discordUrl} />
+            </GlassCard>
+            <DashboardCard title="Now & next" className="min-h-64">
               {highlights ? (
                 <div className="space-y-5">
                   <EventHighlights heading="Happening now" events={highlights.current} empty="No timed sessions right now." />
@@ -140,7 +145,7 @@ export function DashboardView({ name, page, onLiveHost, now }: {
           </details>
         )}
         {page === "schedule" && (schedule.length
-          ? <ScheduleTabs days={schedule} showWorkshopFilter />
+          ? <ScheduleTabs days={schedule} initialNow={now} />
           : <p className="text-muted">The detailed schedule is temporarily unavailable. Check event announcements for updates.</p>)}
         {page === "equipment" && (
           <div className="grid gap-5 sm:grid-cols-2">
@@ -175,6 +180,10 @@ export function DashboardView({ name, page, onLiveHost, now }: {
         )}
         {page === "help" && (
           <>
+            <DashboardCard title="Ask on Discord">
+              <p>For general event questions, post in <strong className="text-foreground">#event-questions</strong>. We check Discord more often than email. Follow <strong className="text-foreground">#announcements</strong> for updates.</p>
+              {discordUrl ? <DashboardLink href={discordUrl}>Open event Discord</DashboardLink> : <p className="mt-3">Find the invite in your attendee email.</p>}
+            </DashboardCard>
             <div className="grid gap-5 sm:grid-cols-2">
               <DashboardCard title="Arrival and check-in">
                 <p>See the Hacker Arrival Guide for check-in windows, directions, and what to bring. If you expect to arrive after 10 PM Friday, email the organizers as soon as possible.</p>
@@ -184,26 +193,49 @@ export function DashboardView({ name, page, onLiveHost, now }: {
                 <DashboardLink href={STANFORD_CAMPUS_MAP_URL}>Stanford campus map</DashboardLink>
               </DashboardCard>
               <DashboardCard title="Wi-Fi and on-site support">
-                <p>Follow the Wi-Fi instructions in the arrival guide. If you have trouble connecting or need help on site, ask a volunteer at check-in.</p>
+                <p>If you have trouble connecting or need help on site, ask a volunteer at check-in. For private dietary or accessibility questions, speak to an organizer or email us.</p>
                 <DashboardLink href={`mailto:${SITE.email}`}>{SITE.email}</DashboardLink>
               </DashboardCard>
-              <DashboardCard title="Event Discord">
-                <p>Follow announcements, find teammates, and ask the event team questions. Staff will also help with team formation.</p>
-                {discordUrl ? <DashboardLink href={discordUrl}>Join event Discord</DashboardLink> : <p className="mt-3">Look for the invite in your attendee email.</p>}
-              </DashboardCard>
             </div>
+            {arrivalFaq.length > 0 && (
+              <section aria-labelledby="arrival-faq">
+                <h2 id="arrival-faq" className="mb-4 font-sans text-xl font-semibold">From the Hacker Arrival Guide</h2>
+                <Accordion items={arrivalFaq} />
+              </section>
+            )}
+            <section aria-labelledby="event-faq">
+              <h2 id="event-faq" className="mb-4 font-sans text-xl font-semibold">Event FAQ</h2>
+              <Accordion items={FAQ_ITEMS} />
+            </section>
             <a href={SITE.url} className={cn("inline-block text-sm text-muted hover:text-foreground sm:hidden", focus)}>Main site ↗</a>
           </>
         )}
-        {page === "badge" && <div className="max-w-lg"><HackerBadge name={name} /></div>}
+        {page === "people" && (
+          <DashboardCard title="Meet other hackers" className="max-w-2xl">
+            <p>There are no shared profiles listed here. Introduce yourself in <strong className="text-foreground">#introduction</strong> on Discord, or join the staff-assisted team formation on Friday.</p>
+            {discordUrl && <DashboardLink href={discordUrl}>Open event Discord</DashboardLink>}
+          </DashboardCard>
+        )}
+        {page === "badge" && (
+          <div className="grid max-w-4xl gap-5 sm:grid-cols-2">
+            <HackerBadge name={name} />
+            <DashboardCard title="Your profile">
+              <dl className="space-y-3">
+                <div><dt>Display name</dt><dd className="font-semibold text-foreground">{name}</dd></div>
+                {audience && <div><dt>Event role</dt><dd className="font-semibold text-foreground">{audience === "staff" ? "Staff / reviewer" : "Hacker"}</dd></div>}
+              </dl>
+              <p className="mt-4">Only you can see this profile here. It isn’t listed on the People tab.</p>
+            </DashboardCard>
+          </div>
+        )}
       </Container>
     </>
   );
 }
 
-function DashboardCard({ title, children }: { title: string; children: ReactNode }) {
+function DashboardCard({ title, children, className }: { title: string; children: ReactNode; className?: string }) {
   return (
-    <GlassCard hover={false} className="h-full">
+    <GlassCard hover={false} className={cn("h-full", className)}>
       <h2 className="mb-3 font-sans text-xl font-semibold">{title}</h2>
       <div className="text-sm leading-relaxed text-muted">{children}</div>
     </GlassCard>

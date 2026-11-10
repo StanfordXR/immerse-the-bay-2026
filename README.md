@@ -27,12 +27,13 @@ The full schedule and event Discord invite live in the production Vercel project
 Optional `arrivalGuideUrl`, `tracksUrl`, `submissionUrl`, and `submissionDeadline` can be set once those details are approved. Links must be HTTPS, and deadlines use ISO 8601 with an explicit offset. Tracks and submission details are not displayed before the opening ceremony.
 
 Set the server-only `ITB_ARRIVAL_GUIDE_URL` to the guide sent to attendees. It overrides `arrivalGuideUrl` in the schedule snapshot and is only rendered on the gated Help page.
+For approved guide FAQs, set `ITB_HELP_FAQ_JSON` to an array of `{ "question": "...", "answer": "..." }` items. The dashboard reads it only for signed-in Help. The main site's general FAQ is shared from `data/faq.ts`.
 
 For a schedule refresh, set `NOTION_SCHEDULE_TOKEN` and `NOTION_SCHEDULE_SOURCE_ID` in a private shell, then run `npm run --silent schedule:refresh -- /path/to/private/attendee-config.json`. Redirect stdout to a new private file, review it locally, and update the sensitive Vercel variable before deploying. The export includes only announcement-marked rows and preserves the existing display metadata. It never copies volunteer assignments, page bodies, or internal notes.
 
 ## Optional live subdomain
 
-The dashboard works under `/dashboard` without configuration. When `live.immersethebay.org` is attached to the same website project, set `NEXT_PUBLIC_LIVE_URL=https://live.immersethebay.org` at build time. Home, Schedule, Equipment, Tracks & Submit, Help, and My Badge have their own URLs on the live host. The existing marketing-domain `/dashboard` redirects there, preserving the portal's sign-in callback query. The public Schedule and Tracks URLs stay separate. The portal must continue to set its secure attendee cookie on `.immersethebay.org`; do not use an unrelated domain with this handoff.
+The dashboard works under `/dashboard` without configuration. When `live.immersethebay.org` is attached to the same website project, set `NEXT_PUBLIC_LIVE_URL=https://live.immersethebay.org` at build time. Home, Schedule, Equipment, Tracks & Submit, Help, People, and My Badge have their own URLs on the live host. People does not import names from the attendee roster. The existing marketing-domain `/dashboard` redirects there, preserving the portal's sign-in callback query. The public Schedule and Tracks URLs stay separate. The portal must continue to set its secure attendee cookie on `.immersethebay.org`; do not use an unrelated domain with this handoff.
 
 Staff and reviewers have early access. Accepted hackers who confirmed their spot can use the dashboard and its announcements after midnight Pacific on Wednesday, November 11. Before launch, the portal's `/api/attendee` response must identify staff explicitly; legacy responses do not receive early access.
 

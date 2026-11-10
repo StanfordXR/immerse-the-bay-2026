@@ -44,7 +44,7 @@ export function LiveAnnouncements({ discordUrl }: { discordUrl?: string }) {
   }, [load]);
 
   return (
-    <div className="max-h-80 overflow-y-auto">
+    <div className="max-h-[clamp(18rem,50svh,36rem)] overflow-y-auto">
       <div className="min-h-0">
         {loading && announcements.length === 0 ? (
           <p className="text-sm text-muted">Loading announcements…</p>

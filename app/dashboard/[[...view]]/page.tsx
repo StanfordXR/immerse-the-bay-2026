@@ -50,7 +50,13 @@ export default async function DashboardPage({
     <main className="relative min-h-screen">
       <div className="bg-section-glow pointer-events-none absolute inset-0" aria-hidden />
       {access.status === "allowed" ? (
-        <DashboardView name={access.name} page={page} onLiveHost={onLiveHost} now={now} />
+        <DashboardView
+          name={access.name}
+          audience={attendee?.status === "confirmed" ? attendee.audience : undefined}
+          page={page}
+          onLiveHost={onLiveHost}
+          now={now}
+        />
       ) : access.status === "waiting" ? (
         <Gate
           title={COMING_SOON}

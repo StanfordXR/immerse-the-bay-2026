@@ -4,6 +4,7 @@ export const DASHBOARD_TABS = [
   { id: "equipment", label: "Equipment" },
   { id: "tracks", label: "Tracks & Submit" },
   { id: "help", label: "Help" },
+  { id: "people", label: "People" },
 ] as const;
 
 export const DASHBOARD_BADGE = { id: "badge", label: "My Badge" } as const;

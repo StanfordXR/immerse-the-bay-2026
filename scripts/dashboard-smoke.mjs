@@ -20,9 +20,10 @@ const privateRoom = "Example Private Hall 111";
 const privateInvite = "https://discord.gg/itb-smoke-fixture";
 const guideUrl = "https://guide.example.test/attendees";
 const snapshotGuideUrl = "https://guide.example.test/snapshot-fallback";
+const guideFaq = "Where do I pick up the synthetic check-in badge?";
 const tracksUrl = "https://tracks.example.test/reveal";
 const submissionUrl = "https://submit.example.test/project";
-const privateMarkers = [privateRoom, privateInvite, guideUrl, snapshotGuideUrl, tracksUrl, submissionUrl];
+const privateMarkers = [privateRoom, privateInvite, guideUrl, snapshotGuideUrl, guideFaq, tracksUrl, submissionUrl];
 const attendeeConfig = JSON.stringify({
   rows: [
     ["sample-workshop", "Example Workshop", "2026-11-13T18:00:00-08:00", "2026-11-13T18:30:00-08:00", [privateRoom]],
@@ -78,6 +79,7 @@ const child = spawn(process.execPath, ["--import", `data:text/javascript,${encod
     DISCORD_ANNOUNCEMENTS_CHANNEL_ID: announcementChannel,
     ITB_ATTENDEE_CONFIG_JSON: attendeeConfig,
     ITB_ARRIVAL_GUIDE_URL: guideUrl,
+    ITB_HELP_FAQ_JSON: JSON.stringify([{ question: guideFaq, answer: "Use the synthetic check-in desk." }]),
   },
   stdio: "inherit",
 });
@@ -136,6 +138,7 @@ try {
     "/equipment": "Equipment",
     "/tracks": "Tracks &amp; Submit",
     "/help": "Help",
+    "/people": "People",
     "/badge": "My Badge",
   };
   for (const session of ["", "not-approved", "expired", ...(afterLaunch ? [] : ["accepted-fixture", "legacy"])]) {
@@ -168,10 +171,10 @@ try {
       assert.ok(html.includes('src="/images/logo/ITB_Standard.png"'), "Missing the branded live wordmark");
       assert.equal(html.includes("Immerse the Bay Spotify playlist"), path === "/", "Playlist belongs on Home only");
       if (path !== "/help") assert.ok(!html.includes(guideUrl) && !html.includes(snapshotGuideUrl), "Guide belongs on Help only");
+      if (path !== "/help") assert.ok(!html.includes(guideFaq), "Guide FAQs belong on Help only");
       assert.match(html, new RegExp(`<h1[^>]*>${heading}</h1>`));
       for (const href of Object.keys(views)) assert.ok(html.includes(`href="${href}"`), `Missing nav link ${href}`);
       assert.ok(html.includes(`href="${path}" aria-current="page"`), `Missing current-page state on ${path}`);
-      assert.ok(!html.includes("/people"), "Directory should not be exposed");
       const expectedName = fixtures[session].name;
       for (const { name } of Object.values(fixtures)) {
         if (name && (name !== expectedName || path !== "/badge")) assert.ok(!html.includes(name), "Unexpected identity exposed");
@@ -181,10 +184,17 @@ try {
         assert.match(html, /Happening now/);
         assert.ok(html.includes(privateRoom));
         assert.ok(html.indexOf(">Event playlist</summary>") > html.indexOf(">Up next</h3>"));
+        if (!afterOpening) assert.ok(html.indexOf("Countdown to Friday") < html.indexOf(">Live announcements</h2>"));
       } else if (path === "/schedule") {
         assert.match(html, /role="tablist"/);
-        assert.match(html, />Workshops</);
+        assert.doesNotMatch(html, /Schedule filter|>Workshops<|>All events</);
         assert.ok(html.includes(privateRoom));
+        const focus = html.match(/<li[^>]*data-schedule-anchor="true"[^>]*>.*?<h3[^>]*>([^<]+)/);
+        assert.equal(focus?.[1], afterOpening ? "Opening Ceremony" : "Example Workshop");
+        if (afterOpening) {
+          assert.match(focus[0], /data-event-state="current"/);
+          assert.match(html, /data-event-state="past"/);
+        }
       } else if (path === "/equipment") {
         assert.match(html, /href="https:\/\/equipment\.stanfordxr\.org\/"/);
         assert.match(html, /9:30 PM Pacific/);
@@ -196,8 +206,12 @@ try {
       } else if (path === "/help") {
         assert.ok(html.includes(privateInvite) && html.includes(guideUrl));
         assert.ok(html.includes("Open the Hacker Arrival Guide") && !html.includes(snapshotGuideUrl));
+        assert.ok(html.includes("#event-questions") && html.includes(guideFaq) && html.includes("What is the latest I should arrive"));
+      } else if (path === "/people") {
+        assert.match(html, /There are no shared profiles listed here/);
       } else if (path === "/badge") {
         assert.ok(html.includes(expectedName));
+        assert.match(html, /Your profile/);
         assert.match(html, /confirmation email/);
         for (const marker of privateMarkers) assert.ok(!html.includes(marker), "Unexpected attendee data in the badge");
       }
@@ -214,10 +228,10 @@ try {
   const deepLink = await request("/dashboard/schedule", { host: "immersethebay.org" });
   assert.equal(deepLink.status, 307);
   assert.equal(deepLink.headers.location, "https://live.immersethebay.org/schedule");
-  const invalidRoute = await request("/dashboard/people", { ...live, cookie: "itb_session=reviewer" });
+  const invalidRoute = await request("/dashboard/organizer-roster", { ...live, cookie: "itb_session=reviewer" });
   assert.equal(invalidRoute.status, 404);
   const phase = afterOpening ? "at the track reveal" : afterLaunch ? "at launch" : "before launch";
-  console.log(`Public grid, five dashboard tabs, private badge, role gate, track embargo, announcements, and hostname handoff passed ${phase}.`);
+  console.log(`Public grid, live tabs, schedule position, gated FAQ, private profile, role gate, track embargo, announcements, and hostname handoff passed ${phase}.`);
 } finally {
   child.kill("SIGTERM");
   portal.close();

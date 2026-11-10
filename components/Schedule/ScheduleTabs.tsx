@@ -1,112 +1,146 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { AttendeeScheduleDay } from "@/data/types";
+import { pickScheduleAnchor, scheduleClock, scheduleEventState, type ScheduleAnchor } from "@/lib/schedule-timing";
 import { cn } from "@/lib/utils";
 
-export function ScheduleTabs({ days, showWorkshopFilter = false }: {
+const eventKey = (dayIndex: number, eventId: string) => `${dayIndex}:${eventId}`;
+
+export function ScheduleTabs({ days, initialNow }: {
   days: AttendeeScheduleDay[];
-  showWorkshopFilter?: boolean;
+  initialNow: number;
 }) {
   const id = useId();
-  const [active, setActive] = useState(0);
-  const [workshopsOnly, setWorkshopsOnly] = useState(false);
+  const [selection, setSelection] = useState<ScheduleAnchor>(() => pickScheduleAnchor(days, initialNow));
+  const [now, setNow] = useState(initialNow);
+  const active = selection.dayIndex;
+  const clock = scheduleClock(now);
+  const root = useRef<HTMLDivElement>(null);
+  const controls = useRef<HTMLDivElement>(null);
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
+  const panels = useRef<(HTMLElement | null)[]>([]);
+  const eventNodes = useRef(new Map<string, HTMLLIElement>());
+
+  useEffect(() => {
+    const header = document.querySelector("[data-live-header]");
+    const measure = () => {
+      const top = Math.ceil(header?.getBoundingClientRect().height ?? 0);
+      const extra = Math.ceil(controls.current?.getBoundingClientRect().height ?? 0);
+      root.current?.style.setProperty("--schedule-top", `${top}px`);
+      root.current?.style.setProperty("--schedule-margin", `${top + extra + 12}px`);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    if (header) observer.observe(header);
+    if (controls.current) observer.observe(controls.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const target = selection.eventId
+      ? eventNodes.current.get(eventKey(selection.dayIndex, selection.eventId))
+      : panels.current[selection.dayIndex];
+    target?.scrollIntoView({ block: "start", behavior: "instant" });
+  }, [selection]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 30_000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <div role="tablist" aria-label="Schedule day" className="grid grid-cols-3 gap-2 sm:gap-3">
-        {days.map((day, index) => (
-          <button
-            key={day.id}
-            ref={(node) => { tabs.current[index] = node; }}
-            type="button"
-            role="tab"
-            id={`${id}-tab-${day.id}`}
-            aria-controls={`${id}-day-${day.id}`}
-            aria-selected={index === active}
-            tabIndex={index === active ? 0 : -1}
-            onClick={() => setActive(index)}
-            onKeyDown={(event) => {
-              const count = days.length;
-              const next = event.key === "ArrowRight" ? (index + 1) % count
-                : event.key === "ArrowLeft" ? (index + count - 1) % count
-                : event.key === "Home" ? 0 : event.key === "End" ? count - 1 : null;
-              if (next === null) return;
-              event.preventDefault();
-              setActive(next);
-              tabs.current[next]?.focus();
-            }}
-            className={cn(
-              "rounded-lg border px-2 py-3 text-center focus-visible:outline-2 focus-visible:outline-neon-cyan sm:py-4",
-              active === index
-                ? "border-neon-cyan/60 bg-neon-indigo/20 text-foreground"
-                : "border-white/15 bg-surface/50 text-muted hover:border-white/40",
-            )}
-          >
-            <span className="block font-sans text-sm font-semibold sm:text-base">{day.label}</span>
-            <span className="mt-1 block text-xs">{day.date.replace("November", "Nov")}</span>
-          </button>
-        ))}
-      </div>
-      {showWorkshopFilter && (
-        <div role="group" aria-label="Schedule filter" className="mt-4 flex flex-wrap gap-2">
-          {([[false, "All events"], [true, "Workshops"]] as const).map(([onlyWorkshops, label]) => (
+    <div ref={root} className="mx-auto max-w-4xl [--schedule-margin:13rem] [--schedule-top:7.25rem]">
+      <div ref={controls} className="sticky top-[var(--schedule-top)] z-30 -mx-1 bg-void/95 px-1 pb-2 pt-2 backdrop-blur">
+        <div role="tablist" aria-label="Schedule day" className="grid grid-cols-3 gap-2 sm:gap-3">
+          {days.map((day, index) => (
             <button
-              key={label}
+              key={day.id}
+              ref={(node) => { tabs.current[index] = node; }}
               type="button"
-              aria-pressed={workshopsOnly === onlyWorkshops}
-              onClick={() => setWorkshopsOnly(onlyWorkshops)}
+              role="tab"
+              id={`${id}-tab-${day.id}`}
+              aria-controls={`${id}-day-${day.id}`}
+              aria-selected={index === active}
+              tabIndex={index === active ? 0 : -1}
+              onClick={() => setSelection({ dayIndex: index })}
+              onKeyDown={(event) => {
+                const count = days.length;
+                const next = event.key === "ArrowRight" ? (index + 1) % count
+                  : event.key === "ArrowLeft" ? (index + count - 1) % count
+                  : event.key === "Home" ? 0 : event.key === "End" ? count - 1 : null;
+                if (next === null) return;
+                event.preventDefault();
+                setSelection({ dayIndex: next });
+                tabs.current[next]?.focus({ preventScroll: true });
+              }}
               className={cn(
-                "min-h-10 rounded-lg border px-3 text-sm focus-visible:outline-2 focus-visible:outline-neon-cyan",
-                workshopsOnly === onlyWorkshops ? "border-neon-cyan/60 text-neon-cyan" : "border-white/15 text-muted hover:text-foreground",
+                "rounded-lg border px-2 py-3 text-center focus-visible:outline-2 focus-visible:outline-neon-cyan sm:py-4",
+                active === index
+                  ? "border-neon-cyan/60 bg-neon-indigo/20 text-foreground"
+                  : "border-white/15 bg-surface/50 text-muted hover:border-white/40",
               )}
             >
-              {label}
+              <span className="block font-sans text-sm font-semibold sm:text-base">{day.label}</span>
+              <span className="mt-1 block text-xs">{day.date.replace("November", "Nov")}</span>
             </button>
           ))}
         </div>
-      )}
-      {days.map((day, index) => {
-        const events = workshopsOnly ? day.events.filter((event) => event.workshop) : day.events;
-        return (
-          <section
-            key={day.id}
-            id={`${id}-day-${day.id}`}
-            role="tabpanel"
-            aria-labelledby={`${id}-tab-${day.id}`}
-            hidden={index !== active}
-            tabIndex={0}
-            className="mt-5 rounded-xl border border-white/15 bg-surface/50"
-          >
-            <p className="border-b border-white/10 px-4 py-3 text-xs uppercase tracking-widest text-muted sm:px-6">
-              {day.label}, {day.date} <span aria-hidden>·</span> All times Pacific
-            </p>
-            {events.length ? (
-              <ol className="divide-y divide-white/10">
-                {events.map((event) => (
-                  <li key={event.id} className="grid gap-x-5 gap-y-1 px-4 py-4 sm:grid-cols-[10rem_1fr] sm:px-6">
-                    {event.start ? <time dateTime={event.start} className="text-sm font-semibold text-neon-cyan">{event.time}</time>
-                      : <span className="text-sm font-semibold text-neon-cyan">{event.time}</span>}
+      </div>
+      {days.map((day, index) => (
+        <section
+          key={day.id}
+          ref={(node) => { panels.current[index] = node; }}
+          id={`${id}-day-${day.id}`}
+          role="tabpanel"
+          aria-labelledby={`${id}-tab-${day.id}`}
+          hidden={index !== active}
+          tabIndex={0}
+          className="mt-4 scroll-mt-[var(--schedule-margin)] rounded-xl border border-white/15 bg-surface/50"
+        >
+          <p className="border-b border-white/10 px-4 py-3 text-xs uppercase tracking-widest text-muted sm:px-6">
+            {day.label}, {day.date} <span aria-hidden>·</span> All times Pacific
+          </p>
+          {day.events.length ? (
+            <ol className="divide-y divide-white/10">
+              {day.events.map((event) => {
+                const state = scheduleEventState(event, clock);
+                const key = eventKey(index, event.id);
+                const timeClass = cn("text-sm font-semibold", state === "past" ? "text-muted" : "text-neon-cyan");
+                return (
+                  <li
+                    key={event.id}
+                    ref={(node) => { if (node) eventNodes.current.set(key, node); else eventNodes.current.delete(key); }}
+                    data-event-state={state}
+                    data-schedule-anchor={selection.dayIndex === index && selection.eventId === event.id ? "true" : undefined}
+                    className={cn(
+                      "grid scroll-mt-[var(--schedule-margin)] gap-x-5 gap-y-1 border-l-2 px-4 py-4 sm:grid-cols-[10rem_1fr] sm:px-6",
+                      state === "current" ? "border-l-neon-cyan/80 bg-neon-cyan/8"
+                        : state === "past" ? "border-l-transparent bg-void/60" : "border-l-transparent",
+                    )}
+                  >
+                    {event.start ? <time dateTime={event.start} className={timeClass}>{event.time}</time>
+                      : <span className={timeClass}>{event.time}</span>}
                     <div>
-                      <h3 className="font-sans font-semibold text-foreground">
-                        {event.title}
-                        {event.workshop && <span className="ml-2 whitespace-nowrap text-xs font-normal text-neon-purple-light">· Session</span>}
-                      </h3>
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <h3 className={cn("font-sans font-semibold", state === "past" ? "text-muted" : "text-foreground")}>{event.title}</h3>
+                        {state === "current" && <span className="rounded border border-neon-cyan/40 px-2 py-0.5 text-xs font-medium text-neon-cyan">Now</span>}
+                        {state === "past" && <span className="sr-only">Past event</span>}
+                      </div>
                       {event.location && <p className="mt-1 text-sm text-muted">{event.location}</p>}
                       {event.description && <p className="mt-1 text-sm leading-relaxed text-muted">{event.description}</p>}
                     </div>
                   </li>
-                ))}
-              </ol>
-            ) : (
-              <p className="px-4 py-4 text-sm text-muted sm:px-6">
-                {workshopsOnly ? "No workshops scheduled for this day." : "No events posted for this day."}
-              </p>
-            )}
-          </section>
-        );
-      })}
+                );
+              })}
+            </ol>
+          ) : (
+            <p className="px-4 py-4 text-sm text-muted sm:px-6">
+              No events posted for this day.
+            </p>
+          )}
+        </section>
+      ))}
     </div>
   );
 }
