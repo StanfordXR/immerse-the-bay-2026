@@ -56,7 +56,8 @@ interface AttendeeDashboardConfig {
 
 /** Loaded only after the server has authorized access to the live dashboard. */
 export function getAttendeeSchedule(): AttendeeDashboardConfig {
-  const empty = { schedule: [] };
+  const configuredGuide = approvedLink(process.env.ITB_ARRIVAL_GUIDE_URL);
+  const empty: AttendeeDashboardConfig = { schedule: [], arrivalGuideUrl: configuredGuide };
   const raw = process.env.ITB_ATTENDEE_CONFIG_JSON;
   if (!raw) return empty;
 
@@ -93,7 +94,7 @@ export function getAttendeeSchedule(): AttendeeDashboardConfig {
     schedule,
     discordUrl: typeof discordUrl === "string" && /^https:\/\/discord\.gg\/[A-Za-z0-9-]+\/?$/.test(discordUrl)
       ? discordUrl : undefined,
-    arrivalGuideUrl: approvedLink(arrivalGuideUrl),
+    arrivalGuideUrl: configuredGuide ?? approvedLink(arrivalGuideUrl),
     tracksUrl: approvedLink(tracksUrl),
     submissionUrl: approvedLink(submissionUrl),
     submissionDeadline: approvedDeadline(submissionDeadline),

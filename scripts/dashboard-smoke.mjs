@@ -19,9 +19,10 @@ const announcementChannel = `itb-smoke-${randomUUID()}`;
 const privateRoom = "Example Private Hall 111";
 const privateInvite = "https://discord.gg/itb-smoke-fixture";
 const guideUrl = "https://guide.example.test/attendees";
+const snapshotGuideUrl = "https://guide.example.test/snapshot-fallback";
 const tracksUrl = "https://tracks.example.test/reveal";
 const submissionUrl = "https://submit.example.test/project";
-const privateMarkers = [privateRoom, privateInvite, guideUrl, tracksUrl, submissionUrl];
+const privateMarkers = [privateRoom, privateInvite, guideUrl, snapshotGuideUrl, tracksUrl, submissionUrl];
 const attendeeConfig = JSON.stringify({
   rows: [
     ["sample-workshop", "Example Workshop", "2026-11-13T18:00:00-08:00", "2026-11-13T18:30:00-08:00", [privateRoom]],
@@ -30,7 +31,7 @@ const attendeeConfig = JSON.stringify({
     ["sample-closing", "Closing Ceremony", "2026-11-15T13:30:00-08:00", null, [privateRoom]],
   ],
   discordUrl: privateInvite,
-  arrivalGuideUrl: guideUrl,
+  arrivalGuideUrl: snapshotGuideUrl,
   tracksUrl,
   submissionUrl,
   submissionDeadline: "2026-11-15T09:00:00-08:00",
@@ -76,6 +77,7 @@ const child = spawn(process.execPath, ["--import", `data:text/javascript,${encod
     DISCORD_BOT_TOKEN: "synthetic-test-token",
     DISCORD_ANNOUNCEMENTS_CHANNEL_ID: announcementChannel,
     ITB_ATTENDEE_CONFIG_JSON: attendeeConfig,
+    ITB_ARRIVAL_GUIDE_URL: guideUrl,
   },
   stdio: "inherit",
 });
@@ -163,6 +165,9 @@ try {
       assert.match(response.headers["cache-control"], /no-store/);
       const html = await response.text();
       assert.match(html, /Live dashboard navigation/);
+      assert.ok(html.includes('src="/images/logo/ITB_Standard.png"'), "Missing the branded live wordmark");
+      assert.equal(html.includes("Immerse the Bay Spotify playlist"), path === "/", "Playlist belongs on Home only");
+      if (path !== "/help") assert.ok(!html.includes(guideUrl) && !html.includes(snapshotGuideUrl), "Guide belongs on Help only");
       assert.match(html, new RegExp(`<h1[^>]*>${heading}</h1>`));
       for (const href of Object.keys(views)) assert.ok(html.includes(`href="${href}"`), `Missing nav link ${href}`);
       assert.ok(html.includes(`href="${path}" aria-current="page"`), `Missing current-page state on ${path}`);
@@ -175,6 +180,7 @@ try {
         assert.match(html, /Live announcements/);
         assert.match(html, /Happening now/);
         assert.ok(html.includes(privateRoom));
+        assert.ok(html.indexOf(">Event playlist</summary>") > html.indexOf(">Up next</h3>"));
       } else if (path === "/schedule") {
         assert.match(html, /role="tablist"/);
         assert.match(html, />Workshops</);
@@ -189,6 +195,7 @@ try {
         else assert.match(html, /revealed at Friday/);
       } else if (path === "/help") {
         assert.ok(html.includes(privateInvite) && html.includes(guideUrl));
+        assert.ok(html.includes("Open the Hacker Arrival Guide") && !html.includes(snapshotGuideUrl));
       } else if (path === "/badge") {
         assert.ok(html.includes(expectedName));
         assert.match(html, /confirmation email/);

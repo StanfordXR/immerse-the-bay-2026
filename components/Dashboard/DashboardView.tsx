@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { ReactNode } from "react";
 import { CountdownTimer } from "@/components/Dashboard/CountdownTimer";
 import { HackerBadge } from "@/components/Dashboard/HackerBadge";
@@ -50,8 +51,25 @@ export function DashboardView({ name, page, onLiveHost, now }: {
       <header className="sticky top-0 z-40 border-b border-white/10 bg-void/95 backdrop-blur">
         <Container as="nav" aria-label="Live dashboard navigation" className="pt-3">
           <div className="flex items-center justify-between gap-3">
-            <a href={href("home")} className={cn("min-w-0 font-sans text-sm font-semibold text-foreground sm:text-base", focus)}>
-              Immerse the Bay <span className="text-neon-cyan">Live</span>
+            <a
+              href={href("home")}
+              aria-label="Immerse the Bay Live home"
+              className={cn("inline-flex min-w-0 items-center gap-2.5 rounded-sm", focus)}
+            >
+              <span className="relative block aspect-[2/1] w-24 shrink-0 overflow-hidden sm:w-28">
+                <Image
+                  src="/images/logo/ITB_Standard.png"
+                  alt=""
+                  width={1080}
+                  height={1080}
+                  unoptimized
+                  loading="eager"
+                  className="absolute left-0 top-1/2 h-auto w-full -translate-y-1/2"
+                />
+              </span>
+              <span aria-hidden="true" className="rounded border border-neon-cyan/40 px-1.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-neon-cyan">
+                Live
+              </span>
             </a>
             <div className="flex shrink-0 items-center gap-4">
               <a href={SITE.url} className={cn("hidden text-sm text-muted hover:text-foreground sm:inline", focus)}>Main site ↗</a>
@@ -86,7 +104,7 @@ export function DashboardView({ name, page, onLiveHost, now }: {
           </ul>
         </Container>
       </header>
-      <Container id="dashboard-content" className="relative scroll-mt-28 space-y-7 pb-20 pt-8 sm:pt-11">
+      <Container id="dashboard-content" className="relative scroll-mt-32 space-y-7 pb-20 pt-8 sm:pt-11">
         <div>
           <p className="text-sm uppercase tracking-widest text-neon-cyan">November 13–15 · Stanford</p>
           <h1 className="mt-2 font-sans text-3xl font-semibold sm:text-5xl">{copy[page].title}</h1>
@@ -113,6 +131,13 @@ export function DashboardView({ name, page, onLiveHost, now }: {
               <DashboardLink href={href("schedule")}>View the full schedule</DashboardLink>
             </DashboardCard>
           </div>
+        )}
+        {page === "home" && (
+          <details className="rounded-xl border border-white/15 bg-surface/50 p-4">
+            <summary className="cursor-pointer font-sans font-semibold">Event playlist</summary>
+            <iframe className="mt-3 h-40 w-full border-0" src={DASHBOARD_SPOTIFY_EMBED_URL} title="Immerse the Bay Spotify playlist" loading="lazy" />
+            <DashboardLink href={DASHBOARD_SPOTIFY_PLAYLIST_URL}>Open in Spotify</DashboardLink>
+          </details>
         )}
         {page === "schedule" && (schedule.length
           ? <ScheduleTabs days={schedule} showWorkshopFilter />
@@ -152,8 +177,10 @@ export function DashboardView({ name, page, onLiveHost, now }: {
           <>
             <div className="grid gap-5 sm:grid-cols-2">
               <DashboardCard title="Arrival and check-in">
-                <p>Use the arrival guide for check-in windows and directions. If you can’t find it, check your attendee email. If you expect to arrive after 10 PM Friday, email the organizers as soon as possible.</p>
-                {arrivalGuideUrl && <DashboardLink href={arrivalGuideUrl}>Open the arrival guide</DashboardLink>}
+                <p>See the Hacker Arrival Guide for check-in windows, directions, and what to bring. If you expect to arrive after 10 PM Friday, email the organizers as soon as possible.</p>
+                {arrivalGuideUrl
+                  ? <DashboardLink href={arrivalGuideUrl}>Open the Hacker Arrival Guide</DashboardLink>
+                  : <p className="mt-3">Find the guide in your “Know before you go” email.</p>}
                 <DashboardLink href={STANFORD_CAMPUS_MAP_URL}>Stanford campus map</DashboardLink>
               </DashboardCard>
               <DashboardCard title="Wi-Fi and on-site support">
@@ -165,11 +192,6 @@ export function DashboardView({ name, page, onLiveHost, now }: {
                 {discordUrl ? <DashboardLink href={discordUrl}>Join event Discord</DashboardLink> : <p className="mt-3">Look for the invite in your attendee email.</p>}
               </DashboardCard>
             </div>
-            <details className="rounded-xl border border-white/15 bg-surface/50 p-4">
-              <summary className="cursor-pointer font-sans font-semibold">Event playlist</summary>
-              <iframe className="mt-3 h-40 w-full border-0" src={DASHBOARD_SPOTIFY_EMBED_URL} title="Immerse the Bay Spotify playlist" loading="lazy" />
-              <DashboardLink href={DASHBOARD_SPOTIFY_PLAYLIST_URL}>Open in Spotify</DashboardLink>
-            </details>
             <a href={SITE.url} className={cn("inline-block text-sm text-muted hover:text-foreground sm:hidden", focus)}>Main site ↗</a>
           </>
         )}

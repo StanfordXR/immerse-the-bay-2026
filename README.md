@@ -26,6 +26,8 @@ The full schedule and event Discord invite live in the production Vercel project
 
 Optional `arrivalGuideUrl`, `tracksUrl`, `submissionUrl`, and `submissionDeadline` can be set once those details are approved. Links must be HTTPS, and deadlines use ISO 8601 with an explicit offset. Tracks and submission details are not displayed before the opening ceremony.
 
+Set the server-only `ITB_ARRIVAL_GUIDE_URL` to the guide sent to attendees. It overrides `arrivalGuideUrl` in the schedule snapshot and is only rendered on the gated Help page.
+
 For a schedule refresh, set `NOTION_SCHEDULE_TOKEN` and `NOTION_SCHEDULE_SOURCE_ID` in a private shell, then run `npm run --silent schedule:refresh -- /path/to/private/attendee-config.json`. Redirect stdout to a new private file, review it locally, and update the sensitive Vercel variable before deploying. The export includes only announcement-marked rows and preserves the existing display metadata. It never copies volunteer assignments, page bodies, or internal notes.
 
 ## Optional live subdomain
