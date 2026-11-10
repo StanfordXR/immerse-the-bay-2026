@@ -23,7 +23,8 @@ const snapshotGuideUrl = "https://guide.example.test/snapshot-fallback";
 const guideFaq = "Where do I pick up the synthetic check-in badge?";
 const tracksUrl = "https://tracks.example.test/reveal";
 const submissionUrl = "https://submit.example.test/project";
-const privateMarkers = [privateRoom, privateInvite, guideUrl, snapshotGuideUrl, guideFaq, tracksUrl, submissionUrl];
+const badgePng = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jKc8AAAAASUVORK5CYII=";
+const privateMarkers = [privateRoom, privateInvite, guideUrl, snapshotGuideUrl, guideFaq, tracksUrl, submissionUrl, badgePng];
 const attendeeConfig = JSON.stringify({
   rows: [
     ["sample-workshop", "Example Workshop", "2026-11-13T18:00:00-08:00", "2026-11-13T18:30:00-08:00", [privateRoom]],
@@ -45,10 +46,13 @@ const fixtures = {
   expired: { status: "signed-out" },
 };
 const portal = createServer((req, res) => {
-  if (req.url !== "/api/attendee") return res.writeHead(404).end();
+  if (req.url !== "/api/attendee" && req.url !== "/api/attendee?badge=1") return res.writeHead(404).end();
   const token = (req.headers.cookie ?? "").match(/itb_session=(\S+)$/)?.[1];
   res.setHeader("Content-Type", "application/json");
-  res.end(JSON.stringify(fixtures[token] ?? { status: "not-confirmed" }));
+  const result = fixtures[token] ?? { status: "not-confirmed" };
+  res.end(JSON.stringify(req.url.endsWith("?badge=1") && token === "accepted-fixture"
+    ? { ...result, badgeQr: badgePng }
+    : result));
 });
 const portalPort = await bind(portal);
 const reserve = createServer();
@@ -168,6 +172,8 @@ try {
       assert.match(response.headers["cache-control"], /no-store/);
       const html = await response.text();
       assert.match(html, /Live dashboard navigation/);
+      assert.equal(html.includes("/review/check-in"), session === "reviewer" || session === "admin");
+      assert.equal(html.includes(badgePng), path === "/badge" && session === "accepted-fixture");
       assert.ok(html.includes('src="/images/logo/ITB_Standard.png"'), "Missing the branded live wordmark");
       assert.equal(html.includes("Immerse the Bay Spotify playlist"), path === "/", "Playlist belongs on Home only");
       if (path !== "/help") assert.ok(!html.includes(guideUrl) && !html.includes(snapshotGuideUrl), "Guide belongs on Help only");
@@ -213,7 +219,9 @@ try {
         assert.ok(html.includes(expectedName));
         assert.match(html, /Your profile/);
         assert.match(html, /confirmation email/);
-        for (const marker of privateMarkers) assert.ok(!html.includes(marker), "Unexpected attendee data in the badge");
+        for (const marker of privateMarkers.filter((value) => value !== badgePng)) {
+          assert.ok(!html.includes(marker), "Unexpected attendee data in the badge");
+        }
       }
     }));
     const feed = await request("/api/announcements", headers);

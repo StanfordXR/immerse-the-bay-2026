@@ -11,12 +11,12 @@ import { parseAttendee, type Attendee } from "@/lib/dashboard-access";
 const SHARED_SESSION_COOKIE = "itb_session";
 
 /** Returns null when the portal couldn't be reached, so callers don't mistake an outage for "signed out". */
-export async function getAttendee(): Promise<Attendee | null> {
+export async function getAttendee(includeBadge = false): Promise<Attendee | null> {
   const token = (await cookies()).get(SHARED_SESSION_COOKIE)?.value;
   if (!token) return { status: "signed-out" };
 
   try {
-    const res = await fetch(`${PORTAL_URL}/api/attendee`, {
+    const res = await fetch(`${PORTAL_URL}/api/attendee${includeBadge ? "?badge=1" : ""}`, {
       headers: { cookie: `${SHARED_SESSION_COOKIE}=${encodeURIComponent(token)}` },
       cache: "no-store",
     });

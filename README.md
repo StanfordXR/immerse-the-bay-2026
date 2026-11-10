@@ -37,6 +37,10 @@ The dashboard works under `/dashboard` without configuration. When `live.immerse
 
 Staff and reviewers have early access. Accepted hackers who confirmed their spot can use the dashboard and its announcements after midnight Pacific on Wednesday, November 11. Before launch, the portal's `/api/attendee` response must identify staff explicitly; legacy responses do not receive early access.
 
+Staff see a **Check-in** tab linking to the portal’s authenticated reviewer desk.
+The **My Badge** page requests a signed QR image for the current confirmed
+hacker only. The QR stays in the signed-in badge page and is excluded from replay.
+
 Before rollout, verify the complete sign-in and callback in a nonproduction environment and test staff, confirmed hackers, and unconfirmed attendees. Configure the dashboard’s Discord announcements channel and bot credentials server-side. The schedule requires no Notion credentials at runtime.
 
 Local smoke test (uses synthetic portal responses and loopback only): build with `NEXT_PUBLIC_LIVE_URL=https://live.immersethebay.org npm run build`, then run `node scripts/dashboard-smoke.mjs`, `node scripts/dashboard-smoke.mjs --after-launch`, and `node scripts/dashboard-smoke.mjs --after-opening`. Do not set a portal URL when building for this test.

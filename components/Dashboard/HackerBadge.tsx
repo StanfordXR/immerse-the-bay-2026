@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { GlassCard } from "@/components/ui/GlassCard";
 
 interface HackerBadgeProps {
@@ -15,7 +16,7 @@ export function HackerBadge({ name, qrSrc }: HackerBadgeProps) {
           Hacker badge
         </h2>
         <p className="mt-1 text-sm text-muted">
-          {qrSrc ? "Show this QR code at the check-in desk." : "If you don't have a QR code, have your confirmation email handy and ask a check-in volunteer for help."}
+          {qrSrc ? "Show this QR code at the check-in desk. If it won’t scan, have your confirmation email handy." : "If you don't have a QR code, have your confirmation email handy and ask a check-in volunteer for help."}
         </p>
       </div>
       <div
@@ -36,8 +37,15 @@ export function HackerBadge({ name, qrSrc }: HackerBadgeProps) {
 
         {qrSrc ? (
           <div className="flex h-48 w-48 items-center justify-center border border-white/20 bg-white/10 sm:h-56 sm:w-56">
-            // eslint-disable-next-line @next/next/no-img-element -- data URI QR, nothing to optimize
-            <img src={qrSrc} alt="Check-in QR code" className="h-full w-full bg-white p-3" />
+            <Image
+              src={qrSrc}
+              alt="Check-in QR code"
+              width={224}
+              height={224}
+              unoptimized
+              loading="eager"
+              className="h-full w-full bg-white p-3 [image-rendering:pixelated]"
+            />
           </div>
         ) : <p className="text-sm text-muted">QR code not available yet.</p>}
       </div>

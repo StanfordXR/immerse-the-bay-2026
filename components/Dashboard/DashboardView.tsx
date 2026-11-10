@@ -16,7 +16,7 @@ import {
 } from "@/data/dashboard";
 import { DASHBOARD_BADGE, DASHBOARD_TABS, dashboardPath, type DashboardPageId } from "@/data/dashboard-nav";
 import { FAQ_ITEMS } from "@/data/faq";
-import { SITE } from "@/data/site";
+import { PORTAL_URL, SITE } from "@/data/site";
 import { getArrivalGuideFaq } from "@/lib/attendee-help";
 import { getAttendeeSchedule } from "@/lib/attendee-schedule";
 import { dashboardHighlights } from "@/lib/dashboard-highlights";
@@ -34,14 +34,18 @@ const copy: Record<DashboardPageId, { title: string; description: string }> = {
 
 const focus = "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-neon-cyan";
 
-export function DashboardView({ name, audience, page, onLiveHost, now }: {
+export function DashboardView({ name, audience, badgeQr, page, onLiveHost, now }: {
   name: string;
   audience?: "staff" | "hacker";
+  badgeQr?: string;
   page: DashboardPageId;
   onLiveHost: boolean;
   now: number;
 }) {
   const href = (id: DashboardPageId) => dashboardPath(id, onLiveHost);
+  const tabs = DASHBOARD_TABS.map(({ id, label }) => ({ id, label, url: href(id) }));
+  const checkInTab = { id: "check-in", label: "Check-in", url: `${PORTAL_URL}/review/check-in` };
+  const visibleTabs = audience === "staff" ? [tabs[0], checkInTab, ...tabs.slice(1)] : tabs;
   const config: ReturnType<typeof getAttendeeSchedule> =
     page === "badge" || page === "equipment" ? { schedule: [] } : getAttendeeSchedule();
   const { schedule, discordUrl, arrivalGuideUrl, tracksUrl, submissionUrl, submissionDeadline } = config;
@@ -90,10 +94,10 @@ export function DashboardView({ name, audience, page, onLiveHost, now }: {
             </div>
           </div>
           <ul className="mt-2 flex gap-x-1 overflow-x-auto text-sm sm:gap-x-3 sm:text-base lg:gap-x-4 lg:text-lg">
-            {DASHBOARD_TABS.map(({ id, label }) => (
+            {visibleTabs.map(({ id, label, url }) => (
               <li key={id} className="shrink-0">
                 <a
-                  href={href(id)}
+                  href={url}
                   aria-current={page === id ? "page" : undefined}
                   className={cn(
                     "flex min-h-11 items-center whitespace-nowrap border-b-2 px-2 py-2 font-semibold focus-visible:rounded focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-neon-cyan sm:min-h-12 sm:px-3 lg:min-h-14 lg:px-4",
@@ -217,8 +221,8 @@ export function DashboardView({ name, audience, page, onLiveHost, now }: {
           </DashboardCard>
         )}
         {page === "badge" && (
-          <div className="grid max-w-4xl gap-5 sm:grid-cols-2">
-            <HackerBadge name={name} />
+          <div className="ph-no-capture grid max-w-4xl gap-5 sm:grid-cols-2">
+            <HackerBadge name={name} qrSrc={badgeQr} />
             <DashboardCard title="Your profile">
               <dl className="space-y-3">
                 <div><dt>Display name</dt><dd className="font-semibold text-foreground">{name}</dd></div>

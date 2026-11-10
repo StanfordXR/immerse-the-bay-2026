@@ -39,7 +39,7 @@ export default async function DashboardPage({
     notFound();
   }
 
-  const [attendee, query, requestHeaders] = await Promise.all([getAttendee(), searchParams, headers()]);
+  const [attendee, query, requestHeaders] = await Promise.all([getAttendee(page === "badge"), searchParams, headers()]);
   const now = Date.now();
   const access = dashboardAccess(attendee, now);
   const { isOpen } = access;
@@ -53,6 +53,7 @@ export default async function DashboardPage({
         <DashboardView
           name={access.name}
           audience={attendee?.status === "confirmed" ? attendee.audience : undefined}
+          badgeQr={page === "badge" && attendee?.status === "confirmed" ? attendee.badgeQr : undefined}
           page={page}
           onLiveHost={onLiveHost}
           now={now}
