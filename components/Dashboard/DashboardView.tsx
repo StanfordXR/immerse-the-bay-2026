@@ -175,34 +175,36 @@ export function DashboardView(props: DashboardViewProps) {
                   <LiveAnnouncements discordUrl={discordUrl} sponsorView={sponsorView} />
                 </div>
               </GlassCard>
-              <DashboardCard title={highlights?.current.length ? "Now & next" : "Up next"} icon={LuCalendarClock} className="min-w-0">
-                {highlights ? (
-                  <div className="space-y-5">
-                    {highlights.current.length > 0 && <EventHighlights heading="Happening now" events={highlights.current} />}
-                    <EventHighlights
-                      heading={highlights.current.length ? "Up next" : undefined}
-                      events={highlights.next}
-                      empty="That's everything on the schedule."
-                    />
+              <section aria-label="Schedule highlights and playlist" className="flex min-w-0 flex-col gap-5">
+                <DashboardCard title={highlights?.current.length ? "Now & next" : "Up next"} icon={LuCalendarClock} className="min-w-0 flex-1">
+                  {highlights ? (
+                    <div className="space-y-5">
+                      {highlights.current.length > 0 && <EventHighlights heading="Happening now" events={highlights.current} />}
+                      <EventHighlights
+                        heading={highlights.current.length ? "Up next" : undefined}
+                        events={highlights.next}
+                        empty="That's everything on the schedule."
+                      />
+                    </div>
+                  ) : <p>The detailed schedule isn’t posted yet.</p>}
+                  <DashboardLink href={href("schedule")}>Full schedule</DashboardLink>
+                </DashboardCard>
+                <details open className="group min-w-0 shrink-0 border border-white/10 bg-surface/50 backdrop-blur-xl">
+                  <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-4 sm:px-6 [&::-webkit-details-marker]:hidden">
+                    <LuMusic aria-hidden className="h-5 w-5 text-neon-purple-light" />
+                    <span className="flex-1">
+                      <span className="block font-sans font-semibold">Event playlist</span>
+                      <span className="block text-sm text-muted">Something to hack to</span>
+                    </span>
+                    <LuChevronDown aria-hidden className="h-5 w-5 text-muted transition-transform group-open:rotate-180" />
+                  </summary>
+                  <div className="px-4 pb-4 sm:px-6">
+                    <iframe className="h-40 w-full border-0" src={DASHBOARD_SPOTIFY_EMBED_URL} title="Immerse the Bay Spotify playlist" loading="lazy" />
+                    <DashboardLink href={DASHBOARD_SPOTIFY_PLAYLIST_URL}>Open in Spotify</DashboardLink>
                   </div>
-                ) : <p>The detailed schedule isn’t posted yet.</p>}
-                <DashboardLink href={href("schedule")}>Full schedule</DashboardLink>
-              </DashboardCard>
+                </details>
+              </section>
             </div>
-            <details open className="group border border-white/10 bg-surface/50 backdrop-blur-xl">
-              <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-4 sm:px-6 [&::-webkit-details-marker]:hidden">
-                <LuMusic aria-hidden className="h-5 w-5 text-neon-purple-light" />
-                <span className="flex-1">
-                  <span className="block font-sans font-semibold">Event playlist</span>
-                  <span className="block text-sm text-muted">Something to hack to</span>
-                </span>
-                <LuChevronDown aria-hidden className="h-5 w-5 text-muted transition-transform group-open:rotate-180" />
-              </summary>
-              <div className="px-4 pb-4 sm:px-6">
-                <iframe className="h-40 w-full border-0" src={DASHBOARD_SPOTIFY_EMBED_URL} title="Immerse the Bay Spotify playlist" loading="lazy" />
-                <DashboardLink href={DASHBOARD_SPOTIFY_PLAYLIST_URL}>Open in Spotify</DashboardLink>
-              </div>
-            </details>
             <SponsorsCard />
           </>
         )}

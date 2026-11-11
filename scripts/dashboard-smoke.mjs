@@ -245,7 +245,9 @@ try {
         assert.match(html, afterOpening ? /Happening now/ : /Up next/);
         assert.match(html, afterOpening ? /Hacking starts in/ : /Liftoff in/);
         assert.ok(html.includes(privateRoom));
-        assert.ok(html.indexOf("Event playlist") > html.indexOf("Up next"));
+        const highlightsColumn = html.match(/<section[^>]*aria-label="Schedule highlights and playlist"[^>]*>(.*?)<\/section>/)?.[1] ?? "";
+        assert.match(highlightsColumn, /(?:Up next|Now &amp; next).*Event playlist/);
+        assert.doesNotMatch(highlightsColumn, /Announcements|Our sponsors/);
         assert.ok(html.indexOf('id="live-sponsors"') > html.indexOf("Event playlist"));
         const gold = html.match(/<ul[^>]*aria-label="Gold sponsors"[^>]*>(.*?)<\/ul>/)?.[1];
         const silver = html.match(/<ul[^>]*aria-label="Silver sponsors"[^>]*>(.*?)<\/ul>/)?.[1];
@@ -366,6 +368,7 @@ try {
       assert.ok(!html.includes(marker), "Sponsor view exposed a hacker-only resource");
     }
     if (path === "/sponsor/schedule") assert.match(html, /Example Workshop/);
+    if (path === "/sponsor") assert.match(html, /<section[^>]*aria-label="Schedule highlights and playlist"[^>]*>.*Event playlist.*<\/section>.*id="live-sponsors"/);
     if (path === "/sponsor/tracks") assert.match(html, /Tracks &amp; Devpost.*Open Devpost/);
     if (path === "/sponsor/help") assert.match(html, /Sponsor support.*Stanford Visitor.*eduroam/);
   }

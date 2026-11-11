@@ -61,7 +61,7 @@ export function LiveAnnouncements({ discordUrl, sponsorView }: { discordUrl?: st
             {discordUrl && <>{" "}Check the <a href={discordUrl} className="text-neon-cyan underline">event Discord</a> for updates.</>}
           </p>
         ) : announcements.length === 0 ? (
-          <p className="text-sm text-muted">Announcements will show up here once the event starts :)</p>
+          <p className="text-sm text-muted">No announcements yet. Updates from Discord will appear here.</p>
         ) : (
           <ul className="space-y-3">
             {announcements.map((item, index) => (
