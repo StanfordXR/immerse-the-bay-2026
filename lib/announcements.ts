@@ -80,3 +80,20 @@ export async function fetchAnnouncements(): Promise<Announcement[]> {
     .filter((a) => a.message.length > 0)
     .sort((a, b) => Number(b.pinned) - Number(a.pinned));
 }
+
+const feedHeaders = { "Cache-Control": "private, no-store, max-age=0" };
+
+export function unavailableAnnouncements(status: 401 | 403 | 503) {
+  return Response.json({ announcements: [] }, { status, headers: feedHeaders });
+}
+
+/** Only call after the request has passed its own audience's access check. */
+export async function announcementFeedResponse() {
+  try {
+    return Response.json({ announcements: await fetchAnnouncements(), fetchedAt: new Date().toISOString() }, {
+      headers: feedHeaders,
+    });
+  } catch {
+    return unavailableAnnouncements(503);
+  }
+}

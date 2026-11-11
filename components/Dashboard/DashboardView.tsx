@@ -16,6 +16,7 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import {
   CLOSING_START,
   DASHBOARD_COUNTDOWN_TARGET,
+  DASHBOARD_DEVPOST_URL,
   DASHBOARD_EQUIPMENT_URL,
   DASHBOARD_EYEBROW,
   HACKING_END,
@@ -24,7 +25,10 @@ import {
   DASHBOARD_SPOTIFY_PLAYLIST_URL,
   STANFORD_CAMPUS_MAP_URL,
 } from "@/data/dashboard";
-import { DASHBOARD_BADGE, DASHBOARD_TABS, dashboardPath, type DashboardPageId } from "@/data/dashboard-nav";
+import {
+  DASHBOARD_BADGE, DASHBOARD_TABS, SPONSOR_VIEW_TABS, dashboardPath, isSponsorViewPage, sponsorViewPath,
+  type DashboardPageId, type SponsorViewPageId,
+} from "@/data/dashboard-nav";
 import { FAQ_ITEMS } from "@/data/faq";
 import { PORTAL_URL, SITE } from "@/data/site";
 import { getArrivalGuideFaq } from "@/lib/attendee-help";
@@ -45,7 +49,10 @@ const copy: Record<DashboardPageId, { title: string; description: string }> = {
 
 const focus = "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-neon-cyan";
 
-export function DashboardView({ name, audience, staffRole, badgeQr, walletHref, qrDownloadHref, page, onLiveHost, now }: {
+type DashboardViewProps = {
+  now: number;
+} & ({
+  sponsorView?: false;
   name: string;
   audience?: "staff" | "hacker";
   staffRole?: StaffRole;
@@ -54,24 +61,48 @@ export function DashboardView({ name, audience, staffRole, badgeQr, walletHref, 
   qrDownloadHref?: string;
   page: DashboardPageId;
   onLiveHost: boolean;
-  now: number;
-}) {
-  const href = (id: DashboardPageId) => dashboardPath(id, onLiveHost);
-  const isStaff = audience === "staff";
-  const roleLabel = badgeRoleLabel(audience, staffRole);
+} | {
+  sponsorView: true;
+  page: SponsorViewPageId;
+});
+
+export function DashboardView(props: DashboardViewProps) {
+  const { page, now, sponsorView } = props;
+  const attendee = props.sponsorView ? undefined : props;
+  const href = (id: DashboardPageId) => sponsorView
+    ? sponsorViewPath(isSponsorViewPage(id) ? id : "home")
+    : dashboardPath(id, attendee?.onLiveHost ?? false);
+  const isStaff = attendee?.audience === "staff";
+  const tabs = sponsorView ? SPONSOR_VIEW_TABS : DASHBOARD_TABS;
   const config: ReturnType<typeof getAttendeeSchedule> =
     page === "badge" || page === "equipment" ? { schedule: [] } : getAttendeeSchedule();
-  const { schedule, discordUrl, arrivalGuideUrl, tracksUrl, submissionUrl, submissionDeadline } = config;
+  // Sponsor visitors get only the published timetable fields. Private attendee
+  // notes, invite links and resource URLs stay in the hacker dashboard.
+  const schedule = sponsorView ? config.schedule.map(({ events, ...day }) => ({
+    ...day,
+    events: events.map(({ id, title, time, start, end, location }) => ({ id, title, time, start, end, location })),
+  })) : config.schedule;
+  const discordUrl = sponsorView ? undefined : config.discordUrl;
+  const arrivalGuideUrl = sponsorView ? undefined : config.arrivalGuideUrl;
+  const tracksUrl = sponsorView ? undefined : config.tracksUrl;
+  const { submissionUrl, submissionDeadline } = config;
   const highlights = page === "home" && schedule.length ? dashboardHighlights(schedule, now) : null;
   const opened = now >= Date.parse(DASHBOARD_COUNTDOWN_TARGET);
-  const arrivalFaq = page === "help" ? getArrivalGuideFaq() : [];
+  const projectSubmissionUrl = !sponsorView && opened && submissionUrl?.startsWith(DASHBOARD_DEVPOST_URL)
+    ? submissionUrl
+    : DASHBOARD_DEVPOST_URL;
+  const publicDeadline = submissionDeadline ?? HACKING_END;
+  const arrivalFaq = !sponsorView && page === "help" ? getArrivalGuideFaq() : [];
   const timeline: EventTimeline = {
     opening: Date.parse(DASHBOARD_COUNTDOWN_TARGET),
     hackingStart: Date.parse(HACKING_START),
-    hackingEnd: Date.parse(submissionDeadline ?? HACKING_END),
+    hackingEnd: Date.parse(publicDeadline),
     closing: Date.parse(CLOSING_START),
   };
-  const firstName = name.trim().split(/\s+/)[0] || "hacker";
+  const firstName = attendee ? attendee.name.trim().split(/\s+/)[0] || "hacker" : undefined;
+  const heading = sponsorView && page === "tracks"
+    ? { title: "Tracks & Devpost", description: "See what participants are building this weekend." }
+    : copy[page];
 
   return (
     <>
@@ -81,13 +112,13 @@ export function DashboardView({ name, audience, staffRole, badgeQr, walletHref, 
       </a>
       <header data-live-header className="sticky top-0 z-40 border-b border-white/10 bg-void/95 backdrop-blur">
         {/* Keep the logo and account links in one row; phones use the existing bottom event tabs. */}
-        <nav aria-label="Live dashboard navigation" className="flex min-h-14 w-full items-center gap-x-2 px-3 text-sm sm:min-h-16 sm:gap-x-3 sm:px-5 sm:text-base lg:gap-x-5 lg:px-8 lg:text-lg">
+        <nav aria-label="Live dashboard navigation" className="flex min-h-14 w-full items-center gap-x-2 px-3 sm:min-h-16 sm:gap-x-3 sm:px-5 lg:gap-x-5 lg:px-8">
           <a
             href={href("home")}
             aria-label="Immerse the Bay Live home"
-            className={cn("inline-flex min-h-11 shrink-0 items-center rounded-sm", focus)}
+            className={cn("inline-flex min-h-11 shrink-0 items-center rounded-sm py-2", focus)}
           >
-            <span className="relative block aspect-[2/1] w-20 overflow-hidden sm:w-24 lg:w-28">
+            <span className="relative block aspect-[2/1] w-[4.25rem] overflow-hidden sm:w-20 lg:w-24">
               <Image
                 src="/images/logo/ITB_Standard.png"
                 alt=""
@@ -99,49 +130,52 @@ export function DashboardView({ name, audience, staffRole, badgeQr, walletHref, 
               />
             </span>
           </a>
-          <ul aria-label="Event pages" className="hidden min-w-0 flex-1 gap-x-1 overflow-x-auto [scrollbar-color:rgba(255,255,255,0.28)_transparent] [scrollbar-width:thin] sm:flex sm:gap-x-2 lg:gap-x-3">
-            {DASHBOARD_TABS.map(({ id, label }) => (
+          <ul aria-label="Event pages" className="hidden min-w-0 flex-1 gap-x-1 overflow-x-auto [scrollbar-color:rgba(255,255,255,0.28)_transparent] [scrollbar-width:thin] md:flex lg:gap-x-3">
+            {tabs.map(({ id, label }) => (
               <DashboardNavItem key={id} url={href(id)} label={label} current={page === id} />
             ))}
           </ul>
-          <ul aria-label="Account and staff pages" className="ml-auto flex shrink-0 items-center gap-x-1 border-l border-white/30 pl-1 text-xs sm:gap-x-2 sm:pl-3 sm:text-inherit">
-            <DashboardNavItem url={href(DASHBOARD_BADGE.id)} label={DASHBOARD_BADGE.label} current={page === DASHBOARD_BADGE.id} />
-            {isStaff && <DashboardNavItem url={`${PORTAL_URL}/review/check-in`} label="Check-in" />}
-          </ul>
+          {sponsorView ? (
+            <span className="ml-auto shrink-0 border-l border-white/25 pl-3 text-sm text-muted sm:pl-4">Sponsor view</span>
+          ) : (
+            <ul aria-label="Account and staff pages" className="ml-auto flex shrink-0 items-center gap-x-1 border-l border-white/30 pl-1 sm:gap-x-2 sm:pl-2 lg:pl-3">
+              <DashboardNavItem url={href(DASHBOARD_BADGE.id)} label={DASHBOARD_BADGE.label} current={page === DASHBOARD_BADGE.id} />
+              {isStaff && <DashboardNavItem url={`${PORTAL_URL}/review/check-in`} label="Check-in" />}
+            </ul>
+          )}
         </nav>
       </header>
-      <Container id="dashboard-content" className="relative scroll-mt-20 space-y-7 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-6 sm:pb-20 sm:pt-11">
+      <Container id="dashboard-content" className="relative scroll-mt-20 space-y-7 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-6 sm:pt-11 md:pb-20">
         {page === "home" ? (
           <LiveHero
             firstName={firstName}
             timeline={timeline}
             initialNow={now}
-            submissionUrl={submissionUrl}
+            submissionUrl={sponsorView ? undefined : projectSubmissionUrl}
             discordUrl={discordUrl}
-            badgeHref={audience === "hacker" ? href(DASHBOARD_BADGE.id) : undefined}
+            badgeHref={attendee?.audience === "hacker" ? href(DASHBOARD_BADGE.id) : undefined}
           />
         ) : (
           <div>
             <p className="text-sm text-neon-purple-light sm:text-base">{DASHBOARD_EYEBROW}</p>
-            <h1 className="mt-2 font-sans text-3xl font-semibold sm:text-5xl">{copy[page].title}</h1>
-            <p className="mt-3 text-muted">{copy[page].description}</p>
+            <h1 className="mt-2 font-sans text-3xl font-semibold sm:text-5xl">{heading.title}</h1>
+            <p className="mt-3 text-muted">{heading.description}</p>
           </div>
         )}
         {page === "home" && (
-          <div className="grid gap-5 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
-            <div className="flex min-w-0 flex-col gap-5">
-              <GlassCard hover={false} className="min-w-0">
-                <h2 className="mb-1 flex items-center gap-2.5 font-sans text-xl font-semibold">
+          <>
+            <div className="grid items-stretch gap-5 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+              <GlassCard hover={false} className="flex min-h-[clamp(22rem,63svh,36rem)] min-w-0 flex-col">
+                <h2 className="mb-1 flex shrink-0 items-center gap-2.5 font-sans text-xl font-semibold">
                   {opened && <LiveDot />}
                   Announcements
                 </h2>
-                <p className="mb-4 text-sm text-muted">From the event Discord’s #announcements channel.</p>
-                <LiveAnnouncements discordUrl={discordUrl} />
+                <p className="mb-4 shrink-0 text-sm text-muted">From the event Discord’s #announcements channel.</p>
+                <div className="relative min-h-56 flex-1">
+                  <LiveAnnouncements discordUrl={discordUrl} sponsorView={sponsorView} />
+                </div>
               </GlassCard>
-              <SponsorsCard className="md:flex-1" />
-            </div>
-            <div className="grid min-w-0 content-start gap-5">
-              <DashboardCard title={highlights?.current.length ? "Now & next" : "Up next"} icon={LuCalendarClock}>
+              <DashboardCard title={highlights?.current.length ? "Now & next" : "Up next"} icon={LuCalendarClock} className="min-w-0">
                 {highlights ? (
                   <div className="space-y-5">
                     {highlights.current.length > 0 && <EventHighlights heading="Happening now" events={highlights.current} />}
@@ -154,22 +188,23 @@ export function DashboardView({ name, audience, staffRole, badgeQr, walletHref, 
                 ) : <p>The detailed schedule isn’t posted yet.</p>}
                 <DashboardLink href={href("schedule")}>Full schedule</DashboardLink>
               </DashboardCard>
-              <details open className="group border border-white/10 bg-surface/50 backdrop-blur-xl">
-                <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-4 sm:px-6 [&::-webkit-details-marker]:hidden">
-                  <LuMusic aria-hidden className="h-5 w-5 text-neon-purple-light" />
-                  <span className="flex-1">
-                    <span className="block font-sans font-semibold">Event playlist</span>
-                    <span className="block text-sm text-muted">Something to hack to</span>
-                  </span>
-                  <LuChevronDown aria-hidden className="h-5 w-5 text-muted transition-transform group-open:rotate-180" />
-                </summary>
-                <div className="px-4 pb-4 sm:px-6">
-                  <iframe className="h-40 w-full border-0" src={DASHBOARD_SPOTIFY_EMBED_URL} title="Immerse the Bay Spotify playlist" loading="lazy" />
-                  <DashboardLink href={DASHBOARD_SPOTIFY_PLAYLIST_URL}>Open in Spotify</DashboardLink>
-                </div>
-              </details>
             </div>
-          </div>
+            <details open className="group border border-white/10 bg-surface/50 backdrop-blur-xl">
+              <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-4 sm:px-6 [&::-webkit-details-marker]:hidden">
+                <LuMusic aria-hidden className="h-5 w-5 text-neon-purple-light" />
+                <span className="flex-1">
+                  <span className="block font-sans font-semibold">Event playlist</span>
+                  <span className="block text-sm text-muted">Something to hack to</span>
+                </span>
+                <LuChevronDown aria-hidden className="h-5 w-5 text-muted transition-transform group-open:rotate-180" />
+              </summary>
+              <div className="px-4 pb-4 sm:px-6">
+                <iframe className="h-40 w-full border-0" src={DASHBOARD_SPOTIFY_EMBED_URL} title="Immerse the Bay Spotify playlist" loading="lazy" />
+                <DashboardLink href={DASHBOARD_SPOTIFY_PLAYLIST_URL}>Open in Spotify</DashboardLink>
+              </div>
+            </details>
+            <SponsorsCard />
+          </>
         )}
         {page === "schedule" && (schedule.length
           ? <ScheduleTabs days={schedule} initialNow={now} />
@@ -204,21 +239,30 @@ export function DashboardView({ name, audience, staffRole, badgeQr, walletHref, 
                   : <ActionLink href={`${SITE.url}/tracks`} icon={LuArrowUpRight}>Browse last year’s tracks</ActionLink>}
               </CardActions>
             </DashboardCard>
-            <DashboardCard title="Submit your project" icon={LuRocket}>
-              {opened && submissionDeadline ? (
+            <DashboardCard title={sponsorView ? "Event on Devpost" : "Submit your project"} icon={LuRocket}>
+              {sponsorView ? <p>See the official event page on Devpost.</p> : opened ? (
                 <p><strong className="text-foreground">Deadline:</strong>{" "}
-                  <time dateTime={submissionDeadline}>{formatDeadline(submissionDeadline)} Pacific</time>
+                  <time dateTime={publicDeadline}>{formatDeadline(publicDeadline)} Pacific</time>
                 </p>
-              ) : <p>The submission link and deadline are announced at the opening ceremony. Submit early; you can keep editing until the deadline.</p>}
+              ) : <p>Find Immerse the Bay on Devpost. Submission instructions and the deadline will be announced at the opening ceremony.</p>}
               <CardActions>
-                {opened && submissionUrl
-                  ? <ActionLink href={submissionUrl} primary icon={LuRocket}>Open project submissions</ActionLink>
-                  : discordUrl && <ActionLink href={discordUrl} icon={LuMessageCircle}>Check event Discord</ActionLink>}
+                <ActionLink href={projectSubmissionUrl} primary icon={LuArrowUpRight}>Open Devpost</ActionLink>
               </CardActions>
             </DashboardCard>
           </div>
         )}
-        {page === "help" && (
+        {page === "help" && (sponsorView ? (
+          <div className="grid gap-5 md:grid-cols-2">
+            <DashboardCard title="Sponsor support" icon={LuMapPin}>
+              <p>For help with your arrival, workshop, or sponsor table, email Stanford XR or find an organizer at event check-in.</p>
+              <CardActions>
+                <ActionLink href={`mailto:${SITE.email}`} icon={LuMail}>{SITE.email}</ActionLink>
+                <ActionLink href={STANFORD_CAMPUS_MAP_URL} icon={LuMapPin}>Stanford campus map</ActionLink>
+              </CardActions>
+            </DashboardCard>
+            <WifiSupport />
+          </div>
+        ) : (
           <>
             <DashboardCard title="Ask on Discord" icon={LuMessageCircle}>
               <p>For general event questions, post in <strong className="text-foreground">#event-questions</strong>. We check Discord more often than email. Follow <strong className="text-foreground">#announcements</strong> for updates.</p>
@@ -241,12 +285,7 @@ export function DashboardView({ name, audience, staffRole, badgeQr, walletHref, 
                   <ActionLink href={STANFORD_CAMPUS_MAP_URL} icon={LuMapPin}>Stanford campus map</ActionLink>
                 </CardActions>
               </DashboardCard>
-              <DashboardCard title="Wi-Fi and on-site support" icon={LuWifi}>
-                <p>If you have trouble connecting or need help on site, ask a volunteer at check-in. For private dietary or accessibility questions, speak to an organizer or email us.</p>
-                <CardActions>
-                  <ActionLink href={`mailto:${SITE.email}`} icon={LuMail}>{SITE.email}</ActionLink>
-                </CardActions>
-              </DashboardCard>
+              <WifiSupport discordUrl={discordUrl} />
             </div>
             {arrivalFaq.length > 0 && (
               <section aria-labelledby="arrival-faq">
@@ -259,15 +298,30 @@ export function DashboardView({ name, audience, staffRole, badgeQr, walletHref, 
               <Accordion items={FAQ_ITEMS} />
             </section>
           </>
-        )}
-        {page === "badge" && (
+        ))}
+        {page === "badge" && attendee && (
           <div className="ph-no-capture mx-auto w-full max-w-lg">
-            <CheckInBadge name={name} roleLabel={roleLabel} isStaff={isStaff} qrSrc={badgeQr} walletHref={walletHref} qrDownloadHref={qrDownloadHref} />
+            <CheckInBadge name={attendee.name} roleLabel={badgeRoleLabel(attendee.audience, attendee.staffRole)} isStaff={isStaff} qrSrc={attendee.badgeQr} walletHref={attendee.walletHref} qrDownloadHref={attendee.qrDownloadHref} />
           </div>
         )}
       </Container>
-      <MobileTabBar tabs={DASHBOARD_TABS.map(({ id, label }) => ({ id, label, url: href(id) }))} current={page} />
+      <MobileTabBar tabs={tabs.map(({ id, label }) => ({ id, label, url: href(id) }))} current={page} />
     </>
+  );
+}
+
+function WifiSupport({ discordUrl }: { discordUrl?: string }) {
+  return (
+    <DashboardCard title="Wi-Fi and on-site support" icon={LuWifi}>
+      <p>Join <strong className="text-foreground">Stanford Visitor</strong>, or use <strong className="text-foreground">eduroam</strong> if your institution supports it. Stanford students: use <strong className="text-foreground">Stanford</strong> when possible to help spread the load.</p>
+      <p className="mt-3">{discordUrl
+        ? <>Need help? Ask in <strong className="text-foreground">#event-questions</strong> on Discord or find a volunteer at check-in.</>
+        : "Need help getting online? Find a volunteer at check-in."} For private dietary or accessibility questions, speak to an organizer or email us.</p>
+      <CardActions>
+        {discordUrl && <ActionLink href={discordUrl} icon={LuMessageCircle}>Ask on Discord</ActionLink>}
+        <ActionLink href={`mailto:${SITE.email}`} icon={LuMail}>{SITE.email}</ActionLink>
+      </CardActions>
+    </DashboardCard>
   );
 }
 
@@ -278,7 +332,7 @@ function DashboardNavItem({ url, label, current }: { url: string; label: string;
         href={url}
         aria-current={current ? "page" : undefined}
         className={cn(
-          "flex min-h-11 items-center whitespace-nowrap border-b-2 px-2 py-2 font-semibold focus-visible:rounded focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-neon-cyan sm:min-h-12 sm:px-3 lg:min-h-14 lg:px-4",
+          "flex min-h-11 items-center whitespace-nowrap border-b-2 px-2 py-2 text-sm font-semibold focus-visible:rounded focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-neon-cyan sm:min-h-12 sm:px-2.5 lg:min-h-14 lg:px-3 lg:text-base xl:px-4 xl:text-lg",
           current ? "border-neon-cyan text-neon-cyan" : "border-transparent text-muted hover:text-foreground",
         )}
       >

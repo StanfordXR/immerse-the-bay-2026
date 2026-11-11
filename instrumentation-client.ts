@@ -1,4 +1,5 @@
 import posthog from "posthog-js";
+import { isSponsorViewPath } from "@/data/dashboard-nav";
 
 const posthogKey = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 
@@ -8,7 +9,9 @@ const isProductionHost =
   typeof window !== "undefined" &&
   /(^|\.)immersethebay\.org$/.test(window.location.hostname);
 
-if (posthogKey && isProductionHost) {
+// Do not initialize analytics or session replay on a page that can receive
+// the sponsor-link key in its URL fragment.
+if (posthogKey && isProductionHost && !isSponsorViewPath(window.location.pathname)) {
   posthog.init(posthogKey, {
     api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
     defaults: "2026-05-30",
@@ -17,6 +20,7 @@ if (posthogKey && isProductionHost) {
     before_send: (event) => (
       window.location.pathname === "/dashboard/badge"
       || (window.location.hostname === "live.immersethebay.org" && window.location.pathname === "/badge")
+      || isSponsorViewPath(window.location.pathname)
     ) ? null : event,
   });
 }

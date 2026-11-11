@@ -25,7 +25,7 @@ export function MobileTabBar({ tabs, current }: {
   return (
     <nav
       aria-label="Dashboard tabs"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-void/95 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-void/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
     >
       <ul className="flex">
         {tabs.map(({ id, label, url }) => {

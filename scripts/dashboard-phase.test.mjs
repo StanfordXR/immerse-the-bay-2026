@@ -20,6 +20,16 @@ test("The hero follows the event from countdown to wrap", () => {
     ["before", "opening", "hacking", "hacking", "wrap-up", "wrap-up", "after"]);
 });
 
+test("The countdown automatically switches at opening, hacking start, and the submission deadline", () => {
+  assert.deepEqual(dashboardPhase(timeline, -1), { id: "before", target: timeline.opening });
+  assert.deepEqual(dashboardPhase(timeline, timeline.opening), { id: "opening", target: timeline.hackingStart });
+  assert.deepEqual(countdownParts(timeline.hackingStart - timeline.opening).map(({ value }) => value), [2, 0, 0]);
+  assert.deepEqual(dashboardPhase(timeline, timeline.hackingStart), {
+    id: "hacking", target: timeline.hackingEnd, progress: 0, finalStretch: false,
+  });
+  assert.deepEqual(dashboardPhase(timeline, timeline.hackingEnd), { id: "wrap-up", target: timeline.closing });
+});
+
 test("Hacking reports progress and flags the final three hours", () => {
   const early = dashboardPhase(timeline, 20 * hour);
   assert.equal(early.progress, 0.5);

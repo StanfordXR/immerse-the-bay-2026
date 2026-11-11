@@ -3,6 +3,13 @@ import type { AttendeeScheduleDay } from "@/data/types";
 type ScheduleEvent = AttendeeScheduleDay["events"][number];
 export type ScheduleEventState = "upcoming" | "current" | "past";
 export type ScheduleAnchor = { dayIndex: number; eventId?: string };
+export type ScheduleTimeMarker = {
+  time: number;
+  beforeStart: boolean;
+  fromId: string;
+  toId?: string;
+  fraction: number;
+};
 
 const dayOnly = /^\d{4}-\d{2}-\d{2}$/;
 const pacificDate = new Intl.DateTimeFormat("en-US", {
@@ -25,6 +32,32 @@ export function scheduleEventState(event: ScheduleEvent, clock: ReturnType<typeo
   if (!Number.isFinite(begins) || clock.now < begins) return "upcoming";
   const finishes = end ? Date.parse(end) : NaN;
   return (Number.isFinite(finishes) ? clock.now < finishes : clock.now === begins) ? "current" : "past";
+}
+
+/** Locate the clock between distinct session starts on a day's list. */
+export function scheduleTimeMarker(events: ScheduleEvent[], clock: ReturnType<typeof scheduleClock>): ScheduleTimeMarker | null {
+  const starts = new Map<number, string>();
+  let lastEnd = -Infinity;
+  for (const event of events) {
+    if (!event.start || dayOnly.test(event.start)) continue;
+    const start = Date.parse(event.start);
+    if (!Number.isFinite(start)) continue;
+    // Simultaneous events share the same timeline position.
+    if (!starts.has(start)) starts.set(start, event.id);
+    const end = Date.parse(event.end ?? "");
+    if (Number.isFinite(end)) lastEnd = Math.max(lastEnd, end);
+  }
+  const anchors = Array.from(starts.entries()).sort(([a], [b]) => a - b);
+  const first = anchors[0];
+  if (!first || clock.day > scheduleClock(first[0]).day) return null;
+  if (clock.now < first[0]) return { time: first[0], beforeStart: true, fromId: first[1], fraction: 0 };
+  const next = anchors.findIndex(([time]) => time > clock.now);
+  const [fromTime, fromId] = anchors[next === -1 ? anchors.length - 1 : next - 1];
+  const [toTime, toId] = anchors[next] ?? [Math.max(fromTime, lastEnd), undefined];
+  const fraction = toTime === fromTime
+    ? Number(clock.now > fromTime)
+    : Math.min(1, (clock.now - fromTime) / (toTime - fromTime));
+  return { time: clock.now, beforeStart: false, fromId, toId, fraction };
 }
 
 /** Prefer a specific session in progress, then the next start or the last event. */

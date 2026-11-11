@@ -2,10 +2,14 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import type { AttendeeScheduleDay } from "@/data/types";
-import { pickScheduleAnchor, scheduleClock, scheduleEventState, scheduleStarted, type ScheduleAnchor } from "@/lib/schedule-timing";
+import { pickScheduleAnchor, scheduleClock, scheduleEventState, scheduleStarted, scheduleTimeMarker, type ScheduleAnchor } from "@/lib/schedule-timing";
+import { useEventClock } from "@/lib/use-event-clock";
 import { cn } from "@/lib/utils";
 
 const eventKey = (dayIndex: number, eventId: string) => `${dayIndex}:${eventId}`;
+const markerTime = new Intl.DateTimeFormat("en-US", {
+  timeZone: "America/Los_Angeles", hour: "numeric", minute: "2-digit",
+});
 
 export function ScheduleTabs({ days, initialNow }: {
   days: AttendeeScheduleDay[];
@@ -14,13 +18,24 @@ export function ScheduleTabs({ days, initialNow }: {
   const id = useId();
   const [initialAnchor] = useState(() => pickScheduleAnchor(days, initialNow));
   const [selection, setSelection] = useState<ScheduleAnchor>(initialAnchor);
-  const [now, setNow] = useState(initialNow);
+  const now = useEventClock(initialNow, 15_000);
   const active = selection.dayIndex;
   const clock = scheduleClock(now);
   const root = useRef<HTMLDivElement>(null);
   const controls = useRef<HTMLDivElement>(null);
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
   const eventNodes = useRef(new Map<string, HTMLLIElement>());
+  const fridayList = useRef<HTMLOListElement>(null);
+  const [fridayLayout, setFridayLayout] = useState<{ height: number; offsets: Map<string, number> } | null>(null);
+  const activeDay = days[active];
+  const marker = activeDay?.id === "friday" ? scheduleTimeMarker(activeDay.events, clock) : null;
+  const from = marker && fridayLayout ? fridayLayout.offsets.get(marker.fromId) : undefined;
+  const to = marker && fridayLayout
+    ? marker.toId ? fridayLayout.offsets.get(marker.toId) : fridayLayout.height
+    : undefined;
+  const markerOffset = from !== undefined && to !== undefined && marker
+    ? from + (to - from) * marker.fraction
+    : from;
 
   useEffect(() => {
     const header = document.querySelector("[data-live-header]");
@@ -49,9 +64,28 @@ export function ScheduleTabs({ days, initialNow }: {
   }, [days, initialNow, initialAnchor]);
 
   useEffect(() => {
-    const timer = window.setInterval(() => setNow(Date.now()), 30_000);
-    return () => window.clearInterval(timer);
-  }, []);
+    const list = fridayList.current;
+    if (activeDay?.id !== "friday" || !list) return;
+    // Measure actual list rows rather than assuming equal heights: rooms and
+    // descriptions wrap differently on a phone. The marker doesn't affect flow.
+    const rows = activeDay.events.flatMap(({ id: eventId }) => {
+      const row = eventNodes.current.get(eventKey(active, eventId));
+      return row ? [{ eventId, row }] : [];
+    });
+    const measure = () => {
+      const bounds = list.getBoundingClientRect();
+      if (!bounds.height) return;
+      setFridayLayout({
+        height: bounds.height,
+        offsets: new Map(rows.map(({ eventId, row }) => [eventId, row.getBoundingClientRect().top - bounds.top])),
+      });
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(list);
+    for (const { row } of rows) observer.observe(row);
+    return () => observer.disconnect();
+  }, [active, activeDay]);
 
   return (
     <div ref={root} className="mx-auto max-w-4xl [--schedule-margin:13rem] [--schedule-top:7.25rem]">
@@ -105,38 +139,57 @@ export function ScheduleTabs({ days, initialNow }: {
             {day.label}, {day.date} <span aria-hidden>·</span> All times Pacific
           </p>
           {day.events.length ? (
-            <ol className="divide-y divide-white/10">
-              {day.events.map((event) => {
-                const state = scheduleEventState(event, clock);
-                const key = eventKey(index, event.id);
-                const timeClass = cn("text-sm font-semibold", state === "past" ? "text-muted" : "text-neon-cyan");
-                return (
-                  <li
-                    key={event.id}
-                    ref={(node) => { if (node) eventNodes.current.set(key, node); else eventNodes.current.delete(key); }}
-                    data-event-state={state}
-                    data-schedule-anchor={selection.dayIndex === index && selection.eventId === event.id ? "true" : undefined}
-                    className={cn(
-                      "grid scroll-mt-[var(--schedule-margin)] gap-x-5 gap-y-1 border-l-2 px-4 py-4 sm:grid-cols-[10rem_1fr] sm:px-6",
-                      state === "current" ? "border-l-neon-cyan/80 bg-neon-cyan/8"
-                        : state === "past" ? "border-l-transparent bg-void/60" : "border-l-transparent",
-                    )}
-                  >
-                    {event.start ? <time dateTime={event.start} className={timeClass}>{event.time}</time>
-                      : <span className={timeClass}>{event.time}</span>}
-                    <div>
-                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                        <h3 className={cn("font-sans font-semibold", state === "past" ? "text-muted" : "text-foreground")}>{event.title}</h3>
-                        {state === "current" && <span className="rounded border border-neon-cyan/40 px-2 py-0.5 text-xs font-medium text-neon-cyan">Now</span>}
-                        {state === "past" && <span className="sr-only">Past event</span>}
+            <div className={cn("relative", day.id === "friday" && "pb-3")}>
+              <ol ref={day.id === "friday" ? fridayList : undefined} className="divide-y divide-white/10">
+                {day.events.map((event) => {
+                  const state = scheduleEventState(event, clock);
+                  const key = eventKey(index, event.id);
+                  const timeClass = cn("text-sm font-semibold", state === "past" ? "text-muted" : "text-neon-cyan");
+                  return (
+                    <li
+                      key={event.id}
+                      ref={(node) => { if (node) eventNodes.current.set(key, node); else eventNodes.current.delete(key); }}
+                      data-event-state={state}
+                      data-schedule-anchor={selection.dayIndex === index && selection.eventId === event.id ? "true" : undefined}
+                      className={cn(
+                        "grid scroll-mt-[var(--schedule-margin)] gap-x-5 gap-y-1 border-l-2 py-4 pl-4 sm:grid-cols-[10rem_1fr] sm:pl-6",
+                        day.id === "friday" ? "pr-20 sm:pr-28" : "pr-4 sm:pr-6",
+                        state === "current" ? "border-l-neon-cyan/80 bg-neon-cyan/8"
+                          : state === "past" ? "border-l-transparent bg-void/60" : "border-l-transparent",
+                      )}
+                    >
+                      {event.start ? <time dateTime={event.start} className={timeClass}>{event.time}</time>
+                        : <span className={timeClass}>{event.time}</span>}
+                      <div>
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <h3 className={cn("font-sans font-semibold", state === "past" ? "text-muted" : "text-foreground")}>{event.title}</h3>
+                          {state === "current" && <span className="rounded border border-neon-cyan/40 px-2 py-0.5 text-xs font-medium text-neon-cyan">Now</span>}
+                          {state === "past" && <span className="sr-only">Past event</span>}
+                        </div>
+                        {event.location && <p className="mt-1 text-sm text-muted">{event.location}</p>}
+                        {event.description && <p className="mt-1 text-sm leading-relaxed text-muted">{event.description}</p>}
                       </div>
-                      {event.location && <p className="mt-1 text-sm text-muted">{event.location}</p>}
-                      {event.description && <p className="mt-1 text-sm leading-relaxed text-muted">{event.description}</p>}
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
+                    </li>
+                  );
+                })}
+              </ol>
+              {index === active && marker && (
+                <div
+                  data-friday-time-marker
+                  className={cn(
+                    "pointer-events-none absolute inset-x-0 z-10 flex -translate-y-1/2 items-center transition-[top] duration-500 motion-reduce:transition-none",
+                    markerOffset === undefined && !marker.beforeStart && "invisible",
+                  )}
+                  style={{ top: markerOffset ?? 0 }}
+                >
+                  <span aria-hidden className="h-px flex-1 bg-gradient-to-r from-neon-purple-light/15 via-neon-purple-light/25 to-neon-purple-light" />
+                  <span className="mr-2 flex min-w-16 flex-col items-center gap-0.5 whitespace-nowrap border border-neon-purple-light/60 bg-void px-1.5 py-1 font-mono font-semibold leading-none text-neon-purple-light shadow-glow-cyan sm:mr-3 sm:flex-row sm:gap-1.5 sm:px-2">
+                    <span className="text-[0.6rem] uppercase">{marker.beforeStart ? "Starts" : "Now"}</span>
+                    <time className="text-[0.65rem] sm:text-xs" dateTime={new Date(marker.time).toISOString()}>{markerTime.format(marker.time)}</time>
+                  </span>
+                </div>
+              )}
+            </div>
           ) : (
             <p className="px-4 py-4 text-sm text-muted sm:px-6">
               No events posted for this day.

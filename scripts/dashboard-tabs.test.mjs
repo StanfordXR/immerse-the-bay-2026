@@ -14,7 +14,7 @@ async function load(relative) {
 const { DASHBOARD_TABS, DASHBOARD_BADGE, dashboardPath, isDashboardPage } =
   await load("../data/dashboard-nav.ts");
 const { dashboardHighlights } = await load("../lib/dashboard-highlights.ts");
-const { pickScheduleAnchor, scheduleClock, scheduleEventState, scheduleStarted } = await load("../lib/schedule-timing.ts");
+const { pickScheduleAnchor, scheduleClock, scheduleEventState, scheduleStarted, scheduleTimeMarker } = await load("../lib/schedule-timing.ts");
 
 test("all primary tabs and My Badge have canonical and local paths", () => {
   assert.deepEqual(DASHBOARD_TABS.map(({ id }) => id), ["home", "schedule", "equipment", "tracks", "help"]);
@@ -84,4 +84,27 @@ test("The schedule counts as started only once a timed session begins", () => {
   const days = [{ events: [{ id: "all-day", start: "2026-11-13" }, { id: "first", start: "2026-11-13T12:00:00-08:00" }] }];
   assert.equal(scheduleStarted(days, Date.parse("2026-11-13T11:59:00-08:00")), false);
   assert.equal(scheduleStarted(days, Date.parse("2026-11-13T12:00:00-08:00")), true);
+});
+
+test("Friday's clock pins to noon, moves between starts, and clamps after the last event", () => {
+  const time = (clock) => `2026-11-13T${clock}:00-08:00`;
+  const events = [
+    { id: "all-day", start: "2026-11-13" },
+    { id: "noon", start: time("12:00"), end: time("12:45") },
+    { id: "parallel", start: time("12:00"), end: time("19:00") },
+    { id: "workshop", start: time("13:00") },
+    { id: "last", start: time("21:30"), end: time("23:00") },
+  ];
+  const position = (iso) => scheduleTimeMarker(events, scheduleClock(Date.parse(iso)));
+  assert.deepEqual(position(time("11:10")), { time: Date.parse(time("12:00")), beforeStart: true, fromId: "noon", fraction: 0 });
+  assert.equal(position(time("12:00")).beforeStart, false);
+  assert.deepEqual(position(time("12:30")), {
+    time: Date.parse(time("12:30")), beforeStart: false, fromId: "noon", toId: "workshop", fraction: 0.5,
+  });
+  assert.equal(position(time("13:00")).fromId, "workshop");
+  assert.equal(position(time("13:00")).fraction, 0);
+  assert.equal(position(time("22:15")).fraction, 0.5);
+  assert.equal(position(time("23:40")).fraction, 1);
+  assert.equal(position("2026-11-14T00:00:00-08:00"), null);
+  assert.equal(scheduleTimeMarker([events[0]], scheduleClock(Date.parse(time("12:30")))), null);
 });

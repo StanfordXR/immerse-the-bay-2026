@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useId } from "react";
 import { ActionLink } from "@/components/Dashboard/ActionLink";
 import { DASHBOARD_EYEBROW } from "@/data/dashboard";
 import { countdownParts, dashboardPhase, type DashboardPhase, type EventTimeline } from "@/lib/dashboard-phase";
+import { useEventClock } from "@/lib/use-event-clock";
 
 /** Art from the main site's hero, so the dashboard reads as the same event. */
 const HERO_ART = "/images/logo/ITBMainDesign.jpg";
@@ -25,7 +26,7 @@ const at = (ms: number) => {
 };
 
 interface LiveHeroProps {
-  firstName: string;
+  firstName?: string;
   timeline: EventTimeline;
   /** Server time at render, so the first client render matches the HTML. */
   initialNow: number;
@@ -36,18 +37,11 @@ interface LiveHeroProps {
 
 /**
  * The home tab's hero. Ticks every second and changes with the event: a
- * countdown to opening, then to hacking, a progress bar while hacking (pushing
+ * countdown to opening, then to hacking, a countdown and progress bar while hacking (pushing
  * Submit in the final stretch), then the closing ceremony.
  */
 export function LiveHero({ firstName, timeline, initialNow, submissionUrl, discordUrl, badgeHref }: LiveHeroProps) {
-  // Ticks forward from the server's clock rather than the device's, so a phone
-  // with the wrong time still counts down correctly.
-  const [now, setNow] = useState(initialNow);
-  useEffect(() => {
-    const mountedAt = performance.now();
-    const id = window.setInterval(() => setNow(initialNow + performance.now() - mountedAt), 1000);
-    return () => window.clearInterval(id);
-  }, [initialNow]);
+  const now = useEventClock(initialNow, 1000);
 
   const phase = dashboardPhase(timeline, now);
   const { headline, detail } = heroCopy(phase, timeline, now, firstName);
@@ -70,7 +64,7 @@ export function LiveHero({ firstName, timeline, initialNow, submissionUrl, disco
           {live ? "Live now" : DASHBOARD_EYEBROW}
         </p>
         {/* ph-no-capture keeps the name out of PostHog session replays, like the badge page. */}
-        <p className="ph-no-capture mt-5 text-lg text-foreground/80 sm:text-xl">Welcome {firstName},</p>
+        <p className="ph-no-capture mt-5 text-lg text-foreground/80 sm:text-xl">{firstName ? `Welcome ${firstName},` : "Welcome, sponsors"}</p>
         <h1
           id="live-hero-title"
           // The glitch layers repeat the text via ::before/::after; the label keeps screen readers to one copy.
@@ -122,31 +116,34 @@ export function LiveHero({ firstName, timeline, initialNow, submissionUrl, disco
   );
 }
 
-function heroCopy(phase: DashboardPhase, timeline: EventTimeline, now: number, firstName: string) {
+function heroCopy(phase: DashboardPhase, timeline: EventTimeline, now: number, firstName?: string) {
   switch (phase.id) {
     case "before":
-      return { headline: "Liftoff in", detail: `The opening ceremony starts on ${at(timeline.opening)}. Please have your badge ready for check-in!` };
+      return { headline: "Liftoff in", detail: `The opening ceremony starts on ${at(timeline.opening)}. ${firstName ? "Please have your badge ready for check-in!" : "Thanks for supporting Immerse the Bay!"}` };
     case "opening":
-      return { headline: "Hacking starts in", detail: `Find your team and get set up. Hacking begins ${at(timeline.hackingStart)}.` };
+      return { headline: "Hacking starts in", detail: `${firstName ? "Find your team and get set up. " : ""}Hacking begins ${at(timeline.hackingStart)}.` };
     case "hacking":
-      return phase.finalStretch
-        ? { headline: "Submissions close in", detail: `Final stretch. Submit before ${at(timeline.hackingEnd)}, even if it's rough.` }
-        : { headline: "Hacking ends in", detail: `Submissions are due ${at(timeline.hackingEnd)}. Pace yourself and grab some food.` };
+      return {
+        headline: "Hacking ends in",
+        detail: !firstName ? `Project submissions are due ${at(timeline.hackingEnd)}.` : phase.finalStretch
+          ? `Final stretch. Submit before ${at(timeline.hackingEnd)}, even if it's rough.`
+          : `Submissions are due ${at(timeline.hackingEnd)}. Pace yourself and grab some food.`,
+      };
     case "wrap-up":
       return now < timeline.closing
         ? { headline: "Closing ceremony in", detail: "Hacking's done. Judges are making the rounds." }
         : { headline: "Closing ceremony", detail: "Winners are being announced now." };
     case "after":
-      return { headline: "That's a wrap", detail: `Thanks for building with us, ${firstName}. See you next year.` };
+      return { headline: "That's a wrap", detail: `${firstName ? `Thanks for building with us, ${firstName}.` : "Thanks for supporting Immerse the Bay."} See you next year.` };
   }
 }
 
 function Countdown({ ms }: { ms: number }) {
   return (
-    <div className="mt-6 flex gap-2 sm:gap-3" role="timer" aria-live="off">
+    <div className="mt-6 flex flex-wrap gap-2 sm:gap-3" role="timer" aria-live="off">
       {countdownParts(ms).map(({ value, label }) => (
-        <div key={label} className="flex min-w-[4.25rem] flex-col items-center border border-white/15 bg-void/70 px-2 py-3 backdrop-blur sm:min-w-24 sm:py-4">
-          <span className="font-mono text-3xl font-semibold tabular-nums text-neon-purple-light [text-shadow:0_0_18px_rgb(192_132_252/0.55)] sm:text-5xl">
+        <div key={label} className="flex min-w-[3.3rem] flex-col items-center border border-white/15 bg-void/70 px-1.5 py-3 backdrop-blur min-[360px]:min-w-16 sm:min-w-24 sm:px-2 sm:py-4">
+          <span className="font-mono text-2xl font-semibold tabular-nums text-neon-purple-light [text-shadow:0_0_18px_rgb(192_132_252/0.55)] min-[360px]:text-3xl sm:text-5xl">
             {String(value).padStart(2, "0")}
           </span>
           <span className="mt-1 font-mono text-[0.65rem] uppercase tracking-[0.2em] text-muted">{label}</span>

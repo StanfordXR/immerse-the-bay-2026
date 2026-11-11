@@ -12,14 +12,14 @@ interface AnnouncementsResponse {
   error?: string;
 }
 
-export function LiveAnnouncements({ discordUrl }: { discordUrl?: string }) {
+export function LiveAnnouncements({ discordUrl, sponsorView }: { discordUrl?: string; sponsorView?: boolean }) {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
-      const response = await fetch("/api/announcements", { cache: "no-store" });
+      const response = await fetch(sponsorView ? "/api/sponsor/announcements" : "/api/announcements", { cache: "no-store" });
       const data = (await response.json()) as AnnouncementsResponse;
 
       if (!response.ok) {
@@ -33,7 +33,7 @@ export function LiveAnnouncements({ discordUrl }: { discordUrl?: string }) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [sponsorView]);
 
   useEffect(() => {
     const firstLoad = window.setTimeout(() => void load(), 0);
@@ -45,7 +45,13 @@ export function LiveAnnouncements({ discordUrl }: { discordUrl?: string }) {
   }, [load]);
 
   return (
-    <div className="max-h-[clamp(18rem,50svh,36rem)] overflow-y-auto">
+    <div
+      role="region"
+      aria-label="Live announcements"
+      aria-busy={loading}
+      tabIndex={0}
+      className="absolute inset-0 overflow-y-auto overscroll-contain pr-2 [scrollbar-gutter:stable] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-neon-cyan"
+    >
       <div className="min-h-0">
         {loading && announcements.length === 0 ? (
           <p className="text-sm text-muted">Loading announcements…</p>
@@ -70,7 +76,7 @@ export function LiveAnnouncements({ discordUrl }: { discordUrl?: string }) {
                   {[index === 0 && !item.pinned && "Latest", item.pinned && "Pinned", [item.date, item.time].filter(Boolean).join(" ")].filter(Boolean).join(" · ") || "Live"}
                 </p>
                 <p className={cn(
-                  "mt-2 whitespace-pre-line break-words text-sm leading-relaxed sm:text-base",
+                  "mt-2 whitespace-pre-line text-sm leading-relaxed [overflow-wrap:anywhere] sm:text-base",
                   index === 0 ? "text-foreground" : "text-muted",
                 )}>
                   {item.message}

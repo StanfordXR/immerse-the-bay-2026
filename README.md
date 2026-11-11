@@ -29,7 +29,7 @@ A schedule-only release can set the private `ITB_ATTENDEE_RUN_OF_SHOW_JSON` to
 base timetable and its announced deadline, while the original guide, Discord,
 track/submission links, and display metadata stay in place.
 
-Optional `arrivalGuideUrl`, `tracksUrl`, `submissionUrl`, and `submissionDeadline` can be set once those details are approved. Links must be HTTPS, and deadlines use ISO 8601 with an explicit offset. Tracks and submission details are not displayed before the opening ceremony.
+Optional `arrivalGuideUrl`, `tracksUrl`, `submissionUrl`, and `submissionDeadline` can be set once those details are approved. Links must be HTTPS, and deadlines use ISO 8601 with an explicit offset. Tracks & Submit links to the public 2026 Devpost listing before opening; track details, an optional direct link on the same Devpost event host, and the submission deadline are shown at or after opening.
 
 Set the server-only `ITB_ARRIVAL_GUIDE_URL` to the guide sent to attendees. It overrides `arrivalGuideUrl` in the schedule snapshot and is only rendered on the gated Help page.
 For approved guide FAQs, set `ITB_HELP_FAQ_JSON` to an array of `{ "question": "...", "answer": "..." }` items. The dashboard reads it only for signed-in Help. The main site's general FAQ is shared from `data/faq.ts`.
@@ -39,6 +39,22 @@ For a schedule refresh, set `NOTION_SCHEDULE_TOKEN` and `NOTION_SCHEDULE_SOURCE_
 ## Optional live subdomain
 
 The dashboard works under `/dashboard` without configuration. When `live.immersethebay.org` is attached to the same website project, set `NEXT_PUBLIC_LIVE_URL=https://live.immersethebay.org` at build time. Home, Schedule, Equipment, Tracks & Submit, Help, and My Badge have their own URLs on the live host. The existing marketing-domain `/dashboard` redirects there, preserving the portal's sign-in callback query. The public Schedule and Tracks URLs stay separate. The portal must continue to set its secure attendee cookie on `.immersethebay.org`; do not use an unrelated domain with this handoff.
+
+## Passwordless sponsor view
+
+`/sponsor` on the live host is a separate read-only view with Home, Schedule,
+Tracks & Devpost, and Help. It exposes the announced timetable and the same
+event announcements, but not attendee notes, private guide links, equipment
+requests, badges, or reviewer tools. No sponsor portal account is created.
+
+Generate a random 32-byte base64url key and set only its SHA-256 hex digest as
+the sensitive production variable `ITB_SPONSOR_ACCESS_KEY_SHA256`. Share
+`https://live.immersethebay.org/sponsor#<key>` directly with sponsors, not in
+public channels or in source. The client clears the fragment and exchanges it
+for an HttpOnly, host-only session cookie. Sponsor pages have no analytics and
+are not cached. The link is forwardable and expires with all sponsor sessions
+at midnight Pacific after Sunday, November 15. Removing or rotating the digest
+and redeploying invalidates the previous link and all its sessions.
 
 Staff and reviewers have early access. Accepted hackers who confirmed their spot can use the dashboard and its announcements after midnight Pacific on Wednesday, November 11. Before launch, the portal's `/api/attendee` response must identify staff explicitly; legacy responses do not receive early access.
 

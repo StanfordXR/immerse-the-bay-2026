@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { randomUUID } from "node:crypto";
+import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { once } from "node:events";
 import { readFile, writeFile } from "node:fs/promises";
-import { createServer, get } from "node:http";
+import { createServer, request as httpRequest } from "node:http";
 import { join } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import QRCode from "qrcode";
@@ -20,12 +20,16 @@ const testTime = Date.parse(afterOpening ? "2026-11-13T19:00:00-08:00"
 const announcement = "Synthetic dashboard test announcement";
 const announcementChannel = `itb-smoke-${randomUUID()}`;
 const privateRoom = "Example Private Hall 111";
+const privateNote = "Attendee-only workshop setup note";
 const privateInvite = "https://discord.gg/itb-smoke-fixture";
 const guideUrl = "https://guide.example.test/attendees";
 const snapshotGuideUrl = "https://guide.example.test/snapshot-fallback";
 const guideFaq = "Where do I pick up the synthetic check-in badge?";
 const tracksUrl = "https://tracks.example.test/reveal";
-const submissionUrl = "https://submit.example.test/project";
+const devpostUrl = "https://immerse-the-bay-2026.devpost.com/";
+const submissionUrl = `${devpostUrl}project-submission/fixture`;
+const sponsorKey = randomBytes(32).toString("base64url");
+const sponsorDigest = createHash("sha256").update(sponsorKey).digest("hex");
 const badgeCodes = {
   reviewer: `itb2026.staff.${Buffer.from("fixture-reviewer").toString("base64url")}.${"R".repeat(43)}`,
   admin: `itb2026.staff.${Buffer.from("fixture-admin").toString("base64url")}.${"A".repeat(43)}`,
@@ -33,7 +37,7 @@ const badgeCodes = {
 };
 const badgePngs = Object.fromEntries(await Promise.all(Object.entries(badgeCodes).map(async ([key, value]) =>
   [key, await QRCode.toDataURL(value, { errorCorrectionLevel: "M", margin: 4, scale: 6 })])));
-const privateMarkers = [privateRoom, privateInvite, guideUrl, snapshotGuideUrl, guideFaq, tracksUrl, submissionUrl, ...Object.values(badgePngs)];
+const privateMarkers = [privateRoom, privateNote, privateInvite, guideUrl, snapshotGuideUrl, guideFaq, tracksUrl, submissionUrl, ...Object.values(badgePngs)];
 const signingDir = process.env.ITB_WALLET_TEST_SIGNING_DIR;
 const samplePath = process.env.ITB_WALLET_SAMPLE_PATH;
 const walletPath = "/api/wallet/badge";
@@ -45,6 +49,7 @@ const walletEnv = Object.fromEntries(await Promise.all(Object.entries({
 }).map(async ([key, filename]) => [key, signingDir ? await readFile(join(signingDir, filename), "utf8") : ""])));
 const attendeeConfig = JSON.stringify({
   rows: [["old-slot", "Outdated Event", "2026-11-13T10:00:00-08:00", null, []]],
+  notes: { "Example Workshop": privateNote },
   discordUrl: privateInvite,
   arrivalGuideUrl: snapshotGuideUrl,
   tracksUrl,
@@ -53,7 +58,7 @@ const attendeeConfig = JSON.stringify({
 });
 const runOfShow = JSON.stringify({
   rows: [
-    ["sample-workshop", "Example Workshop", "2026-11-13T18:00:00-08:00", "2026-11-13T18:30:00-08:00", [privateRoom]],
+    ["sample-workshop", "Example Workshop", "2026-11-13T12:00:00-08:00", "2026-11-13T12:30:00-08:00", [privateRoom]],
     ["sample-opening", "Opening Ceremony", "2026-11-13T19:00:00-08:00", "2026-11-13T20:00:00-08:00", [privateRoom]],
     ["sample-hacking", "Hacking", "2026-11-14", null, [privateRoom]],
     ["sample-closing", "Closing Ceremony", "2026-11-15T13:30:00-08:00", null, [privateRoom]],
@@ -107,14 +112,15 @@ const child = spawn(process.execPath, ["--import", `data:text/javascript,${encod
     ITB_ATTENDEE_RUN_OF_SHOW_JSON: runOfShow,
     ITB_ARRIVAL_GUIDE_URL: guideUrl,
     ITB_HELP_FAQ_JSON: JSON.stringify([{ question: guideFaq, answer: "Use the synthetic check-in desk." }]),
+    ITB_SPONSOR_ACCESS_KEY_SHA256: sponsorDigest,
     ...walletEnv,
   },
   stdio: "inherit",
 });
 // Node fetch can normalize Host back to the loopback address. Use HTTP
 // directly so this actually exercises Next's hostname-based routing.
-const request = (path, headers = {}) => new Promise((resolve, reject) => {
-  get({ host: "127.0.0.1", port, path, headers, signal: AbortSignal.timeout(6000) }, async (res) => {
+const request = (path, headers = {}, method = "GET") => new Promise((resolve, reject) => {
+  httpRequest({ host: "127.0.0.1", port, path, method, headers, signal: AbortSignal.timeout(6000) }, async (res) => {
     try {
       const chunks = [];
       for await (const chunk of res) chunks.push(chunk);
@@ -129,7 +135,7 @@ const request = (path, headers = {}) => new Promise((resolve, reject) => {
     } catch (error) {
       reject(error);
     }
-  }).on("error", reject);
+  }).on("error", reject).end();
 });
 try {
   for (let attempt = 0; ; attempt++) {
@@ -235,9 +241,18 @@ try {
       }
       if (path === "/") {
         assert.match(html, /Announcements<\/h2>/);
+        assert.match(html, /aria-label="Live announcements"[^>]*overflow-y-auto/);
         assert.match(html, afterOpening ? /Happening now/ : /Up next/);
+        assert.match(html, afterOpening ? /Hacking starts in/ : /Liftoff in/);
         assert.ok(html.includes(privateRoom));
         assert.ok(html.indexOf("Event playlist") > html.indexOf("Up next"));
+        assert.ok(html.indexOf('id="live-sponsors"') > html.indexOf("Event playlist"));
+        const gold = html.match(/<ul[^>]*aria-label="Gold sponsors"[^>]*>(.*?)<\/ul>/)?.[1];
+        const silver = html.match(/<ul[^>]*aria-label="Silver sponsors"[^>]*>(.*?)<\/ul>/)?.[1];
+        assert.equal(gold?.match(/<li /g)?.length, 5);
+        assert.equal(silver?.match(/<li /g)?.length, 7);
+        assert.ok(html.indexOf('aria-label="Gold sponsors"') < html.indexOf('aria-label="Silver sponsors"'));
+        assert.equal(html.includes(submissionUrl), afterOpening);
         assert.ok(html.indexOf('id="live-hero-title"') < html.indexOf("Announcements</h2>"));
       } else if (path === "/schedule") {
         assert.doesNotMatch(html, /Outdated Event/);
@@ -246,6 +261,8 @@ try {
         assert.ok(html.includes(privateRoom));
         const focus = html.match(/<li[^>]*data-schedule-anchor="true"[^>]*>.*?<h3[^>]*>([^<]+)/);
         assert.equal(focus?.[1], afterOpening ? "Opening Ceremony" : "Example Workshop");
+        const marker = html.match(/data-friday-time-marker[^>]*>.*?<time[^>]*>([^<]+)/);
+        assert.equal(marker?.[1], afterOpening ? "7:00 PM" : "12:00 PM");
         if (afterOpening) {
           assert.match(focus[0], /data-event-state="current"/);
           assert.match(html, /data-event-state="past"/);
@@ -256,12 +273,17 @@ try {
       } else if (path === "/tracks") {
         assert.equal(html.includes(tracksUrl), afterOpening);
         assert.equal(html.includes(submissionUrl), afterOpening);
+        assert.ok(html.includes(`href="${afterOpening ? submissionUrl : devpostUrl}"`));
+        assert.match(html, /Open Devpost/);
+        assert.doesNotMatch(html, /Check event Discord/);
         if (afterOpening) assert.match(html, /dateTime="2026-11-15T09:00:00-08:00"/i);
         else assert.match(html, /revealed at Friday/);
       } else if (path === "/help") {
         assert.ok(html.includes(privateInvite) && html.includes(guideUrl));
         assert.ok(html.includes("Open the Hacker Arrival Guide") && !html.includes(snapshotGuideUrl));
         assert.ok(html.includes("#event-questions") && html.includes(guideFaq) && html.includes("What is the latest I should arrive"));
+        assert.match(html, /Wi-Fi and on-site support<\/h2>.*Ask on Discord/);
+        assert.match(html, /Stanford Visitor.*eduroam.*Stanford students/);
       } else if (path === "/badge") {
         assert.ok(html.includes(expectedName));
         const role = session === "admin" ? "Admin" : session === "reviewer" ? "Reviewer" : "Hacker";
@@ -311,8 +333,55 @@ try {
   for (const removed of ["/people", "/dashboard/people"]) {
     assert.equal((await request(removed, { ...live, cookie: "itb_session=reviewer" })).status, 404);
   }
+  const sponsorPaths = ["/sponsor", "/sponsor/schedule", "/sponsor/tracks", "/sponsor/help"];
+  for (const path of sponsorPaths) {
+    const guest = await request(path, live);
+    assert.equal(guest.status, 200);
+    assert.match(guest.headers["cache-control"], /no-store/);
+    assert.equal(guest.headers["referrer-policy"], "no-referrer");
+    assert.match(guest.text(), /Open the sponsor link from Stanford XR/);
+    assert.doesNotMatch(guest.text(), /Live dashboard navigation|Attendee-only workshop setup note/);
+    for (const marker of privateMarkers) assert.ok(!guest.text().includes(marker), "Sponsor gate exposed content");
+  }
+  assert.equal((await request("/api/sponsor/announcements", live)).status, 401);
+  const origin = "https://live.immersethebay.org";
+  const sessionPath = "/api/sponsor/session";
+  assert.equal((await request(sessionPath, { ...live, origin }, "POST")).status, 401);
+  assert.equal((await request(sessionPath, { ...live, origin, authorization: `Bearer ${"A".repeat(43)}` }, "POST")).status, 401);
+  assert.equal((await request(sessionPath, { ...live, origin: "https://immersethebay.org", authorization: `Bearer ${sponsorKey}` }, "POST")).status, 403);
+  const exchange = await request(sessionPath, { ...live, origin, authorization: `Bearer ${sponsorKey}` }, "POST");
+  assert.equal(exchange.status, 200);
+  const setCookie = exchange.headers["set-cookie"]?.[0] ?? "";
+  assert.ok(/^__Host-itb_sponsor=[^;]+;.*Path=\/;.*Secure;.*HttpOnly;.*SameSite=lax/i.test(setCookie));
+  assert.ok(!/;\s*Domain=/i.test(setCookie));
+  const sponsorHeaders = { ...live, cookie: setCookie.split(";", 1)[0] };
+  for (const path of sponsorPaths) {
+    const response = await request(path, sponsorHeaders);
+    assert.equal(response.status, 200);
+    const html = response.text();
+    assert.match(html, /Sponsor view/);
+    assert.doesNotMatch(html, /href="\/(?:sponsor\/)?(?:badge|equipment)"|\/review\/check-in|Check-in QR code/);
+    assert.ok(!html.includes(sponsorKey));
+    for (const marker of privateMarkers.filter((value) => value !== privateRoom)) {
+      assert.ok(!html.includes(marker), "Sponsor view exposed a hacker-only resource");
+    }
+    if (path === "/sponsor/schedule") assert.match(html, /Example Workshop/);
+    if (path === "/sponsor/tracks") assert.match(html, /Tracks &amp; Devpost.*Open Devpost/);
+    if (path === "/sponsor/help") assert.match(html, /Sponsor support.*Stanford Visitor.*eduroam/);
+  }
+  for (const path of ["/sponsor/badge", "/sponsor/equipment"]) {
+    assert.equal((await request(path, sponsorHeaders)).status, 404);
+  }
+  for (const path of [walletPath, qrPath, "/api/announcements"]) {
+    assert.equal((await request(path, sponsorHeaders)).status, 401);
+  }
+  assert.doesNotMatch((await request("/badge", sponsorHeaders)).text(), /Live dashboard navigation/);
+  const sponsorFeed = await request("/api/sponsor/announcements", sponsorHeaders);
+  const hackerFeed = await request("/api/announcements", { ...live, cookie: "itb_session=reviewer" });
+  assert.equal(sponsorFeed.status, 200);
+  assert.deepEqual(JSON.parse(sponsorFeed.text()).announcements, JSON.parse(hackerFeed.text()).announcements);
   const phase = afterOpening ? "at the track reveal" : afterLaunch ? "at launch" : "before launch";
-  console.log(`Public grid, grouped tabs, schedule position, gated FAQ, private badges, role gate, track embargo, announcements, and hostname handoff passed ${phase}.`);
+  console.log(`Public grid, live layout, Wi-Fi help, track embargo, isolated sponsor sessions, private badges, and announcement parity passed ${phase}.`);
 } finally {
   child.kill("SIGTERM");
   portal.close();
