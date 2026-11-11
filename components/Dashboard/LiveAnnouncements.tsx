@@ -79,8 +79,37 @@ export function LiveAnnouncements({ discordUrl, sponsorView }: { discordUrl?: st
                   "mt-2 whitespace-pre-line text-sm leading-relaxed [overflow-wrap:anywhere] sm:text-base",
                   index === 0 ? "text-foreground" : "text-muted",
                 )}>
-                  {item.message}
+                  {(item.parts ?? [{ text: item.message }]).map((part, partIndex) =>
+                    part.href ? (
+                      <a
+                        key={partIndex}
+                        href={part.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold text-neon-cyan underline underline-offset-4 hover:text-foreground focus-visible:outline-2 focus-visible:outline-neon-cyan"
+                      >
+                        {part.text}
+                      </a>
+                    ) : part.text,
+                  )}
                 </p>
+                {!!item.embeds?.length && (
+                  <div className="mt-3 space-y-2">
+                    {item.embeds.map((embed) => (
+                      <a
+                        key={embed.href}
+                        href={embed.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block border border-white/15 border-l-2 border-l-neon-purple-light/60 bg-surface/55 px-3 py-2 [overflow-wrap:anywhere] hover:border-neon-cyan/60 focus-visible:outline-2 focus-visible:outline-neon-cyan"
+                      >
+                        <span className="block text-xs text-muted">{new URL(embed.href).hostname}</span>
+                        <span className="block text-sm font-semibold text-neon-cyan">{embed.title}</span>
+                        {embed.description && <span className="mt-1 line-clamp-2 block text-xs text-muted">{embed.description}</span>}
+                      </a>
+                    ))}
+                  </div>
+                )}
               </li>
             ))}
           </ul>

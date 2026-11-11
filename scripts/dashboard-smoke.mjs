@@ -18,6 +18,8 @@ const afterLaunch = afterOpening || process.argv.includes("--after-launch");
 const testTime = Date.parse(afterOpening ? "2026-11-13T19:00:00-08:00"
   : afterLaunch ? "2026-11-11T00:00:00-08:00" : "2026-11-10T23:59:59-08:00");
 const announcement = "Synthetic dashboard test announcement";
+const announcementGuide = "https://docs.example.test/arrival__guide#check-in";
+const announcementContent = announcement + " [Arrival guide](" + announcementGuide + ") <#1564030618776641539>";
 const announcementChannel = `itb-smoke-${randomUUID()}`;
 const privateRoom = "Example Private Hall 111";
 const privateNote = "Attendee-only workshop setup note";
@@ -93,7 +95,8 @@ const preload = `
     const url = String(input?.url ?? input);
     if (url.startsWith(${JSON.stringify(`https://discord.com/api/v10/channels/${announcementChannel}/`)})) {
       return Promise.resolve(Response.json([{
-        id: "smoke", content: ${JSON.stringify(announcement)}, mentions: [], timestamp: "2026-11-09T20:00:00Z",
+        id: "smoke", content: ${JSON.stringify(announcementContent)}, mentions: [], timestamp: "2026-11-09T20:00:00Z",
+        embeds: [{ url: ${JSON.stringify(announcementGuide)}, title: "Arrival guide", description: "Read before Friday." }],
       }, {
         id: "pin", content: "Synthetic pinned announcement", mentions: [], pinned: true, timestamp: "2026-11-08T20:00:00Z",
       }]));
@@ -301,7 +304,11 @@ try {
     assert.equal(feed.status, 200);
     const { announcements } = JSON.parse(await feed.text());
     assert.equal(announcements[0].pinned, true);
-    assert.equal(announcements[1].message, announcement);
+    assert.equal(announcements[1].message, announcement + " Arrival guide #event-questions");
+    assert.deepEqual(announcements[1].parts.filter(({ href }) => href).map(({ href }) => href), [
+      announcementGuide, "https://discord.com/channels/1564030617778126968/1564030618776641539",
+    ]);
+    assert.deepEqual(announcements[1].embeds, [{ href: announcementGuide, title: "Arrival guide", description: "Read before Friday." }]);
     const qr = await request(qrPath, headers);
     assert.equal(qr.status, badgePngs[session] ? 200 : 404);
     assert.match(qr.headers["cache-control"], /private.*no-store/);

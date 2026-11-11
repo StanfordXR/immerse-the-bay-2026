@@ -1,3 +1,5 @@
+import { formatDiscordAnnouncement, formatDiscordEmbeds, type AnnouncementEmbed, type AnnouncementPart } from "@/lib/announcement-format";
+
 /**
  * Live Dashboard announcements, read from the organizers' Discord
  * #announcements channel through a bot token. Discord is the source of truth:
@@ -10,6 +12,8 @@ export interface Announcement {
   time: string;
   message: string;
   pinned: boolean;
+  parts: AnnouncementPart[];
+  embeds: AnnouncementEmbed[];
 }
 
 /** The fields we use from Discord's message object. */
@@ -19,36 +23,13 @@ interface DiscordMessage {
   timestamp: string;
   pinned?: boolean;
   mentions: Array<{ id: string; username: string; global_name: string | null }>;
+  embeds?: unknown;
 }
 
 /** How long Discord responses are cached, so polling clients share one request. */
 const REVALIDATE_SECONDS = 10;
 
 const TIME_ZONE = "America/Los_Angeles";
-
-/**
- * Turns Discord's message syntax into plain text: mentions become names,
- * custom emoji become `:name:`, `<t:…>` timestamps become Pacific time, and
- * bold/italic/strike markers are dropped.
- */
-export function toPlainText(message: Pick<DiscordMessage, "content" | "mentions">): string {
-  const names = new Map(message.mentions.map((u) => [u.id, u.global_name ?? u.username]));
-  return message.content
-    .replace(/<@!?(\d+)>/g, (_, id: string) => `@${names.get(id) ?? "someone"}`)
-    .replace(/<@&\d+>/g, "")
-    .replace(/<#\d+>/g, "#channel")
-    .replace(/<a?(:\w+:)\d+>/g, "$1")
-    .replace(/<t:(\d+)(?::\w)?>/g, (_, unix: string) =>
-      new Date(Number(unix) * 1000).toLocaleString("en-US", {
-        timeZone: TIME_ZONE,
-        dateStyle: "medium",
-        timeStyle: "short",
-      }),
-    )
-    .replace(/@(everyone|here)\s*/g, "")
-    .replace(/(\*\*|__|~~|\|\|)/g, "")
-    .trim();
-}
 
 /** Pinned messages first, with Discord's newest-first order within each group. */
 export async function fetchAnnouncements(): Promise<Announcement[]> {
@@ -69,15 +50,18 @@ export async function fetchAnnouncements(): Promise<Announcement[]> {
   return messages
     .map((m) => {
       const sent = new Date(m.timestamp);
+      const parts = formatDiscordAnnouncement(m.content ?? "", m.mentions);
       return {
         id: m.id,
         date: sent.toLocaleDateString("en-US", { timeZone: TIME_ZONE, month: "short", day: "numeric" }),
         time: sent.toLocaleTimeString("en-US", { timeZone: TIME_ZONE, hour: "numeric", minute: "2-digit" }),
-        message: toPlainText(m),
+        message: parts.map(({ text }) => text).join(""),
         pinned: m.pinned === true,
+        parts,
+        embeds: formatDiscordEmbeds(m.embeds),
       };
     })
-    .filter((a) => a.message.length > 0)
+    .filter((a) => a.message.length > 0 || a.embeds.length > 0)
     .sort((a, b) => Number(b.pinned) - Number(a.pinned));
 }
 
