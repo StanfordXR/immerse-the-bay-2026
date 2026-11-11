@@ -3,7 +3,7 @@ import { OPENING_START } from "./schedule";
 export const DASHBOARD_COUNTDOWN_TARGET = OPENING_START;
 
 /** Eyebrow above every dashboard page title. */
-export const DASHBOARD_EYEBROW = "Stanford Campus, November 13–15";
+export const DASHBOARD_EYEBROW = "Stanford Campus, November 13-15";
 
 /** Public milestones (Pacific), matching PUBLIC_SCHEDULE. The attendee config's
  * submission deadline, when set, replaces HACKING_END on the dashboard. */

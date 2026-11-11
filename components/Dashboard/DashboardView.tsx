@@ -98,7 +98,6 @@ export function DashboardView({ name, audience, staffRole, badgeQr, page, onLive
               />
             </span>
           </a>
-          <a href={SITE.url} className={cn("ml-auto hidden text-sm text-muted hover:text-foreground sm:inline", focus)}>Main site ↗</a>
           <div className="ml-auto flex min-w-0 items-center gap-1 text-sm sm:mt-2 sm:w-full sm:gap-4 sm:text-base lg:text-lg">
             <ul aria-label="Event pages" className="hidden min-w-0 gap-x-1 overflow-x-auto sm:flex [scrollbar-color:rgba(255,255,255,0.28)_transparent] [scrollbar-width:thin] sm:gap-x-2 lg:gap-x-3">
               {DASHBOARD_TABS.map(({ id, label }) => (
@@ -124,7 +123,7 @@ export function DashboardView({ name, audience, staffRole, badgeQr, page, onLive
           />
         ) : (
           <div>
-            <p className="font-mono text-xs uppercase tracking-[0.22em] text-neon-purple-light">{DASHBOARD_EYEBROW}</p>
+            <p className="text-sm text-neon-purple-light sm:text-base">{DASHBOARD_EYEBROW}</p>
             <h1 className="mt-2 font-sans text-3xl font-semibold sm:text-5xl">{copy[page].title}</h1>
             <p className="mt-3 text-muted">{copy[page].description}</p>
           </div>
@@ -182,7 +181,7 @@ export function DashboardView({ name, audience, staffRole, badgeQr, page, onLive
               {EQUIPMENT_STEPS.map(({ title, body }, index) => (
                 <li key={title}>
                   <GlassCard hover={false} className="h-full">
-                    <p className="font-mono text-xs uppercase tracking-[0.22em] text-neon-purple-light">Step {index + 1}</p>
+                    <p className="text-sm text-neon-purple-light">Step {index + 1}</p>
                     <h2 className="mt-2 font-sans text-lg font-semibold">{title}</h2>
                     <p className="mt-2 text-sm leading-relaxed text-muted">{body}</p>
                   </GlassCard>
@@ -260,7 +259,6 @@ export function DashboardView({ name, audience, staffRole, badgeQr, page, onLive
               <h2 id="event-faq" className="mb-4 font-sans text-xl font-semibold">Event FAQ</h2>
               <Accordion items={FAQ_ITEMS} />
             </section>
-            <a href={SITE.url} className={cn("inline-block text-sm text-muted hover:text-foreground sm:hidden", focus)}>Main site ↗</a>
           </>
         )}
         {page === "badge" && (

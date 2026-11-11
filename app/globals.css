@@ -125,35 +125,84 @@ body {
   to { opacity: 1; }
 }
 
-/* Shooting stars: a bright head with a fading tail, travelling down-left.
- * Each streak waits most of its cycle invisible, so they pass one at a time.
- * Position and timing come from inline custom properties. */
+/* Shooting stars: a bright head with a long fading tail, travelling down-left.
+ * Each is visible for the first ~20% of its cycle, then waits invisible, so
+ * they pass one at a time. Position and timing come from inline custom properties. */
 .shooting-star {
   position: absolute;
   top: var(--top);
   left: var(--left);
-  width: 140px;
-  height: 1px;
-  background: linear-gradient(90deg, rgb(255 255 255 / 0.9), rgb(216 180 254 / 0.4) 30%, transparent);
+  width: 220px;
+  height: 1.5px;
+  background: linear-gradient(90deg, rgb(255 255 255 / 0.95), rgb(216 180 254 / 0.5) 25%, transparent);
   border-radius: 9999px;
-  filter: drop-shadow(0 0 4px rgb(216 180 254 / 0.8));
+  filter: drop-shadow(0 0 6px rgb(216 180 254 / 0.9));
   opacity: 0;
-  transform: rotate(-35deg);
-  animation: shooting-star var(--duration, 9s) ease-in var(--delay, 0s) infinite;
+  transform: rotate(-32deg);
+  animation: shooting-star var(--duration, 12s) cubic-bezier(0.3, 0, 0.6, 1) var(--delay, 0s) infinite;
 }
 
 @keyframes shooting-star {
-  0% { opacity: 0; transform: rotate(-35deg) translateX(0); }
-  2% { opacity: 1; }
-  10% { opacity: 0; transform: rotate(-35deg) translateX(-420px); }
-  100% { opacity: 0; transform: rotate(-35deg) translateX(-420px); }
+  0% { opacity: 0; transform: rotate(-32deg) translateX(0); }
+  3% { opacity: 1; }
+  16% { opacity: 0.8; }
+  22% { opacity: 0; transform: rotate(-32deg) translateX(-900px); }
+  100% { opacity: 0; transform: rotate(-32deg) translateX(-900px); }
+}
+
+/* Twinkling sparkles around the crescent: each grows, flares, and fades on its own delay. */
+.moon-sparkle {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: moon-sparkle 3.2s ease-in-out var(--delay, 0s) infinite;
+}
+
+@keyframes moon-sparkle {
+  0%, 100% { opacity: 0; transform: scale(0.3) rotate(0deg); }
+  45% { opacity: 1; transform: scale(1) rotate(45deg); }
+  70% { opacity: 0.2; transform: scale(0.6) rotate(70deg); }
+}
+
+/* Slow bob for the hero's crescent moon. */
+.moon-float {
+  animation: moon-float 14s ease-in-out infinite alternate;
+}
+
+@keyframes moon-float {
+  to { transform: translateY(10px); }
+}
+
+/* The dashboard pages stop the rubber-band bounce at the top and bottom, which
+ * otherwise drags the sticky header off and shows bare black behind it. */
+html:has([data-live-header]) {
+  overscroll-behavior-y: none;
+}
+
+/* Nebula glows drift and breathe on long, offset loops. */
+.nebula-drift {
+  animation: nebula-drift var(--drift, 30s) ease-in-out infinite alternate;
+}
+
+@keyframes nebula-drift {
+  to { transform: translate(var(--dx, 6%), var(--dy, 4%)) scale(1.15); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .dashboard-stars,
   .hero-grid,
-  .shooting-star {
+  .shooting-star,
+  .moon-float,
+  .moon-sparkle,
+  .nebula-drift {
     animation: none;
+  }
+}
+
+/* Without motion, sparkles stay visible as still glints instead of vanishing. */
+@media (prefers-reduced-motion: reduce) {
+  .moon-sparkle {
+    opacity: 0.8;
   }
 }
 
