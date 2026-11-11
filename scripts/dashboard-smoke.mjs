@@ -2,8 +2,11 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { once } from "node:events";
+import { readFile, writeFile } from "node:fs/promises";
 import { createServer, get } from "node:http";
+import { join } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
+import QRCode from "qrcode";
 
 const bind = async (server) => {
   server.listen(0, "127.0.0.1");
@@ -23,19 +26,38 @@ const snapshotGuideUrl = "https://guide.example.test/snapshot-fallback";
 const guideFaq = "Where do I pick up the synthetic check-in badge?";
 const tracksUrl = "https://tracks.example.test/reveal";
 const submissionUrl = "https://submit.example.test/project";
-const badgePng = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jKc8AAAAASUVORK5CYII=";
-const privateMarkers = [privateRoom, privateInvite, guideUrl, snapshotGuideUrl, guideFaq, tracksUrl, submissionUrl, badgePng];
+const badgeCodes = {
+  reviewer: `itb2026.staff.${Buffer.from("fixture-reviewer").toString("base64url")}.${"R".repeat(43)}`,
+  admin: `itb2026.staff.${Buffer.from("fixture-admin").toString("base64url")}.${"A".repeat(43)}`,
+  "accepted-fixture": `itb2026.12345678-1234-1234-1234-1234567890ab.${"H".repeat(43)}`,
+};
+const badgePngs = Object.fromEntries(await Promise.all(Object.entries(badgeCodes).map(async ([key, value]) =>
+  [key, await QRCode.toDataURL(value, { errorCorrectionLevel: "M", margin: 4, scale: 6 })])));
+const privateMarkers = [privateRoom, privateInvite, guideUrl, snapshotGuideUrl, guideFaq, tracksUrl, submissionUrl, ...Object.values(badgePngs)];
+const signingDir = process.env.ITB_WALLET_TEST_SIGNING_DIR;
+const samplePath = process.env.ITB_WALLET_SAMPLE_PATH;
+const walletPath = "/api/wallet/badge";
+const qrPath = `${walletPath}?format=qr`;
+const walletEnv = Object.fromEntries(await Promise.all(Object.entries({
+  ITB_WALLET_SIGNER_CERT_PEM: "signer-cert.pem",
+  ITB_WALLET_SIGNER_KEY_PEM: "signer-key.pem",
+  ITB_WALLET_WWDR_PEM: "wwdr.pem",
+}).map(async ([key, filename]) => [key, signingDir ? await readFile(join(signingDir, filename), "utf8") : ""])));
 const attendeeConfig = JSON.stringify({
+  rows: [["old-slot", "Outdated Event", "2026-11-13T10:00:00-08:00", null, []]],
+  discordUrl: privateInvite,
+  arrivalGuideUrl: snapshotGuideUrl,
+  tracksUrl,
+  submissionUrl,
+  submissionDeadline: "2026-11-15T08:00:00-08:00",
+});
+const runOfShow = JSON.stringify({
   rows: [
     ["sample-workshop", "Example Workshop", "2026-11-13T18:00:00-08:00", "2026-11-13T18:30:00-08:00", [privateRoom]],
     ["sample-opening", "Opening Ceremony", "2026-11-13T19:00:00-08:00", "2026-11-13T20:00:00-08:00", [privateRoom]],
     ["sample-hacking", "Hacking", "2026-11-14", null, [privateRoom]],
     ["sample-closing", "Closing Ceremony", "2026-11-15T13:30:00-08:00", null, [privateRoom]],
   ],
-  discordUrl: privateInvite,
-  arrivalGuideUrl: snapshotGuideUrl,
-  tracksUrl,
-  submissionUrl,
   submissionDeadline: "2026-11-15T09:00:00-08:00",
 });
 const fixtures = {
@@ -51,7 +73,7 @@ const portal = createServer((req, res) => {
   res.setHeader("Content-Type", "application/json");
   const result = fixtures[token] ?? { status: "not-confirmed" };
   res.end(JSON.stringify(req.url.endsWith("?badge=1") && (result.audience === "staff" || (afterLaunch && token === "accepted-fixture"))
-    ? { ...result, badgeQr: badgePng }
+    ? { ...result, badgeQr: badgePngs[token] }
     : result));
 });
 const portalPort = await bind(portal);
@@ -82,8 +104,10 @@ const child = spawn(process.execPath, ["--import", `data:text/javascript,${encod
     DISCORD_BOT_TOKEN: "synthetic-test-token",
     DISCORD_ANNOUNCEMENTS_CHANNEL_ID: announcementChannel,
     ITB_ATTENDEE_CONFIG_JSON: attendeeConfig,
+    ITB_ATTENDEE_RUN_OF_SHOW_JSON: runOfShow,
     ITB_ARRIVAL_GUIDE_URL: guideUrl,
     ITB_HELP_FAQ_JSON: JSON.stringify([{ question: guideFaq, answer: "Use the synthetic check-in desk." }]),
+    ...walletEnv,
   },
   stdio: "inherit",
 });
@@ -94,11 +118,13 @@ const request = (path, headers = {}) => new Promise((resolve, reject) => {
     try {
       const chunks = [];
       for await (const chunk of res) chunks.push(chunk);
+      const body = Buffer.concat(chunks);
       resolve({
         ok: res.statusCode >= 200 && res.statusCode < 300,
         status: res.statusCode,
         headers: res.headers,
-        text: () => Buffer.concat(chunks).toString(),
+        text: () => body.toString(),
+        buffer: () => body,
       });
     } catch (error) {
       reject(error);
@@ -129,6 +155,7 @@ try {
       assert.doesNotMatch(html, /Open now!/);
     }
     if (path === "/schedule") {
+      assert.match(html, /12 PM–6 PM/);
       assert.match(html, /7 PM–8 PM/);
       assert.match(html, /10 AM–12 PM/);
       for (const day of ["Friday", "Saturday", "Sunday"]) assert.match(html, new RegExp(`>${day}</h3>`));
@@ -162,6 +189,13 @@ try {
     const feed = await request("/api/announcements", headers);
     assert.equal(feed.status, !session || session === "expired" ? 401 : 403);
     assert.deepEqual(JSON.parse(await feed.text()), { announcements: [] });
+    const wallet = await request(walletPath, headers);
+    assert.equal(wallet.status, !session || session === "expired" ? 401 : 403);
+    assert.match(wallet.headers["cache-control"], /private.*no-store/);
+    assert.ok(!wallet.text().includes("Test Reviewer"));
+    const qr = await request(qrPath, headers);
+    assert.equal(qr.status, wallet.status);
+    assert.match(qr.headers["cache-control"], /private.*no-store/);
   }
   for (const session of ["reviewer", "admin", ...(afterLaunch ? ["accepted-fixture", "legacy"] : [])]) {
     const headers = { ...live, cookie: `itb_session=${session}` };
@@ -173,7 +207,15 @@ try {
       assert.match(html, /Live dashboard navigation/);
       const staff = session === "reviewer" || session === "admin";
       assert.equal(html.includes("/review/check-in"), staff);
-      assert.equal(html.includes(badgePng), path === "/badge" && (staff || session === "accepted-fixture"));
+      for (const [holder, png] of Object.entries(badgePngs)) {
+        assert.equal(html.includes(png), path === "/badge" && session === holder);
+      }
+      const hasOwnBadge = path === "/badge" && Boolean(badgePngs[session]);
+      assert.equal(html.includes(`href="${qrPath}"`), hasOwnBadge);
+      const hasWalletPass = Boolean(signingDir && hasOwnBadge);
+      assert.equal(html.includes(`href="${walletPath}"`), hasWalletPass);
+      assert.equal(html.includes("Add to Apple Wallet"), hasWalletPass);
+      assert.equal(html.includes("Download for Android"), hasWalletPass);
       const accountNav = html.match(/<ul[^>]*aria-label="Account and staff pages"[^>]*>[\s\S]*?<\/ul>/)?.[0] ?? "";
       assert.match(accountNav, /border-l/);
       assert.match(accountNav, /href="\/badge"/);
@@ -183,7 +225,6 @@ try {
       assert.equal(html.includes("Immerse the Bay Spotify playlist"), path === "/", "Playlist belongs on Home only");
       if (path !== "/help") assert.ok(!html.includes(guideUrl) && !html.includes(snapshotGuideUrl), "Guide belongs on Help only");
       if (path !== "/help") assert.ok(!html.includes(guideFaq), "Guide FAQs belong on Help only");
-      // Home's h1 is the live hero's countdown headline, which changes with the event phase.
       if (path === "/") assert.match(html, /id="live-hero-title"/);
       else assert.match(html, new RegExp(`<h1[^>]*>${heading}</h1>`));
       for (const href of Object.keys(views)) assert.ok(html.includes(`href="${href}"`), `Missing nav link ${href}`);
@@ -194,12 +235,12 @@ try {
       }
       if (path === "/") {
         assert.match(html, /Announcements<\/h2>/);
-        // Before opening nothing is on yet, so the card lists what's next; at opening the ceremony is live.
         assert.match(html, afterOpening ? /Happening now/ : /Up next/);
         assert.ok(html.includes(privateRoom));
         assert.ok(html.indexOf("Event playlist") > html.indexOf("Up next"));
         assert.ok(html.indexOf('id="live-hero-title"') < html.indexOf("Announcements</h2>"));
       } else if (path === "/schedule") {
+        assert.doesNotMatch(html, /Outdated Event/);
         assert.match(html, /role="tablist"/);
         assert.doesNotMatch(html, /Schedule filter|>Workshops<|>All events</);
         assert.ok(html.includes(privateRoom));
@@ -215,7 +256,7 @@ try {
       } else if (path === "/tracks") {
         assert.equal(html.includes(tracksUrl), afterOpening);
         assert.equal(html.includes(submissionUrl), afterOpening);
-        if (afterOpening) assert.match(html, /Deadline/);
+        if (afterOpening) assert.match(html, /dateTime="2026-11-15T09:00:00-08:00"/i);
         else assert.match(html, /revealed at Friday/);
       } else if (path === "/help") {
         assert.ok(html.includes(privateInvite) && html.includes(guideUrl));
@@ -227,7 +268,7 @@ try {
         assert.match(html, /Check-in Badge/);
         assert.match(html, new RegExp(`>${expectedName}</p><p[^>]*>${role}</p>`));
         if (!staff) assert.match(html, /confirmation email/);
-        for (const marker of privateMarkers.filter((value) => value !== badgePng)) {
+        for (const marker of privateMarkers.filter((value) => value !== badgePngs[session])) {
           assert.ok(!html.includes(marker), "Unexpected attendee data in the badge");
         }
       }
@@ -237,6 +278,27 @@ try {
     const { announcements } = JSON.parse(await feed.text());
     assert.equal(announcements[0].pinned, true);
     assert.equal(announcements[1].message, announcement);
+    const qr = await request(qrPath, headers);
+    assert.equal(qr.status, badgePngs[session] ? 200 : 404);
+    assert.match(qr.headers["cache-control"], /private.*no-store/);
+    if (qr.ok) {
+      assert.equal(qr.headers["content-type"], "image/png");
+      assert.match(qr.headers["content-disposition"], /attachment; filename="Immerse-the-Bay-2026-Check-in\.png"/);
+      assert.deepEqual(qr.buffer(), Buffer.from(badgePngs[session].split(",", 2)[1], "base64"));
+    }
+    const wallet = await request(walletPath, headers);
+    assert.equal(wallet.status, !badgePngs[session] ? 404 : signingDir ? 200 : 503);
+    assert.match(wallet.headers["cache-control"], /private.*no-store/);
+    if (wallet.ok) {
+      assert.equal(wallet.headers["content-type"], "application/vnd.apple.pkpass");
+      assert.match(wallet.headers["content-disposition"], /attachment; filename="Immerse-the-Bay-2026-Check-in\.pkpass"/);
+      assert.equal(wallet.buffer().subarray(0, 4).toString("hex"), "504b0304");
+      if (samplePath && session === "reviewer") await writeFile(samplePath, wallet.buffer(), { flag: "wx", mode: 0o600 });
+    }
+  }
+  for (const path of [walletPath, qrPath]) {
+    const blockedCrossSite = await request(path, { ...live, cookie: "itb_session=reviewer", "sec-fetch-site": "cross-site" });
+    assert.equal(blockedCrossSite.status, 403);
   }
   const callback = await request("/dashboard?signed_in=1", { host: "immersethebay.org" });
   assert.equal(callback.status, 307);

@@ -4,6 +4,11 @@ export const DASHBOARD_OPENS_ON = "Wednesday, November 11";
 
 export type StaffRole = "reviewer" | "admin";
 
+export function badgeRoleLabel(audience?: "staff" | "hacker", staffRole?: StaffRole): string {
+  if (audience !== "staff") return "Hacker";
+  return staffRole === "admin" ? "Admin" : staffRole === "reviewer" ? "Reviewer" : "Staff";
+}
+
 export type Attendee =
   | { status: "signed-out" }
   | { status: "not-confirmed" }

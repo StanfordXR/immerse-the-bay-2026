@@ -22,16 +22,46 @@ export function attendeeRows(pages) {
   }).sort((a, b) => a[2].localeCompare(b[2]) || a[1].localeCompare(b[1]));
 }
 
-async function refresh() {
-  const token = process.env.NOTION_SCHEDULE_TOKEN;
-  const sourceId = process.env.NOTION_SCHEDULE_SOURCE_ID;
-  const configPath = process.argv[2];
-  if (!token || !sourceId || !configPath) {
-    throw new Error("Set NOTION_SCHEDULE_TOKEN and NOTION_SCHEDULE_SOURCE_ID and pass the existing private config path.");
-  }
-  const config = JSON.parse(await readFile(configPath, "utf8"));
+const explicitDate = /^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2}))?$/;
+const validDate = (value) => typeof value === "string" && explicitDate.test(value) && Number.isFinite(Date.parse(value));
+
+/** Apply approved schedule rows without replacing unrelated attendee links and notes. */
+export function mergeAttendeeConfig(config, rows) {
   if (!config || typeof config !== "object" || !Array.isArray(config.rows)) {
     throw new Error("Invalid private attendee configuration.");
+  }
+  if (!Array.isArray(rows) || !rows.length || !rows.every((row) => {
+    if (!Array.isArray(row) || row.length !== 5) return false;
+    const [id, title, start, end, rooms] = row;
+    return typeof id === "string" && id.trim() && typeof title === "string" && title.trim()
+      && validDate(start) && start.slice(0, 10) >= firstDay && start.slice(0, 10) <= lastDay
+      && (end === null || (validDate(end) && Date.parse(end) >= Date.parse(start)))
+      && Array.isArray(rooms) && rooms.every((room) => typeof room === "string");
+  })) {
+    throw new Error("The approved schedule rows are missing or invalid; snapshot unchanged.");
+  }
+  const deadlines = rows.filter(([, title, start]) => /^submissions close$/i.test(title.trim()) && start.length > 10);
+  if (deadlines.length > 1) throw new Error("Multiple announced submission deadlines; snapshot unchanged.");
+  // Only the announcement-facing deadline is displayed. Notion includes fractional seconds.
+  const submissionDeadline = deadlines[0]?.[2].replace(/\.\d+(?=(?:Z|[+-]\d{2}:\d{2})$)/, "");
+  return { ...config, rows, ...(submissionDeadline ? { submissionDeadline } : {}) };
+}
+
+async function refresh() {
+  const [configPath, mode, rowsPath, extra] = process.argv.slice(2);
+  if (!configPath || extra || (mode && (mode !== "--rows" || !rowsPath))) {
+    throw new Error("Pass the existing private config path, optionally followed by --rows and an approved rows file.");
+  }
+  const config = JSON.parse(await readFile(configPath, "utf8"));
+  if (mode === "--rows") {
+    const rows = JSON.parse(await readFile(rowsPath, "utf8"));
+    process.stdout.write(JSON.stringify(mergeAttendeeConfig(config, rows)));
+    return;
+  }
+  const token = process.env.NOTION_SCHEDULE_TOKEN;
+  const sourceId = process.env.NOTION_SCHEDULE_SOURCE_ID;
+  if (!token || !sourceId) {
+    throw new Error("Set NOTION_SCHEDULE_TOKEN and NOTION_SCHEDULE_SOURCE_ID for a live refresh.");
   }
   const pages = [];
   let cursor;
@@ -51,9 +81,7 @@ async function refresh() {
     pages.push(...data.results);
     cursor = data.has_more ? data.next_cursor : undefined;
   } while (cursor);
-  const rows = attendeeRows(pages);
-  if (!rows.length) throw new Error("No attendee schedule entries returned; snapshot unchanged.");
-  process.stdout.write(JSON.stringify({ ...config, rows }));
+  process.stdout.write(JSON.stringify(mergeAttendeeConfig(config, attendeeRows(pages))));
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

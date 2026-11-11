@@ -54,23 +54,28 @@ interface AttendeeDashboardConfig {
   submissionDeadline?: string;
 }
 
+function readConfig(raw: string | undefined): Record<string, unknown> {
+  if (!raw) return {};
+  try {
+    const config: unknown = JSON.parse(raw);
+    if (config && typeof config === "object" && !Array.isArray(config)) return config as Record<string, unknown>;
+  } catch {
+    // A bad refresh must not break the dashboard or replace the existing schedule.
+  }
+  return {};
+}
+
 /** Loaded only after the server has authorized access to the live dashboard. */
 export function getAttendeeSchedule(): AttendeeDashboardConfig {
   const configuredGuide = approvedLink(process.env.ITB_ARRIVAL_GUIDE_URL);
-  const empty: AttendeeDashboardConfig = { schedule: [], arrivalGuideUrl: configuredGuide };
-  const raw = process.env.ITB_ATTENDEE_CONFIG_JSON;
-  if (!raw) return empty;
-
-  let config: unknown;
-  try {
-    config = JSON.parse(raw);
-  } catch {
-    return empty;
-  }
-  if (!config || typeof config !== "object") return empty;
+  const config = readConfig(process.env.ITB_ATTENDEE_CONFIG_JSON);
+  const runOfShow = readConfig(process.env.ITB_ATTENDEE_RUN_OF_SHOW_JSON);
   const { rows, titles, notes, roomLabels, discordUrl, arrivalGuideUrl, tracksUrl, submissionUrl, submissionDeadline } =
-    config as Record<string, unknown>;
-  const validRows = Array.isArray(rows) && rows.every(isRow) ? rows : [];
+    config;
+  // A schedule-only refresh must not overwrite the original private links and display metadata.
+  const approvedRows = Array.isArray(runOfShow.rows) && runOfShow.rows.length && runOfShow.rows.every(isRow)
+    ? runOfShow.rows : undefined;
+  const validRows = approvedRows ?? (Array.isArray(rows) && rows.every(isRow) ? rows : []);
   const names = labels(titles);
   const descriptions = labels(notes);
   const locations = labels(roomLabels);
@@ -79,14 +84,15 @@ export function getAttendeeSchedule(): AttendeeDashboardConfig {
     id, label, date,
     events: validRows.flatMap(([id, raw, start, end, rooms]) => {
       if (!start.startsWith(iso)) return [];
+      const title = names.get(raw) ?? raw.replace(/^\[Food\] /, "").replace(/^\[([^\]]+)\]/, "$1").replace(/\bFounder OH\b/i, "Founder Office Hours");
       return [{
         id, start, end,
-        title: names.get(raw) ?? raw.replace(/^\[Food\] /, "").replace(/^\[([^\]]+)\]/, "$1"),
+        title,
         time: start.length === 10 ? "All day" : end
           ? `${display(start)}–${display(end)}` : display(start),
         location: rooms.map((room) => locations.get(room) ?? room).join(" · "),
         description: descriptions.get(raw),
-        workshop: /workshop|founder office hours/i.test(raw),
+        workshop: /workshop|founder office hours/i.test(title),
       }];
     }),
   })) : [];
@@ -97,6 +103,7 @@ export function getAttendeeSchedule(): AttendeeDashboardConfig {
     arrivalGuideUrl: configuredGuide ?? approvedLink(arrivalGuideUrl),
     tracksUrl: approvedLink(tracksUrl),
     submissionUrl: approvedLink(submissionUrl),
-    submissionDeadline: approvedDeadline(submissionDeadline),
+    submissionDeadline: (approvedRows ? approvedDeadline(runOfShow.submissionDeadline) : undefined)
+      ?? approvedDeadline(submissionDeadline),
   };
 }

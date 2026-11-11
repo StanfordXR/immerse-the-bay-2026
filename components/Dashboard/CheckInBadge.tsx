@@ -8,9 +8,13 @@ interface CheckInBadgeProps {
   isStaff: boolean;
   /** Check-in QR provided by the authorized badge issuer when available. */
   qrSrc?: string;
+  walletHref?: string;
+  qrDownloadHref?: string;
 }
 
-export function CheckInBadge({ name, roleLabel, isStaff, qrSrc }: CheckInBadgeProps) {
+const walletAction = "inline-flex min-h-11 items-center justify-center rounded-md border border-white/30 px-3 py-2 text-sm font-semibold text-foreground hover:border-neon-cyan focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-neon-cyan";
+
+export function CheckInBadge({ name, roleLabel, isStaff, qrSrc, walletHref, qrDownloadHref }: CheckInBadgeProps) {
   const fallback = isStaff
     ? "If it won’t scan, ask a check-in volunteer for help."
     : "If it won’t scan, have your confirmation email handy.";
@@ -56,6 +60,24 @@ export function CheckInBadge({ name, roleLabel, isStaff, qrSrc }: CheckInBadgePr
             />
           </div>
         ) : <p className="text-sm text-muted">QR code not available yet.</p>}
+        {qrSrc && qrDownloadHref && (
+          <section aria-labelledby="save-badge-heading" className="w-full max-w-sm space-y-3 border-t border-white/15 pt-4">
+            <h3 id="save-badge-heading" className="font-sans text-sm font-semibold">Save your badge</h3>
+            {walletHref && (
+              <div className="grid gap-2 sm:grid-cols-2">
+                <a href={walletHref} className={walletAction}>Add to Apple Wallet</a>
+                <a href={walletHref} download className={walletAction}>Download for Android</a>
+              </div>
+            )}
+            <p className="text-xs leading-relaxed text-muted">
+              {walletHref ? "On Android, open the downloaded pass with Google Wallet if offered. Otherwise, " : "On Android, "}
+              <a href={qrDownloadHref} className="font-medium text-neon-cyan underline underline-offset-4">
+                save the QR image
+              </a>
+              {" "}and import it from Google Wallet → Add to Wallet → Photo.
+            </p>
+          </section>
+        )}
       </div>
     </GlassCard>
   );

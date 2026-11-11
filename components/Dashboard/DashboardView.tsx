@@ -29,7 +29,7 @@ import { FAQ_ITEMS } from "@/data/faq";
 import { PORTAL_URL, SITE } from "@/data/site";
 import { getArrivalGuideFaq } from "@/lib/attendee-help";
 import { getAttendeeSchedule } from "@/lib/attendee-schedule";
-import type { StaffRole } from "@/lib/dashboard-access";
+import { badgeRoleLabel, type StaffRole } from "@/lib/dashboard-access";
 import { dashboardHighlights } from "@/lib/dashboard-highlights";
 import type { EventTimeline } from "@/lib/dashboard-phase";
 import { cn } from "@/lib/utils";
@@ -45,18 +45,20 @@ const copy: Record<DashboardPageId, { title: string; description: string }> = {
 
 const focus = "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-neon-cyan";
 
-export function DashboardView({ name, audience, staffRole, badgeQr, page, onLiveHost, now }: {
+export function DashboardView({ name, audience, staffRole, badgeQr, walletHref, qrDownloadHref, page, onLiveHost, now }: {
   name: string;
   audience?: "staff" | "hacker";
   staffRole?: StaffRole;
   badgeQr?: string;
+  walletHref?: string;
+  qrDownloadHref?: string;
   page: DashboardPageId;
   onLiveHost: boolean;
   now: number;
 }) {
   const href = (id: DashboardPageId) => dashboardPath(id, onLiveHost);
   const isStaff = audience === "staff";
-  const roleLabel = !isStaff ? "Hacker" : staffRole === "admin" ? "Admin" : staffRole === "reviewer" ? "Reviewer" : "Staff";
+  const roleLabel = badgeRoleLabel(audience, staffRole);
   const config: ReturnType<typeof getAttendeeSchedule> =
     page === "badge" || page === "equipment" ? { schedule: [] } : getAttendeeSchedule();
   const { schedule, discordUrl, arrivalGuideUrl, tracksUrl, submissionUrl, submissionDeadline } = config;
@@ -78,15 +80,14 @@ export function DashboardView({ name, audience, staffRole, badgeQr, page, onLive
         Skip to dashboard content
       </a>
       <header data-live-header className="sticky top-0 z-40 border-b border-white/10 bg-void/95 backdrop-blur">
-        {/* One wrapping row: on phones the account links sit beside the logo (event tabs are in
-            the bottom bar); from sm up they wrap onto a full-width row with the tabs. */}
-        <Container as="nav" aria-label="Live dashboard navigation" className="flex flex-wrap items-center gap-x-3 py-3 sm:pb-0">
+        {/* Keep the logo and account links in one row; phones use the existing bottom event tabs. */}
+        <nav aria-label="Live dashboard navigation" className="flex min-h-14 w-full items-center gap-x-2 px-3 text-sm sm:min-h-16 sm:gap-x-3 sm:px-5 sm:text-base lg:gap-x-5 lg:px-8 lg:text-lg">
           <a
             href={href("home")}
             aria-label="Immerse the Bay Live home"
-            className={cn("inline-flex min-w-0 items-center rounded-sm", focus)}
+            className={cn("inline-flex min-h-11 shrink-0 items-center rounded-sm", focus)}
           >
-            <span className="relative block aspect-[2/1] w-24 shrink-0 overflow-hidden sm:w-28">
+            <span className="relative block aspect-[2/1] w-20 overflow-hidden sm:w-24 lg:w-28">
               <Image
                 src="/images/logo/ITB_Standard.png"
                 alt=""
@@ -98,20 +99,18 @@ export function DashboardView({ name, audience, staffRole, badgeQr, page, onLive
               />
             </span>
           </a>
-          <div className="ml-auto flex min-w-0 items-center gap-1 text-sm sm:mt-2 sm:w-full sm:gap-4 sm:text-base lg:text-lg">
-            <ul aria-label="Event pages" className="hidden min-w-0 gap-x-1 overflow-x-auto sm:flex [scrollbar-color:rgba(255,255,255,0.28)_transparent] [scrollbar-width:thin] sm:gap-x-2 lg:gap-x-3">
-              {DASHBOARD_TABS.map(({ id, label }) => (
-                <DashboardNavItem key={id} url={href(id)} label={label} current={page === id} />
-              ))}
-            </ul>
-            <ul aria-label="Account and staff pages" className="ml-auto flex shrink-0 items-center gap-x-1 sm:gap-x-2 sm:border-l sm:border-white/30 sm:pl-4">
-              <DashboardNavItem url={href(DASHBOARD_BADGE.id)} label={DASHBOARD_BADGE.label} current={page === DASHBOARD_BADGE.id} />
-              {isStaff && <DashboardNavItem url={`${PORTAL_URL}/review/check-in`} label="Check-in" />}
-            </ul>
-          </div>
-        </Container>
+          <ul aria-label="Event pages" className="hidden min-w-0 flex-1 gap-x-1 overflow-x-auto [scrollbar-color:rgba(255,255,255,0.28)_transparent] [scrollbar-width:thin] sm:flex sm:gap-x-2 lg:gap-x-3">
+            {DASHBOARD_TABS.map(({ id, label }) => (
+              <DashboardNavItem key={id} url={href(id)} label={label} current={page === id} />
+            ))}
+          </ul>
+          <ul aria-label="Account and staff pages" className="ml-auto flex shrink-0 items-center gap-x-1 border-l border-white/30 pl-1 text-xs sm:gap-x-2 sm:pl-3 sm:text-inherit">
+            <DashboardNavItem url={href(DASHBOARD_BADGE.id)} label={DASHBOARD_BADGE.label} current={page === DASHBOARD_BADGE.id} />
+            {isStaff && <DashboardNavItem url={`${PORTAL_URL}/review/check-in`} label="Check-in" />}
+          </ul>
+        </nav>
       </header>
-      <Container id="dashboard-content" className="relative scroll-mt-36 space-y-7 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-6 sm:pb-20 sm:pt-11">
+      <Container id="dashboard-content" className="relative scroll-mt-20 space-y-7 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-6 sm:pb-20 sm:pt-11">
         {page === "home" ? (
           <LiveHero
             firstName={firstName}
@@ -263,7 +262,7 @@ export function DashboardView({ name, audience, staffRole, badgeQr, page, onLive
         )}
         {page === "badge" && (
           <div className="ph-no-capture mx-auto w-full max-w-lg">
-            <CheckInBadge name={name} roleLabel={roleLabel} isStaff={isStaff} qrSrc={badgeQr} />
+            <CheckInBadge name={name} roleLabel={roleLabel} isStaff={isStaff} qrSrc={badgeQr} walletHref={walletHref} qrDownloadHref={qrDownloadHref} />
           </div>
         )}
       </Container>

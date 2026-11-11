@@ -9,6 +9,8 @@ import { isDashboardPage } from "@/data/dashboard-nav";
 import { LIVE_DASHBOARD_URL, PORTAL_URL, SITE } from "@/data/site";
 import { getAttendee } from "@/lib/attendee";
 import { dashboardAccess, DASHBOARD_OPENS_ON } from "@/lib/dashboard-access";
+import { WALLET_PASS_PATH, WALLET_QR_PATH } from "@/lib/wallet-pass";
+import { walletSigner } from "@/lib/wallet-signer";
 
 export const metadata: Metadata = {
   title: "Live Dashboard",
@@ -46,6 +48,8 @@ export default async function DashboardPage({
   const now = requestTime(query.now);
   const access = dashboardAccess(attendee, now);
   const { isOpen } = access;
+  const badgeQr = page === "badge" && attendee?.status === "confirmed" ? attendee.badgeQr : undefined;
+  const hasBadge = access.status === "allowed" && Boolean(badgeQr);
   const onLiveHost = LIVE_DASHBOARD_URL.startsWith("https://")
     && requestHeaders.get("host") === new URL(LIVE_DASHBOARD_URL).host;
 
@@ -57,7 +61,9 @@ export default async function DashboardPage({
           name={access.name}
           audience={attendee?.status === "confirmed" ? attendee.audience : undefined}
           staffRole={page === "badge" && attendee?.status === "confirmed" ? attendee.staffRole : undefined}
-          badgeQr={page === "badge" && attendee?.status === "confirmed" ? attendee.badgeQr : undefined}
+          badgeQr={badgeQr}
+          walletHref={hasBadge && walletSigner() ? WALLET_PASS_PATH : undefined}
+          qrDownloadHref={hasBadge ? WALLET_QR_PATH : undefined}
           page={page}
           onLiveHost={onLiveHost}
           now={now}
