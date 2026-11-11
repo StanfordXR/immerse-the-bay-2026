@@ -50,3 +50,9 @@ export function pickScheduleAnchor(days: AttendeeScheduleDay[], now: number): Sc
     ?? slots[slots.length - 1];
   return target ? { dayIndex: target.dayIndex, eventId: target.eventId } : { dayIndex: 0 };
 }
+
+/** True once the first timed session has started; before that the event hasn't begun. */
+export function scheduleStarted(days: AttendeeScheduleDay[], now: number): boolean {
+  return days.some(({ events }) => events.some(({ start }) =>
+    !!start && !dayOnly.test(start) && Date.parse(start) <= now));
+}

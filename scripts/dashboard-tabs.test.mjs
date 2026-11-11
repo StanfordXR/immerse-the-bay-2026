@@ -14,7 +14,7 @@ async function load(relative) {
 const { DASHBOARD_TABS, DASHBOARD_BADGE, dashboardPath, isDashboardPage } =
   await load("../data/dashboard-nav.ts");
 const { dashboardHighlights } = await load("../lib/dashboard-highlights.ts");
-const { pickScheduleAnchor, scheduleClock, scheduleEventState } = await load("../lib/schedule-timing.ts");
+const { pickScheduleAnchor, scheduleClock, scheduleEventState, scheduleStarted } = await load("../lib/schedule-timing.ts");
 
 test("all primary tabs and My Badge have canonical and local paths", () => {
   assert.deepEqual(DASHBOARD_TABS.map(({ id }) => id), ["home", "schedule", "equipment", "tracks", "help"]);
@@ -27,7 +27,7 @@ test("all primary tabs and My Badge have canonical and local paths", () => {
   assert.equal(isDashboardPage("people"), false);
 });
 
-test("Home highlights current and parallel next sessions without treating all-day or expired events as ongoing", () => {
+test("Home highlights current and the next three sessions without treating all-day or expired events as ongoing", () => {
   const now = Date.parse("2026-11-13T15:00:00-08:00");
   const time = (hour) => `2026-11-13T${hour}:00:00-08:00`;
   const days = [{
@@ -44,7 +44,7 @@ test("Home highlights current and parallel next sessions without treating all-da
   }];
   const { current, next } = dashboardHighlights(days, now);
   assert.deepEqual(current.map(({ id }) => id), ["current"]);
-  assert.deepEqual(next.map(({ id }) => id), ["next-a", "next-b"]);
+  assert.deepEqual(next.map(({ id }) => id), ["next-a", "next-b", "later"]);
   assert.equal(next[0].day, "Friday");
 });
 
@@ -78,4 +78,10 @@ test("Schedule states use Pacific date boundaries and known session ends", () =>
   assert.equal(state(timed, "2026-11-13T18:59:59-08:00"), "upcoming");
   assert.equal(state(timed, "2026-11-13T19:00:00-08:00"), "current");
   assert.equal(state(timed, "2026-11-13T20:00:00-08:00"), "past");
+});
+
+test("The schedule counts as started only once a timed session begins", () => {
+  const days = [{ events: [{ id: "all-day", start: "2026-11-13" }, { id: "first", start: "2026-11-13T12:00:00-08:00" }] }];
+  assert.equal(scheduleStarted(days, Date.parse("2026-11-13T11:59:00-08:00")), false);
+  assert.equal(scheduleStarted(days, Date.parse("2026-11-13T12:00:00-08:00")), true);
 });
