@@ -11,7 +11,7 @@ async function load(relative) {
   return import(`data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`);
 }
 
-const { DASHBOARD_TABS, DASHBOARD_BADGE, dashboardPath, isDashboardPage } =
+const { DASHBOARD_TABS, DASHBOARD_BADGE, dashboardPath, isDashboardPage, isSponsorViewPage, sponsorViewPath } =
   await load("../data/dashboard-nav.ts");
 const { dashboardHighlights } = await load("../lib/dashboard-highlights.ts");
 const { pickScheduleAnchor, scheduleClock, scheduleEventState, scheduleStarted, scheduleTimeMarker } = await load("../lib/schedule-timing.ts");
@@ -25,6 +25,14 @@ test("all primary tabs and My Badge have canonical and local paths", () => {
   }
   assert.equal(isDashboardPage("organizer-roster"), false);
   assert.equal(isDashboardPage("people"), false);
+});
+
+test("sponsors use every event tab but cannot navigate to badge or staff pages", () => {
+  for (const { id } of DASHBOARD_TABS) {
+    assert.equal(isSponsorViewPage(id), true);
+    assert.equal(sponsorViewPath(id), id === "home" ? "/sponsor" : `/sponsor/${id}`);
+  }
+  for (const id of ["badge", "check-in", "review", "people"]) assert.equal(isSponsorViewPage(id), false);
 });
 
 test("Home highlights current and the next three sessions without treating all-day or expired events as ongoing", () => {

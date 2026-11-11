@@ -42,10 +42,11 @@ The dashboard works under `/dashboard` without configuration. When `live.immerse
 
 ## Passwordless sponsor view
 
-`/sponsor` on the live host is a separate read-only view with Home, Schedule,
-Tracks & Devpost, and Help. It exposes the announced timetable and the same
-event announcements, but not attendee notes, private guide links, equipment
-requests, badges, or reviewer tools. No sponsor portal account is created.
+`/sponsor` on the live host is a separate read-only view of the same attendee
+pages: Home, Schedule, Equipment, Tracks & Submit, and Help. It includes the
+attendee guide, event Discord link, and the same timed track reveal. It does
+not expose My Badge or staff tools, create a portal account, or authorize
+actions in the equipment or application portals.
 
 Generate a random 32-byte base64url key and set only its SHA-256 hex digest as
 the sensitive production variable `ITB_SPONSOR_ACCESS_KEY_SHA256`. Share

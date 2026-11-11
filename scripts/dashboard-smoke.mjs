@@ -276,7 +276,7 @@ try {
         assert.equal(html.includes(tracksUrl), afterOpening);
         assert.equal(html.includes(submissionUrl), afterOpening);
         assert.ok(html.includes(`href="${afterOpening ? submissionUrl : devpostUrl}"`));
-        assert.match(html, /Open Devpost/);
+        assert.match(html, afterOpening ? /Submit on Devpost/ : /Open Devpost/);
         assert.doesNotMatch(html, /Check event Discord/);
         if (afterOpening) assert.match(html, /dateTime="2026-11-15T09:00:00-08:00"/i);
         else assert.match(html, /revealed at Friday/);
@@ -335,14 +335,14 @@ try {
   for (const removed of ["/people", "/dashboard/people"]) {
     assert.equal((await request(removed, { ...live, cookie: "itb_session=reviewer" })).status, 404);
   }
-  const sponsorPaths = ["/sponsor", "/sponsor/schedule", "/sponsor/tracks", "/sponsor/help"];
+  const sponsorPaths = ["/sponsor", "/sponsor/schedule", "/sponsor/equipment", "/sponsor/tracks", "/sponsor/help"];
   for (const path of sponsorPaths) {
     const guest = await request(path, live);
     assert.equal(guest.status, 200);
     assert.match(guest.headers["cache-control"], /no-store/);
     assert.equal(guest.headers["referrer-policy"], "no-referrer");
     assert.match(guest.text(), /Open the sponsor link from Stanford XR/);
-    assert.doesNotMatch(guest.text(), /Live dashboard navigation|Attendee-only workshop setup note/);
+    assert.doesNotMatch(guest.text(), /Live dashboard navigation|Attendee-only workshop setup note|Open the equipment portal/);
     for (const marker of privateMarkers) assert.ok(!guest.text().includes(marker), "Sponsor gate exposed content");
   }
   assert.equal((await request("/api/sponsor/announcements", live)).status, 401);
@@ -362,17 +362,25 @@ try {
     assert.equal(response.status, 200);
     const html = response.text();
     assert.match(html, /Sponsor view/);
-    assert.doesNotMatch(html, /href="\/(?:sponsor\/)?(?:badge|equipment)"|\/review\/check-in|Check-in QR code/);
+    assert.doesNotMatch(html, /href="\/(?:sponsor\/)?badge"|\/review\/check-in|Check-in QR code|Tracks &amp; Devpost|Event on Devpost/);
     assert.ok(!html.includes(sponsorKey));
-    for (const marker of privateMarkers.filter((value) => value !== privateRoom)) {
-      assert.ok(!html.includes(marker), "Sponsor view exposed a hacker-only resource");
+    for (const navPath of sponsorPaths) assert.ok(html.includes(`href="${navPath}"`), `Missing sponsor tab ${navPath}`);
+    for (const marker of [...Object.values(badgePngs), snapshotGuideUrl, ...Object.values(fixtures).map(({ name }) => name).filter(Boolean)]) {
+      assert.ok(!html.includes(marker), "Sponsor view exposed an account-only resource");
     }
+    assert.equal(html.includes(privateNote), path === "/sponsor/schedule");
+    assert.equal(html.includes(privateInvite), path === "/sponsor" || path === "/sponsor/help");
+    assert.equal(html.includes(guideUrl), path === "/sponsor/help");
+    assert.equal(html.includes(guideFaq), path === "/sponsor/help");
+    assert.equal(html.includes(tracksUrl), afterOpening && path === "/sponsor/tracks");
+    assert.equal(html.includes(submissionUrl), afterOpening && (path === "/sponsor" || path === "/sponsor/tracks"));
     if (path === "/sponsor/schedule") assert.match(html, /Example Workshop/);
     if (path === "/sponsor") assert.match(html, /<section[^>]*aria-label="Schedule highlights and playlist"[^>]*>.*Event playlist.*<\/section>.*id="live-sponsors"/);
-    if (path === "/sponsor/tracks") assert.match(html, /Tracks &amp; Devpost.*Open Devpost/);
-    if (path === "/sponsor/help") assert.match(html, /Sponsor support.*Stanford Visitor.*eduroam/);
+    if (path === "/sponsor/equipment") assert.match(html, /href="https:\/\/equipment\.stanfordxr\.org\/"/);
+    if (path === "/sponsor/tracks") assert.match(html, afterOpening ? /Tracks &amp; Submit.*Submit on Devpost/ : /Tracks &amp; Submit.*Open Devpost/);
+    if (path === "/sponsor/help") assert.match(html, /Hacker Arrival Guide.*Stanford Visitor.*eduroam/);
   }
-  for (const path of ["/sponsor/badge", "/sponsor/equipment"]) {
+  for (const path of ["/sponsor/badge", "/sponsor/check-in"]) {
     assert.equal((await request(path, sponsorHeaders)).status, 404);
   }
   for (const path of [walletPath, qrPath, "/api/announcements"]) {

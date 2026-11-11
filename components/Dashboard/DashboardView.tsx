@@ -26,7 +26,7 @@ import {
   STANFORD_CAMPUS_MAP_URL,
 } from "@/data/dashboard";
 import {
-  DASHBOARD_BADGE, DASHBOARD_TABS, SPONSOR_VIEW_TABS, dashboardPath, isSponsorViewPage, sponsorViewPath,
+  DASHBOARD_BADGE, DASHBOARD_TABS, dashboardPath, isSponsorViewPage, sponsorViewPath,
   type DashboardPageId, type SponsorViewPageId,
 } from "@/data/dashboard-nav";
 import { FAQ_ITEMS } from "@/data/faq";
@@ -73,26 +73,18 @@ export function DashboardView(props: DashboardViewProps) {
     ? sponsorViewPath(isSponsorViewPage(id) ? id : "home")
     : dashboardPath(id, attendee?.onLiveHost ?? false);
   const isStaff = attendee?.audience === "staff";
-  const tabs = sponsorView ? SPONSOR_VIEW_TABS : DASHBOARD_TABS;
   const config: ReturnType<typeof getAttendeeSchedule> =
     page === "badge" || page === "equipment" ? { schedule: [] } : getAttendeeSchedule();
-  // Sponsor visitors get only the published timetable fields. Private attendee
-  // notes, invite links and resource URLs stay in the hacker dashboard.
-  const schedule = sponsorView ? config.schedule.map(({ events, ...day }) => ({
-    ...day,
-    events: events.map(({ id, title, time, start, end, location }) => ({ id, title, time, start, end, location })),
-  })) : config.schedule;
-  const discordUrl = sponsorView ? undefined : config.discordUrl;
-  const arrivalGuideUrl = sponsorView ? undefined : config.arrivalGuideUrl;
-  const tracksUrl = sponsorView ? undefined : config.tracksUrl;
-  const { submissionUrl, submissionDeadline } = config;
+  // Both gates authorize the same attendee-facing content. Account data and
+  // actions, such as My Badge, still require a separate portal session.
+  const { schedule, discordUrl, arrivalGuideUrl, tracksUrl, submissionUrl, submissionDeadline } = config;
   const highlights = page === "home" && schedule.length ? dashboardHighlights(schedule, now) : null;
   const opened = now >= Date.parse(DASHBOARD_COUNTDOWN_TARGET);
-  const projectSubmissionUrl = !sponsorView && opened && submissionUrl?.startsWith(DASHBOARD_DEVPOST_URL)
+  const projectSubmissionUrl = opened && submissionUrl?.startsWith(DASHBOARD_DEVPOST_URL)
     ? submissionUrl
     : DASHBOARD_DEVPOST_URL;
   const publicDeadline = submissionDeadline ?? HACKING_END;
-  const arrivalFaq = !sponsorView && page === "help" ? getArrivalGuideFaq() : [];
+  const arrivalFaq = page === "help" ? getArrivalGuideFaq() : [];
   const timeline: EventTimeline = {
     opening: Date.parse(DASHBOARD_COUNTDOWN_TARGET),
     hackingStart: Date.parse(HACKING_START),
@@ -100,9 +92,7 @@ export function DashboardView(props: DashboardViewProps) {
     closing: Date.parse(CLOSING_START),
   };
   const firstName = attendee ? attendee.name.trim().split(/\s+/)[0] || "hacker" : undefined;
-  const heading = sponsorView && page === "tracks"
-    ? { title: "Tracks & Devpost", description: "See what participants are building this weekend." }
-    : copy[page];
+  const heading = copy[page];
 
   return (
     <>
@@ -131,7 +121,7 @@ export function DashboardView(props: DashboardViewProps) {
             </span>
           </a>
           <ul aria-label="Event pages" className="hidden min-w-0 flex-1 gap-x-1 overflow-x-auto [scrollbar-color:rgba(255,255,255,0.28)_transparent] [scrollbar-width:thin] md:flex lg:gap-x-3">
-            {tabs.map(({ id, label }) => (
+            {DASHBOARD_TABS.map(({ id, label }) => (
               <DashboardNavItem key={id} url={href(id)} label={label} current={page === id} />
             ))}
           </ul>
@@ -151,7 +141,7 @@ export function DashboardView(props: DashboardViewProps) {
             firstName={firstName}
             timeline={timeline}
             initialNow={now}
-            submissionUrl={sponsorView ? undefined : projectSubmissionUrl}
+            submissionUrl={projectSubmissionUrl}
             discordUrl={discordUrl}
             badgeHref={attendee?.audience === "hacker" ? href(DASHBOARD_BADGE.id) : undefined}
           />
@@ -241,30 +231,21 @@ export function DashboardView(props: DashboardViewProps) {
                   : <ActionLink href={`${SITE.url}/tracks`} icon={LuArrowUpRight}>Browse last year’s tracks</ActionLink>}
               </CardActions>
             </DashboardCard>
-            <DashboardCard title={sponsorView ? "Event on Devpost" : "Submit your project"} icon={LuRocket}>
-              {sponsorView ? <p>See the official event page on Devpost.</p> : opened ? (
+            <DashboardCard title="Submit your project" icon={LuRocket}>
+              {opened ? (
                 <p><strong className="text-foreground">Deadline:</strong>{" "}
                   <time dateTime={publicDeadline}>{formatDeadline(publicDeadline)} Pacific</time>
                 </p>
               ) : <p>Find Immerse the Bay on Devpost. Submission instructions and the deadline will be announced at the opening ceremony.</p>}
               <CardActions>
-                <ActionLink href={projectSubmissionUrl} primary icon={LuArrowUpRight}>Open Devpost</ActionLink>
+                <ActionLink href={projectSubmissionUrl} primary icon={LuArrowUpRight}>
+                  {opened && now < timeline.hackingEnd ? "Submit on Devpost" : "Open Devpost"}
+                </ActionLink>
               </CardActions>
             </DashboardCard>
           </div>
         )}
-        {page === "help" && (sponsorView ? (
-          <div className="grid gap-5 md:grid-cols-2">
-            <DashboardCard title="Sponsor support" icon={LuMapPin}>
-              <p>For help with your arrival, workshop, or sponsor table, email Stanford XR or find an organizer at event check-in.</p>
-              <CardActions>
-                <ActionLink href={`mailto:${SITE.email}`} icon={LuMail}>{SITE.email}</ActionLink>
-                <ActionLink href={STANFORD_CAMPUS_MAP_URL} icon={LuMapPin}>Stanford campus map</ActionLink>
-              </CardActions>
-            </DashboardCard>
-            <WifiSupport />
-          </div>
-        ) : (
+        {page === "help" && (
           <>
             <DashboardCard title="Ask on Discord" icon={LuMessageCircle}>
               <p>For general event questions, post in <strong className="text-foreground">#event-questions</strong>. We check Discord more often than email. Follow <strong className="text-foreground">#announcements</strong> for updates.</p>
@@ -280,6 +261,7 @@ export function DashboardView(props: DashboardViewProps) {
             <div className="grid gap-5 md:grid-cols-2">
               <DashboardCard title="Arrival and check-in" icon={LuMapPin}>
                 <p>See the Hacker Arrival Guide for check-in windows, directions, and what to bring. If you expect to arrive after 10 PM Friday, email the organizers as soon as possible.</p>
+                {sponsorView && <p className="mt-3">Sponsor reps can ask an organizer at check-in for help with their badge. This view doesn’t have a My Badge page.</p>}
                 <CardActions>
                   {arrivalGuideUrl
                     ? <ActionLink href={arrivalGuideUrl} icon={LuCalendarClock}>Open the Hacker Arrival Guide</ActionLink>
@@ -300,14 +282,14 @@ export function DashboardView(props: DashboardViewProps) {
               <Accordion items={FAQ_ITEMS} />
             </section>
           </>
-        ))}
+        )}
         {page === "badge" && attendee && (
           <div className="ph-no-capture mx-auto w-full max-w-lg">
             <CheckInBadge name={attendee.name} roleLabel={badgeRoleLabel(attendee.audience, attendee.staffRole)} isStaff={isStaff} qrSrc={attendee.badgeQr} walletHref={attendee.walletHref} qrDownloadHref={attendee.qrDownloadHref} />
           </div>
         )}
       </Container>
-      <MobileTabBar tabs={tabs.map(({ id, label }) => ({ id, label, url: href(id) }))} current={page} />
+      <MobileTabBar tabs={DASHBOARD_TABS.map(({ id, label }) => ({ id, label, url: href(id) }))} current={page} />
     </>
   );
 }
