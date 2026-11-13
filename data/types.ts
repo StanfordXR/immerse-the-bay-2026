@@ -42,6 +42,7 @@ export interface AttendeeScheduleDay {
     start?: string;
     end?: string | null;
     location?: string;
+    presenter?: string;
     description?: string;
     workshop?: boolean;
   }[];

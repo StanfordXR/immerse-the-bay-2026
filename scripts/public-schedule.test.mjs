@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import ts from "typescript";
-import { attendeeRows, mergeAttendeeConfig } from "./refresh-attendee-schedule.mjs";
+import { attendeeRows, attendeeWorkshopSnapshot, mergeAttendeeConfig } from "./refresh-attendee-schedule.mjs";
 
 const page = (icon, overrides = {}) => ({
   id: "row",
@@ -39,6 +39,31 @@ test("an updated run of show preserves attendee metadata and uses only the annou
   assert.throws(() => mergeAttendeeConfig(base, []));
   assert.throws(() => mergeAttendeeConfig(base, [rows[0], rows[0]]));
   assert.throws(() => mergeAttendeeConfig(base, [["unsafe", "Workshop", "2026-11-13T12:15:00", null, []]]));
+});
+
+test("workshop copy includes only the explicit attendee listing and preserves the internal buffer", () => {
+  const workshop = page("📣", { properties: {
+    Name: { title: [{ plain_text: "Introduction to Unity" }] },
+    "Date & Time": { date: { start: "2026-11-13T12:00:00.000-08:00", end: "2026-11-13T12:45:00.000-08:00" } },
+    Location: { multi_select: [{ name: "Example Private Hall 111" }] },
+  } });
+  const staff = page("🔒", { id: "staff", properties: page("🔒").properties });
+  const markdown = "## Operations\nStaff-only setup and https://notion.so/example\n\n## Attendee listing\nPresenter: James\n\nDescription: Get started with Unity.\n\nAttendee ends: 12:30 PM Pacific\n\n## Staff wrap\nPrivate handoff notes.";
+  const overlay = attendeeWorkshopSnapshot([staff, workshop], { row: markdown });
+  assert.deepEqual(overlay.rows, [["2026-11-13T12:00-introduction-to-unity", "Introduction to Unity", "2026-11-13T12:00:00.000-08:00", "2026-11-13T12:30:00-08:00", ["Example Private Hall 111"]]]);
+  assert.deepEqual(overlay.workshops, {
+    "2026-11-13T12:00-introduction-to-unity": { presenter: "James", description: "Get started with Unity." },
+  });
+  assert.equal(workshop.properties["Date & Time"].date.end, "2026-11-13T12:45:00.000-08:00");
+  assert.throws(() => attendeeWorkshopSnapshot([staff, workshop], { staff: markdown }), /not on the announced schedule/);
+  assert.throws(() => attendeeWorkshopSnapshot([workshop], { row: markdown.replace("12:30", "12:50") }), /internal room reservation/);
+  assert.throws(() => attendeeWorkshopSnapshot([workshop], { row: markdown.replace("Get started with Unity.", "https://notion.so/example") }), /Unapproved content/);
+});
+
+test("a workshop can list a confirmed presenter without inventing a description", () => {
+  const workshop = page("📣");
+  const result = attendeeWorkshopSnapshot([workshop], { row: "## Attendee listing\nPresenter: Michael" });
+  assert.deepEqual(result.workshops["2026-11-13T19:00-opening-ceremony"], { presenter: "Michael" });
 });
 
 test("the public overview contains only public milestone fields", async () => {

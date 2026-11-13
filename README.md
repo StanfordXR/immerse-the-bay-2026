@@ -25,9 +25,14 @@ The public site reads only the approved three-day overview in `data/schedule.ts`
 The full schedule and event Discord invite live in the production Vercel project's sensitive, server-only `ITB_ATTENDEE_CONFIG_JSON` variable. Keep local copies out of Git. The JSON contains `rows` of `[id, title, start, end, rooms]` plus optional `titles`, `notes`, `roomLabels`, and `discordUrl`. Only authorized dashboard users receive this data.
 
 A schedule-only release can set the private `ITB_ATTENDEE_RUN_OF_SHOW_JSON` to
-`{ "rows": [...], "submissionDeadline": "..." }`. Valid rows override the
-base timetable and its announced deadline, while the original guide, Discord,
-track/submission links, and display metadata stay in place.
+`{ "rows": [...], "submissionDeadline": "...", "workshops": {...} }`. Valid
+rows override the base timetable and its announced deadline; optional workshop
+copy is keyed by schedule row ID and only supplements those rows. The original
+guide, Discord, track/submission links, and other display metadata stay in place.
+`attendeeWorkshopSnapshot` builds this overlay from announcement-marked Notion
+rows and the explicit `Attendee listing` sections of selected workshop cards.
+An `Attendee ends` field may shorten the displayed slot without changing the
+internal room reservation. Do not publish the full Notion card bodies.
 
 Optional `arrivalGuideUrl`, `tracksUrl`, `submissionUrl`, and `submissionDeadline` can be set once those details are approved. Links must be HTTPS, and deadlines use ISO 8601 with an explicit offset. Tracks & Submit links to the public 2026 Devpost listing before opening; track details, an optional direct link on the same Devpost event host, and the submission deadline are shown at or after opening.
 

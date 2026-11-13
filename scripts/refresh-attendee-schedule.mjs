@@ -3,12 +3,16 @@ import { pathToFileURL } from "node:url";
 
 const firstDay = "2026-11-13";
 const lastDay = "2026-11-15";
+const isAnnounced = (page) => !page.archived && !page.in_trash && !page.is_archived
+  && page.icon?.type === "emoji" && page.icon.emoji === "📣";
+const titleOf = (page) => page.properties.Name.title.map(({ plain_text }) => plain_text).join("").trim();
+const rowId = (title, start) => `${start.slice(0, 16)}-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`;
 
 export function attendeeRows(pages) {
   return pages.flatMap((page) => {
-    if (page.archived || page.in_trash || page.is_archived || page.icon?.type !== "emoji" || page.icon.emoji !== "📣") return [];
-    const { Name: name, "Date & Time": when, Location: location } = page.properties;
-    const title = name.title.map(({ plain_text }) => plain_text).join("").trim();
+    if (!isAnnounced(page)) return [];
+    const { "Date & Time": when, Location: location } = page.properties;
+    const title = titleOf(page);
     const { start, end } = when.date ?? {};
     if (!title || !start) throw new Error("An attendee schedule entry is missing its title or date.");
     const day = start.slice(0, 10);
@@ -17,8 +21,7 @@ export function attendeeRows(pages) {
       throw new Error("An attendee schedule entry has invalid dates.");
     }
     // Do not copy page bodies, internal URLs, people, volunteer notes or formulas.
-    const id = `${start.slice(0, 16)}-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`;
-    return [[id, title, start, end ?? null, location.multi_select.map(({ name }) => name)]];
+    return [[rowId(title, start), title, start, end ?? null, location.multi_select.map(({ name }) => name)]];
   }).sort((a, b) => a[2].localeCompare(b[2]) || a[1].localeCompare(b[1]));
 }
 
@@ -40,11 +43,63 @@ export function mergeAttendeeConfig(config, rows) {
   })) {
     throw new Error("The approved schedule rows are missing or invalid; snapshot unchanged.");
   }
+  if (new Set(rows.map(([id]) => id)).size !== rows.length) {
+    throw new Error("Duplicate schedule row identifiers; snapshot unchanged.");
+  }
   const deadlines = rows.filter(([, title, start]) => /^submissions close$/i.test(title.trim()) && start.length > 10);
   if (deadlines.length > 1) throw new Error("Multiple announced submission deadlines; snapshot unchanged.");
   // Only the announcement-facing deadline is displayed. Notion includes fractional seconds.
   const submissionDeadline = deadlines[0]?.[2].replace(/\.\d+(?=(?:Z|[+-]\d{2}:\d{2})$)/, "");
   return { ...config, rows, ...(submissionDeadline ? { submissionDeadline } : {}) };
+}
+
+/** Read only the explicitly approved attendee section, never surrounding Notion notes. */
+function attendeeListing(markdown) {
+  const sections = markdown.split(/^## Attendee listing[ \t]*\r?$/m);
+  if (sections.length !== 2) throw new Error("Expected exactly one Attendee listing section.");
+  const fields = {};
+  const section = sections[1].split(/^#{1,2}[ \t]+/m)[0].trim();
+  for (const line of section.split(/\r?\n/).map((part) => part.trim()).filter(Boolean)) {
+    const match = /^(Presenter|Description|Attendee ends): (.+)$/.exec(line);
+    if (!match || /https?:\/\/|mailto:|\[[^\]]*\]|[<>]/i.test(match[2]) || match[2].length > 500) {
+      throw new Error("Unapproved content in an Attendee listing field.");
+    }
+    const key = { Presenter: "presenter", Description: "description", "Attendee ends": "end" }[match[1]];
+    if (fields[key]) throw new Error("Duplicate Attendee listing field.");
+    fields[key] = match[2];
+  }
+  if (!fields.presenter && !fields.description) throw new Error("Missing attendee workshop copy.");
+  return fields;
+}
+
+function publicEnd(label, start, internalEnd) {
+  const match = /^(1[0-2]|[1-9]):([0-5]\d) (AM|PM) Pacific$/.exec(label);
+  const offset = start.match(/[+-]\d{2}:\d{2}$/)?.[0];
+  if (!match || !offset || !internalEnd) throw new Error("Invalid attendee end time.");
+  const hours = String(Number(match[1]) % 12 + (match[3] === "PM" ? 12 : 0)).padStart(2, "0");
+  const end = `${start.slice(0, 10)}T${hours}:${match[2]}:00${offset}`;
+  if (Date.parse(end) <= Date.parse(start) || Date.parse(end) > Date.parse(internalEnd)) {
+    throw new Error("Attendee end must fit inside the internal room reservation.");
+  }
+  return end;
+}
+
+/** Build the private schedule overlay using an explicit set of workshop cards. */
+export function attendeeWorkshopSnapshot(pages, markdownByPageId) {
+  const rows = attendeeRows(pages);
+  const byRowId = new Map(rows.map((row) => [row[0], row]));
+  const byPageId = new Map(pages.map((page) => [page.id, page]));
+  const workshops = {};
+  for (const [id, markdown] of Object.entries(markdownByPageId)) {
+    const page = byPageId.get(id);
+    const start = page?.properties["Date & Time"].date?.start;
+    const row = page && start && isAnnounced(page) ? byRowId.get(rowId(titleOf(page), start)) : undefined;
+    if (!row || typeof markdown !== "string") throw new Error("Workshop card is not on the announced schedule.");
+    const { end, ...copy } = attendeeListing(markdown);
+    if (end) row[3] = publicEnd(end, row[2], row[3]);
+    workshops[row[0]] = copy;
+  }
+  return { ...mergeAttendeeConfig({ rows: [] }, rows), workshops };
 }
 
 async function refresh() {

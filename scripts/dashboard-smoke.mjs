@@ -23,6 +23,8 @@ const announcementContent = announcement + " [Arrival guide](" + announcementGui
 const announcementChannel = `itb-smoke-${randomUUID()}`;
 const privateRoom = "Example Private Hall 111";
 const privateNote = "Attendee-only workshop setup note";
+const workshopPresenter = "Example Workshop Presenter";
+const workshopDescription = "A confirmed description from the workshop listing.";
 const privateInvite = "https://discord.gg/itb-smoke-fixture";
 const guideUrl = "https://guide.example.test/attendees";
 const snapshotGuideUrl = "https://guide.example.test/snapshot-fallback";
@@ -39,7 +41,17 @@ const badgeCodes = {
 };
 const badgePngs = Object.fromEntries(await Promise.all(Object.entries(badgeCodes).map(async ([key, value]) =>
   [key, await QRCode.toDataURL(value, { errorCorrectionLevel: "M", margin: 4, scale: 6 })])));
-const privateMarkers = [privateRoom, privateNote, privateInvite, guideUrl, snapshotGuideUrl, guideFaq, tracksUrl, submissionUrl, ...Object.values(badgePngs)];
+const privateMarkers = [privateRoom, privateNote, workshopPresenter, workshopDescription, privateInvite, guideUrl, snapshotGuideUrl, guideFaq, tracksUrl, submissionUrl, ...Object.values(badgePngs)];
+function assertWorkshopLayout(html) {
+  const row = html.match(/<li[^>]*>(?:(?!<\/li>).)*?<h3[^>]*>Example Workshop<\/h3>.*?<\/li>/s)?.[0];
+  assert.ok(row, "Missing workshop card");
+  const markup = row.replaceAll("<!-- -->", "");
+  assert.match(markup, /<time[^>]*>12:00 PM–12:30 PM<\/time>/);
+  assert.ok(markup.includes(`>${privateRoom} | ${workshopPresenter}</p><p`), "Presenter should follow the room, with the description in a separate paragraph");
+  assert.ok(markup.includes(`>${workshopDescription}</p>`));
+  const labels = [...html.matchAll(/<time[^>]*>(\d[^<]*)<\/time>/g)].map(([, label]) => label);
+  assert.ok(labels.length && labels.every((label) => /^(?:\d{1,2}:\d{2} [AP]M)(?:–\d{1,2}:\d{2} [AP]M)?$/.test(label)));
+}
 const signingDir = process.env.ITB_WALLET_TEST_SIGNING_DIR;
 const samplePath = process.env.ITB_WALLET_SAMPLE_PATH;
 const walletPath = "/api/wallet/badge";
@@ -65,6 +77,7 @@ const runOfShow = JSON.stringify({
     ["sample-hacking", "Hacking", "2026-11-14", null, [privateRoom]],
     ["sample-closing", "Closing Ceremony", "2026-11-15T13:30:00-08:00", null, [privateRoom]],
   ],
+  workshops: { "sample-workshop": { presenter: workshopPresenter, description: workshopDescription } },
   submissionDeadline: "2026-11-15T09:00:00-08:00",
 });
 const fixtures = {
@@ -264,6 +277,9 @@ try {
         assert.match(html, /role="tablist"/);
         assert.doesNotMatch(html, /Schedule filter|>Workshops<|>All events</);
         assert.ok(html.includes(privateRoom));
+        assert.ok(html.includes(workshopPresenter) && html.includes(workshopDescription));
+        assert.ok(!html.includes(privateNote));
+        assertWorkshopLayout(html);
         const focus = html.match(/<li[^>]*data-schedule-anchor="true"[^>]*>.*?<h3[^>]*>([^<]+)/);
         assert.equal(focus?.[1], afterOpening ? "Opening Ceremony" : "Example Workshop");
         const marker = html.match(/data-friday-time-marker[^>]*>.*?<time[^>]*>([^<]+)/);
@@ -375,13 +391,14 @@ try {
     for (const marker of [...Object.values(badgePngs), snapshotGuideUrl, ...Object.values(fixtures).map(({ name }) => name).filter(Boolean)]) {
       assert.ok(!html.includes(marker), "Sponsor view exposed an account-only resource");
     }
-    assert.equal(html.includes(privateNote), path === "/sponsor/schedule");
+    assert.ok(!html.includes(privateNote));
+    assert.equal(html.includes(workshopPresenter) && html.includes(workshopDescription), path === "/sponsor/schedule");
     assert.equal(html.includes(privateInvite), path === "/sponsor" || path === "/sponsor/help");
     assert.equal(html.includes(guideUrl), path === "/sponsor/help");
     assert.equal(html.includes(guideFaq), path === "/sponsor/help");
     assert.equal(html.includes(tracksUrl), afterOpening && path === "/sponsor/tracks");
     assert.equal(html.includes(submissionUrl), afterOpening && (path === "/sponsor" || path === "/sponsor/tracks"));
-    if (path === "/sponsor/schedule") assert.match(html, /Example Workshop/);
+    if (path === "/sponsor/schedule") assertWorkshopLayout(html);
     if (path === "/sponsor") assert.match(html, /<section[^>]*aria-label="Schedule highlights and playlist"[^>]*>.*Event playlist.*<\/section>.*id="live-sponsors"/);
     if (path === "/sponsor/equipment") assert.match(html, /href="https:\/\/equipment\.stanfordxr\.org\/"/);
     if (path === "/sponsor/tracks") assert.match(html, afterOpening ? /Tracks &amp; Submit.*Submit on Devpost/ : /Tracks &amp; Submit.*Open Devpost/);

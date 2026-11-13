@@ -144,7 +144,7 @@ export function ScheduleTabs({ days, initialNow }: {
                 {day.events.map((event) => {
                   const state = scheduleEventState(event, clock);
                   const key = eventKey(index, event.id);
-                  const timeClass = cn("text-sm font-semibold", state === "past" ? "text-muted" : "text-neon-cyan");
+                  const timeClass = cn("text-sm font-semibold tabular-nums", state === "past" ? "text-muted" : "text-neon-cyan");
                   return (
                     <li
                       key={event.id}
@@ -152,7 +152,7 @@ export function ScheduleTabs({ days, initialNow }: {
                       data-event-state={state}
                       data-schedule-anchor={selection.dayIndex === index && selection.eventId === event.id ? "true" : undefined}
                       className={cn(
-                        "grid scroll-mt-[var(--schedule-margin)] gap-x-5 gap-y-1 border-l-2 py-4 pl-4 sm:grid-cols-[10rem_1fr] sm:pl-6",
+                        "grid scroll-mt-[var(--schedule-margin)] gap-x-5 gap-y-1 border-l-2 py-4 pl-4 sm:grid-cols-[10rem_minmax(0,1fr)] sm:pl-6",
                         day.id === "friday" ? "pr-20 sm:pr-28" : "pr-4 sm:pr-6",
                         state === "current" ? "border-l-neon-cyan/80 bg-neon-cyan/8"
                           : state === "past" ? "border-l-transparent bg-void/60" : "border-l-transparent",
@@ -166,8 +166,12 @@ export function ScheduleTabs({ days, initialNow }: {
                           {state === "current" && <span className="rounded border border-neon-cyan/40 px-2 py-0.5 text-xs font-medium text-neon-cyan">Now</span>}
                           {state === "past" && <span className="sr-only">Past event</span>}
                         </div>
-                        {event.location && <p className="mt-1 text-sm text-muted">{event.location}</p>}
-                        {event.description && <p className="mt-1 text-sm leading-relaxed text-muted">{event.description}</p>}
+                        {(event.location || event.presenter) && (
+                          <p className="mt-1 text-sm text-muted">
+                            {event.location}{event.location && event.presenter && " | "}{event.presenter}
+                          </p>
+                        )}
+                        {event.description && <p className={cn("text-sm leading-relaxed text-muted", event.workshop ? "mt-2" : "mt-1")}>{event.description}</p>}
                       </div>
                     </li>
                   );

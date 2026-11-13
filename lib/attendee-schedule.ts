@@ -4,7 +4,7 @@ import type { AttendeeScheduleDay } from "@/data/types";
 const time = new Intl.DateTimeFormat("en-US", {
   timeZone: "America/Los_Angeles", hour: "numeric", minute: "2-digit",
 });
-const display = (iso: string) => time.format(new Date(iso)).replace(":00 ", " ");
+const display = (iso: string) => time.format(new Date(iso));
 
 const days = [
   ["friday", "Friday", "November 13", "2026-11-13"],
@@ -28,6 +28,21 @@ const labels = (value: unknown) => new Map(
     ? Object.entries(value).filter((entry): entry is [string, string] => typeof entry[1] === "string")
     : [],
 );
+
+type WorkshopCopy = { presenter?: string; description?: string };
+
+function workshopCopy(value: unknown): Map<string, WorkshopCopy> {
+  const result = new Map<string, WorkshopCopy>();
+  if (!value || typeof value !== "object" || Array.isArray(value)) return result;
+  for (const [id, listing] of Object.entries(value)) {
+    if (!listing || typeof listing !== "object" || Array.isArray(listing)) continue;
+    const fields = listing as Record<string, unknown>;
+    const presenter = typeof fields.presenter === "string" ? fields.presenter.trim() : "";
+    const description = typeof fields.description === "string" ? fields.description.trim() : "";
+    if (presenter || description) result.set(id, { presenter: presenter || undefined, description: description || undefined });
+  }
+  return result;
+}
 
 function approvedLink(value: unknown): string | undefined {
   if (typeof value !== "string") return;
@@ -79,20 +94,23 @@ export function getAttendeeSchedule(): AttendeeDashboardConfig {
   const names = labels(titles);
   const descriptions = labels(notes);
   const locations = labels(roomLabels);
+  const workshops = workshopCopy(approvedRows ? runOfShow.workshops : undefined);
 
   const schedule = validRows.length ? days.map(([id, label, date, iso]) => ({
     id, label, date,
     events: validRows.flatMap(([id, raw, start, end, rooms]) => {
       if (!start.startsWith(iso)) return [];
       const title = names.get(raw) ?? raw.replace(/^\[Food\] /, "").replace(/^\[([^\]]+)\]/, "$1").replace(/\bFounder OH\b/i, "Founder Office Hours");
+      const workshop = workshops.get(id);
       return [{
         id, start, end,
         title,
         time: start.length === 10 ? "All day" : end
           ? `${display(start)}–${display(end)}` : display(start),
         location: rooms.map((room) => locations.get(room) ?? room).join(" · "),
-        description: descriptions.get(raw),
-        workshop: /workshop|founder office hours/i.test(title),
+        presenter: workshop?.presenter,
+        description: workshop ? workshop.description : descriptions.get(raw),
+        workshop: Boolean(workshop) || /workshop|founder office hours/i.test(title),
       }];
     }),
   })) : [];
